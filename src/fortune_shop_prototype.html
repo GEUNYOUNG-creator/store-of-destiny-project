@@ -1,0 +1,2378 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>운명상점 — Full 3D 리깅 캐릭터 &amp; 맞춤 UI 프로토타입</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&family=Noto+Serif+KR:wght@500;600;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #e6c67c;
+      --jade-frame: #8eb7a3;
+      --jade-dark: #154d48;
+      --wood: #3d2c22;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    input, select, textarea { user-select: text; }
+
+    body {
+      margin: 0;
+      font-family: 'Noto Sans KR', 'Inter', sans-serif;
+      background: radial-gradient(circle at 50% 15%, #1f1833 0%, #090c15 65%, #04050a 100%);
+      color: #f4efe6;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .font-serif-kr { font-family: 'Noto Serif KR', serif; }
+
+    #app-shell {
+      position: relative;
+      width: 100%;
+      max-width: 430px;
+      height: 100dvh;
+      max-height: 920px;
+      background: #0c101a;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.82), 0 0 0 1px rgba(230, 198, 124, 0.3);
+    }
+
+    @media (min-width: 500px) and (min-height: 760px) {
+      #app-shell {
+        height: 93dvh;
+        border-radius: 38px;
+        border: 3px solid rgba(230, 198, 124, 0.35);
+      }
+    }
+
+    #theme-backdrop {
+      position: absolute;
+      inset: 0;
+      transition: background 0.7s ease;
+      z-index: 0;
+    }
+
+    /* ==================== OPENING SEQUENCE ==================== */
+    #opening-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 60;
+      background: #06070d;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: opacity 0.9s ease, visibility 0.9s ease;
+    }
+    #opening-overlay.hidden-seq { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    #opening-video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 15;
+      display: none;
+      background: #000;
+    }
+    #opening-video.playing { display: block; }
+
+    .opening-scene {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transform: scale(1.06);
+      transition: opacity 1.1s ease, transform 3.2s ease-out;
+      background-size: cover;
+      background-position: center;
+    }
+    .opening-scene.active { opacity: 1; transform: scale(1); }
+    .opening-scene.zoom-in { transform: scale(1.16); }
+
+    .door-leaf {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 50%;
+      background-size: 200% 100%;
+      transition: transform 1.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.2s ease;
+      backface-visibility: hidden;
+    }
+    .door-leaf.left { left: 0; background-position: left center; transform-origin: left center; }
+    .door-leaf.right { right: 0; background-position: right center; transform-origin: right center; }
+    .doors-open .door-leaf.left { transform: perspective(900px) rotateY(-84deg); opacity: 0.1; }
+    .doors-open .door-leaf.right { transform: perspective(900px) rotateY(84deg); opacity: 0.1; }
+
+    #door-light-beam {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(255, 232, 168, 0.72) 0%, rgba(230, 198, 124, 0.15) 45%, transparent 72%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 6;
+      transition: opacity 1.2s ease;
+    }
+    #door-light-beam.flash { opacity: 1; }
+
+    @keyframes pulseRing {
+      0% { transform: scale(0.86); opacity: 0.92; }
+      75% { transform: scale(1.52); opacity: 0; }
+      100% { transform: scale(1.52); opacity: 0; }
+    }
+
+    .knock-ring {
+      position: relative;
+      width: 112px;
+      height: 112px;
+      border-radius: 9999px;
+      background: radial-gradient(circle, rgba(246, 211, 128, 0.42) 0%, rgba(230, 198, 124, 0.08) 72%);
+      border: 2px solid rgba(246, 211, 128, 0.9);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 0 32px rgba(246, 211, 128, 0.5);
+      transition: transform 0.18s ease;
+    }
+    .knock-ring:active { transform: scale(0.92); }
+    .knock-ring::before, .knock-ring::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border-radius: 9999px;
+      border: 2px solid rgba(246, 211, 128, 0.65);
+      animation: pulseRing 2.1s infinite ease-out;
+    }
+    .knock-ring::after { animation-delay: 0.95s; }
+
+    /* ==================== FULL 3D CHARACTER STAGE ==================== */
+    #stage-wrapper {
+      position: relative;
+      height: 44%;
+      min-height: 290px;
+      max-height: 385px;
+      width: 100%;
+      overflow: hidden;
+      z-index: 10;
+      flex-shrink: 0;
+      touch-action: none;
+    }
+
+    #stage-bg-aura {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center 20%;
+      filter: blur(18px) brightness(0.42) saturate(1.25);
+      transform: scale(1.15);
+      transition: background-image 0.5s ease;
+      z-index: 1;
+    }
+
+    #three-container {
+      position: relative;
+      z-index: 5;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease;
+      will-change: transform;
+    }
+    #three-container.dragging { transition: none; }
+    #three-container canvas { width: 100% !important; height: 100% !important; display: block; }
+
+    #speech-bubble {
+      position: absolute;
+      right: 12px;
+      bottom: 22px;
+      max-width: 186px;
+      background: rgba(250, 242, 225, 0.95);
+      color: #261d14;
+      border: 1.5px solid #d4af64;
+      border-radius: 18px 18px 4px 18px;
+      padding: 8px 11px;
+      font-size: 11.5px;
+      line-height: 1.42;
+      font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+      z-index: 20;
+      cursor: pointer;
+    }
+
+    #char-badge {
+      position: absolute;
+      left: 12px;
+      bottom: 22px;
+      z-index: 20;
+      background: rgba(12, 16, 26, 0.8);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(230, 198, 124, 0.55);
+      border-radius: 14px;
+      padding: 5px 10px;
+    }
+
+    #stage-tools-bar {
+      position: absolute;
+      right: 12px;
+      top: 52px;
+      z-index: 22;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+
+    .stage-pill-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 9px;
+      border-radius: 9999px;
+      background: rgba(12, 16, 28, 0.74);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(230, 198, 124, 0.5);
+      font-size: 10px;
+      font-weight: 600;
+      color: #f9e8be;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    .stage-pill-btn:active { transform: scale(0.94); }
+
+    /* ==================== CONTENT SHEET ==================== */
+    #content-sheet {
+      position: relative;
+      z-index: 25;
+      flex: 1;
+      margin-top: -16px;
+      border-radius: 24px 24px 0 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 12px 14px 14px;
+      scrollbar-width: none;
+      transition: background 0.5s ease;
+    }
+    #content-sheet::-webkit-scrollbar { display: none; }
+
+    /* 1. SAJU: JADE TAIGUK TABLET & GLOWING ORB */
+    .jade-tablet-frame {
+      position: relative;
+      background: linear-gradient(155deg, #d7e8dc 0%, #bdd8c8 45%, #a8c9b8 100%);
+      border: 5px solid #4a3529;
+      border-radius: 16px;
+      box-shadow: inset 0 0 0 2px #8eb7a3, inset 0 0 28px rgba(255, 255, 255, 0.45), 0 12px 28px rgba(0, 0, 0, 0.55);
+      color: #1f241f;
+    }
+    .jade-corner {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: linear-gradient(135deg, #c6e6d5, #6c9d87);
+      border: 1.5px solid #3d2c22;
+      z-index: 3;
+    }
+    .jade-corner.tl { top: -5px; left: -5px; border-radius: 8px 0 8px 0; }
+    .jade-corner.tr { top: -5px; right: -5px; border-radius: 0 8px 0 8px; }
+    .jade-corner.bl { bottom: -5px; left: -5px; border-radius: 0 8px 0 8px; }
+    .jade-corner.br { bottom: -5px; right: -5px; border-radius: 8px 0 8px 0; }
+
+    .taeguk-crest {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2f221b;
+      border: 2px solid #8eb7a3;
+      border-radius: 9999px;
+      padding: 2px 12px;
+      font-size: 13px;
+      color: #f4e6c4;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.45);
+      z-index: 4;
+    }
+
+    .saju-underline-input {
+      background: transparent;
+      border: none;
+      border-bottom: 1.5px solid #3b4b42;
+      color: #1b221e;
+      font-family: 'Noto Serif KR', serif;
+      font-weight: 700;
+      text-align: center;
+      padding: 2px 1px;
+    }
+    .saju-underline-input:focus { outline: none; border-bottom-color: #0e5a4d; background: rgba(255, 255, 255, 0.35); border-radius: 4px 4px 0 0; }
+
+    .fortune-mini-flag {
+      position: absolute;
+      right: -6px;
+      bottom: -14px;
+      width: 52px;
+      background: linear-gradient(180deg, #f3dec0 0%, #dfc093 100%);
+      border: 1.5px solid #7c5132;
+      border-radius: 4px;
+      padding: 4px 3px 6px;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.45);
+      z-index: 6;
+      text-align: center;
+    }
+    .fortune-mini-flag::before {
+      content: '';
+      position: absolute;
+      top: -5px;
+      left: -4px;
+      right: -4px;
+      height: 4px;
+      background: #6b4226;
+      border-radius: 2px;
+    }
+
+    @keyframes orbPulse {
+      0%, 100% { box-shadow: 0 0 22px rgba(206, 240, 210, 0.55), inset -8px -10px 22px rgba(96, 138, 114, 0.45), inset 8px 8px 18px rgba(255, 255, 255, 0.85); }
+      50% { box-shadow: 0 0 36px rgba(230, 252, 224, 0.85), inset -8px -10px 22px rgba(96, 138, 114, 0.35), inset 8px 8px 22px rgba(255, 255, 255, 0.95); }
+    }
+    .jade-orb-btn {
+      background: radial-gradient(circle at 34% 30%, #ffffff 0%, #edf6df 32%, #cadcc2 70%, #9ab49b 100%);
+      color: #1f2b24;
+      border: 2px solid rgba(255, 255, 255, 0.7);
+      animation: orbPulse 3.2s ease-in-out infinite;
+      transition: transform 0.18s ease;
+    }
+    .jade-orb-btn:active { transform: scale(0.95); }
+
+    /* 2. BLOOD TYPE: SPIRAL DIARY */
+    .blood-diary-card {
+      position: relative;
+      background: linear-gradient(180deg, #fff5f8 0%, #fce6ee 100%);
+      color: #361826;
+      border: 2px solid #d97ca3;
+      border-radius: 18px;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45), inset 0 0 0 3px rgba(255, 255, 255, 0.7);
+      padding-top: 22px;
+    }
+    .spiral-rings {
+      position: absolute;
+      top: -9px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+    .spiral-ring {
+      width: 10px;
+      height: 18px;
+      border: 2.5px solid #3c2231;
+      border-radius: 9999px;
+      background: linear-gradient(180deg, #f7c7db, #a15274);
+    }
+
+    /* 3. ZODIAC: STAR CHART */
+    .zodiac-chart-card {
+      background: radial-gradient(circle at 85% 15%, rgba(167, 139, 250, 0.25) 0%, transparent 45%), linear-gradient(160deg, #1b1546 0%, #110d2e 100%);
+      border: 1.5px solid #c9a7ff;
+      border-radius: 20px;
+      box-shadow: inset 0 0 24px rgba(139, 92, 246, 0.22), 0 10px 26px rgba(0,0,0,0.5);
+    }
+
+    /* 4. TAROT: VELVET ALTAR */
+    .tarot-altar-card {
+      background: radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.25) 0%, transparent 60%), linear-gradient(180deg, #1d1136 0%, #0e071e 100%);
+      border: 2px solid #d5b268;
+      border-radius: 20px;
+      box-shadow: inset 0 0 0 3px rgba(213, 178, 104, 0.18), 0 10px 28px rgba(0,0,0,0.55);
+    }
+    .tarot-card-wrap { perspective: 800px; cursor: pointer; }
+    .tarot-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transform-style: preserve-3d;
+      transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .tarot-card-wrap.flipped .tarot-card-inner { transform: rotateY(180deg); }
+    .tarot-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 12px; overflow: hidden; }
+    .tarot-front { transform: rotateY(180deg); }
+
+    /* 5. MBTI: CLIPBOARD */
+    .mbti-clipboard-card {
+      position: relative;
+      background: linear-gradient(180deg, #fdfaf4 0%, #f3efe6 100%);
+      color: #242b3d;
+      border: 2px solid #8ea6cb;
+      border-radius: 18px;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.45);
+      padding-top: 22px;
+    }
+    .clipboard-clip {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 78px;
+      height: 18px;
+      background: linear-gradient(180deg, #b8c6de 0%, #6e81a3 100%);
+      border: 1.5px solid #3c4a66;
+      border-radius: 6px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+    }
+
+    /* BOTTOM DIAL */
+    #bottom-dial {
+      position: relative;
+      z-index: 30;
+      flex-shrink: 0;
+      background: radial-gradient(ellipse at 50% 100%, #1d263d 0%, #0b0f1b 75%);
+      border-top: 1.5px solid rgba(230, 198, 124, 0.42);
+      padding: 7px 10px 8px;
+    }
+    .dial-arch-accent {
+      position: absolute;
+      top: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 56px;
+      height: 5px;
+      border-radius: 0 0 9999px 9999px;
+      background: linear-gradient(90deg, transparent, #2cc3a6, #e6c67c, #2cc3a6, transparent);
+    }
+    .dial-btn { transition: all 0.24s cubic-bezier(0.22, 1, 0.36, 1); }
+    .dial-btn.active {
+      background: linear-gradient(180deg, rgba(246, 224, 168, 0.32) 0%, rgba(21, 77, 72, 0.45) 100%);
+      border-color: #e6c67c;
+      color: #fff6dc;
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 5px 14px rgba(230, 198, 124, 0.25);
+    }
+
+    /* MODAL */
+    #result-modal {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      background: rgba(5, 7, 14, 0.78);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.28s ease, visibility 0.28s ease;
+    }
+    #result-modal.open { opacity: 1; visibility: visible; }
+    #result-modal-sheet {
+      width: 100%;
+      max-height: 84%;
+      background: linear-gradient(180deg, #171d2e 0%, #0e1320 100%);
+      border-top: 2px solid #d7b46a;
+      border-radius: 26px 26px 0 0;
+      padding: 18px 18px 24px;
+      overflow-y: auto;
+      transform: translateY(100%);
+      transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    #result-modal.open #result-modal-sheet { transform: translateY(0); }
+
+    #toast {
+      position: absolute;
+      top: 56px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-16px);
+      z-index: 75;
+      background: rgba(16, 22, 36, 0.95);
+      border: 1px solid #e6c67c;
+      color: #f9efd8;
+      padding: 7px 15px;
+      border-radius: 9999px;
+      font-size: 11.5px;
+      font-weight: 500;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      white-space: nowrap;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.45);
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<div id="app-shell">
+  <div id="theme-backdrop"></div>
+  <div id="toast"></div>
+
+  <input id="input-opening-video" type="file" accept="video/mp4,video/webm,video/quicktime,video/*" class="hidden" />
+  <input id="input-glb-model" type="file" accept=".glb,.gltf,.vrm" class="hidden" />
+
+  <!-- ==================== VIDEO OPENING SEQUENCE OVERLAY ==================== -->
+  <div id="opening-overlay">
+    <!-- Standby Dragon Door Poster (shown cleanly before video is loaded or played) -->
+    <div id="opening-poster" class="absolute inset-0 z-[4] bg-cover bg-center transition-transform duration-1000" style="background-image: url('artifacts/file_generation/ttl=63d/intermediate/assets/ue5_open_1_door.jpg');"></div>
+    <!-- Fullscreen Original Opening Video Player -->
+    <video id="opening-video" playsinline preload="auto"></video>
+    <div id="door-light-beam"></div>
+    <div id="opening-vignette" class="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/60 via-black/15 to-black/80 z-[18] transition-opacity duration-500"></div>
+
+    <div class="absolute top-4 inset-x-4 z-30 flex items-center justify-between">
+      <button id="btn-load-mp4" type="button" class="px-3.5 py-1.5 rounded-full text-[11px] font-semibold bg-black/65 text-[#fae6b8] border border-[#e6c67c]/65 backdrop-blur-md hover:bg-black/85 transition flex items-center gap-1.5 shadow-lg">
+        <span>🎬</span>
+        <span id="mp4-btn-label">원본 오프닝 영상(.mp4) 선택</span>
+      </button>
+      <button id="btn-skip-opening" type="button" class="px-3.5 py-1.5 rounded-full text-[11px] font-medium bg-black/60 text-[#f3dfb1] border border-[#e6c67c]/45 backdrop-blur-md hover:bg-black/80 transition">
+        건너뛰기 ▸
+      </button>
+    </div>
+
+    <div id="opening-header" class="relative z-20 text-center mt-16 mb-auto px-6 transition-opacity duration-500 pointer-events-none">
+      <div class="text-[10.5px] tracking-[0.35em] text-[#e6c67c]/90 mb-1">MOONLIGHT FORTUNE BOUTIQUE</div>
+      <h1 class="font-serif-kr text-3xl font-bold tracking-wider text-[#f8e6bd] drop-shadow-[0_2px_14px_rgba(230,198,124,0.6)]">운명 상점</h1>
+    </div>
+
+    <div id="opening-knock-area" class="relative z-20 flex flex-col items-center mb-14 transition-all duration-400">
+      <button id="btn-knock-door" type="button" class="knock-ring">
+        <span class="font-serif-kr text-lg font-bold text-[#fff4d4]">똑똑…</span>
+        <span id="knock-sub-label" class="text-[11px] text-[#f3dfb1]/95 mt-0.5">문 두드리기</span>
+      </button>
+      <p id="opening-caption" class="mt-4 text-xs text-[#f3e6ca]/95 font-serif-kr tracking-wide text-center px-6 leading-relaxed drop-shadow">
+        상단에서 <strong>원본 오프닝 영상(.mp4)</strong>을 연결한 뒤<br>버튼을 누르면 영상 재생 후 사주 화면으로 입장합니다
+      </p>
+    </div>
+  </div>
+
+  <!-- ==================== TOP APP HEADER ==================== -->
+  <header class="relative z-30 flex items-center justify-between px-3.5 pt-3 pb-2 bg-gradient-to-b from-black/75 via-black/40 to-transparent">
+    <button id="btn-replay-opening" type="button" title="오프닝 다시보기" class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/50 border border-[#e6c67c]/40 text-[11px] text-[#f3dfb1] hover:bg-black/70 transition">
+      <span>🏮</span>
+      <span>오프닝</span>
+    </button>
+
+    <div class="text-center">
+      <h1 class="font-serif-kr text-[19px] font-bold tracking-wider text-[#f8e5ba] drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">운명 상점</h1>
+    </div>
+
+    <div class="flex items-center gap-1.5">
+      <button id="btn-toggle-25d" type="button" title="3D 모션 토글" class="px-2.5 py-1 rounded-full bg-[#e6c67c]/20 border border-[#e6c67c]/65 text-[10.5px] font-semibold text-[#fae7bc] transition">
+        3D ON
+      </button>
+      <button id="btn-toggle-sound" type="button" title="효과음 켜기/끄기" class="w-7 h-7 rounded-full bg-black/50 border border-[#e6c67c]/40 flex items-center justify-center text-xs text-[#f3dfb1]">
+        🔊
+      </button>
+    </div>
+  </header>
+
+  <!-- ==================== REAL 3D POLYGON CHARACTER STAGE ==================== -->
+  <section id="stage-wrapper" class="-mt-12">
+    <div id="stage-bg-aura"></div>
+    <div id="three-container"></div>
+
+    <div class="absolute inset-x-0 bottom-0 h-20 pointer-events-none bg-gradient-to-t from-[#0c101a] via-[#0c101a]/45 to-transparent z-[16]"></div>
+
+    <!-- Stage Tools: Model Zoom Mode & Custom GLB Loader -->
+    <div id="stage-tools-bar">
+      <button id="model-mode-pill" type="button" class="stage-pill-btn" title="상반신 / 전신 미니 3D 카메라 전환">
+        <span>✦</span>
+        <span id="model-mode-text">운명플러스 3D</span>
+        <span class="text-[9px] opacity-75">⇅</span>
+      </button>
+      <button id="btn-load-glb" type="button" class="stage-pill-btn" title="외부 Blender/VRoid .glb 3D 모델 불러오기">
+        <span>📦</span>
+        <span>.glb 모델 불러오기</span>
+      </button>
+    </div>
+
+    <button id="btn-stage-prev" type="button" aria-label="이전 캐릭터" class="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/45 border border-[#e6c67c]/45 text-[#f7e5be] flex items-center justify-center hover:bg-black/70 transition">
+      ‹
+    </button>
+    <button id="btn-stage-next" type="button" aria-label="다음 캐릭터" class="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/45 border border-[#e6c67c]/45 text-[#f7e5be] flex items-center justify-center hover:bg-black/70 transition">
+      ›
+    </button>
+
+    <div id="char-badge">
+      <div id="badge-role" class="text-[10px] font-semibold tracking-wider text-[#e6c67c]">운명상점 주인 · 사주 명리</div>
+      <div id="badge-name" class="font-serif-kr text-sm font-bold text-white leading-tight">연화 (3D)</div>
+    </div>
+
+    <div id="speech-bubble" title="터치하면 표정과 대사가 바뀝니다">
+      어서 오세요.<br>옥판에 생년월일시를 적어 주실래요?
+    </div>
+  </section>
+
+  <!-- ==================== CHARACTER-THEMED BESPOKE INPUT PANELS ==================== -->
+  <main id="content-sheet">
+    <!-- PANEL 0: SAJU -->
+    <div id="panel-0" class="char-panel space-y-3 pt-2">
+      <div class="jade-tablet-frame px-4 pt-5 pb-4">
+        <div class="jade-corner tl"></div>
+        <div class="jade-corner tr"></div>
+        <div class="jade-corner bl"></div>
+        <div class="jade-corner br"></div>
+        <div class="taeguk-crest">☯</div>
+
+        <div class="text-center mb-2">
+          <h2 class="font-serif-kr text-[19px] font-extrabold tracking-wide text-[#1a221d]">생년월일시 입력</h2>
+          <div class="flex items-center justify-center gap-2 mt-1">
+            <span class="h-[1px] w-10 bg-[#4b6357]/60"></span>
+            <span class="text-[10px] text-[#3a5246]">❖</span>
+            <span class="h-[1px] w-10 bg-[#4b6357]/60"></span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between gap-2 mb-3 px-1">
+          <div class="flex items-center gap-1.5 flex-1">
+            <span class="font-serif-kr text-xs font-bold text-[#2b3a32] shrink-0">성함</span>
+            <input id="saju-name" type="text" placeholder="홍길동" value="" class="saju-underline-input flex-1 text-sm" />
+          </div>
+          <div class="flex rounded-lg overflow-hidden border border-[#4b6357]/60 bg-white/45 shrink-0">
+            <button type="button" data-gender="F" class="saju-gender-btn px-2 py-1 text-[11px] font-bold bg-[#154d48] text-[#f7e9c7]">여</button>
+            <button type="button" data-gender="M" class="saju-gender-btn px-2 py-1 text-[11px] font-bold text-[#2b3a32]">남</button>
+          </div>
+          <button id="btn-saju-sample" type="button" class="text-[10px] font-semibold px-2 py-1 rounded-lg bg-[#154d48]/15 text-[#154d48] border border-[#154d48]/35 hover:bg-[#154d48]/25 transition shrink-0">
+            샘플
+          </button>
+        </div>
+
+        <div class="grid grid-cols-12 gap-x-1.5 gap-y-2 items-end pr-12 pb-1">
+          <div class="col-span-4 flex items-end gap-0.5">
+            <input id="saju-year" type="number" min="1920" max="2026" value="1997" class="saju-underline-input w-full text-[15px]" aria-label="출생 연도" />
+            <span class="font-serif-kr text-xs font-bold text-[#24302a] pb-0.5 shrink-0">년</span>
+          </div>
+          <div class="col-span-3 flex items-end gap-0.5">
+            <input id="saju-month" type="number" min="1" max="12" value="5" class="saju-underline-input w-full text-[15px]" aria-label="출생 월" />
+            <span class="font-serif-kr text-xs font-bold text-[#24302a] pb-0.5 shrink-0">월</span>
+          </div>
+          <div class="col-span-3 flex items-end gap-0.5">
+            <input id="saju-day" type="number" min="1" max="31" value="14" class="saju-underline-input w-full text-[15px]" aria-label="출생 일" />
+            <span class="font-serif-kr text-xs font-bold text-[#24302a] pb-0.5 shrink-0">일</span>
+          </div>
+          <div class="col-span-2 flex items-end">
+            <select id="saju-time" class="saju-underline-input w-full text-[12px] cursor-pointer" aria-label="태어난 시">
+              <option value="unknown">모름</option>
+              <option value="0">자시</option>
+              <option value="1">축시</option>
+              <option value="2">인시</option>
+              <option value="3">묘시</option>
+              <option value="4">진시</option>
+              <option value="5" selected>사시</option>
+              <option value="6">오시</option>
+              <option value="7">미시</option>
+              <option value="8">신시</option>
+              <option value="9">유시</option>
+              <option value="10">술시</option>
+              <option value="11">해시</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-center gap-2 mt-2.5 pr-10">
+          <span class="h-[1px] flex-1 bg-[#4b6357]/40"></span>
+          <span class="text-[9px] text-[#3a5246]">◇</span>
+          <span class="h-[1px] flex-1 bg-[#4b6357]/40"></span>
+        </div>
+
+        <div class="fortune-mini-flag" title="부귀영화 · 무병장수">
+          <div class="text-[9px] text-[#6b4226] mb-0.5">☯</div>
+          <div class="flex justify-center gap-1 font-serif-kr text-[10px] font-bold leading-[1.15] text-[#2a1d14]">
+            <span>부<br>귀<br>영<br>화</span>
+            <span>무<br>병<br>장<br>수</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5 pt-1">
+        <button id="btn-run-saju" type="button" class="jade-orb-btn flex-1 py-2.5 px-4 rounded-full font-serif-kr text-[14.5px] font-extrabold tracking-wide flex items-center justify-center gap-2">
+          <span>🔮</span>
+          <span>옥구슬로 사주 풀이</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-3 gap-2">
+        <button type="button" data-quick-fortune="today" class="quick-fortune-btn group relative rounded-xl overflow-hidden border border-[#d4b26a]/70 bg-[#1a2030] transition active:scale-95">
+          <img src="artifacts/file_generation/ttl=63d/intermediate/assets/card_today.jpg" alt="오늘의 운세" class="w-full h-11 object-cover group-hover:scale-105 transition duration-300" />
+          <div class="bg-[#f7eedc] text-[#241c15] text-[10.5px] font-bold text-center py-1">오늘의 운세 ›</div>
+        </button>
+        <button type="button" data-quick-fortune="love" class="quick-fortune-btn group relative rounded-xl overflow-hidden border border-[#d4b26a]/70 bg-[#1a2030] transition active:scale-95">
+          <img src="artifacts/file_generation/ttl=63d/intermediate/assets/card_love.jpg" alt="연애운" class="w-full h-11 object-cover group-hover:scale-105 transition duration-300" />
+          <div class="bg-[#f7eedc] text-[#241c15] text-[10.5px] font-bold text-center py-1">연애운 ›</div>
+        </button>
+        <button type="button" data-quick-fortune="wealth" class="quick-fortune-btn group relative rounded-xl overflow-hidden border border-[#d4b26a]/70 bg-[#1a2030] transition active:scale-95">
+          <img src="artifacts/file_generation/ttl=63d/intermediate/assets/card_wealth.jpg" alt="재물운" class="w-full h-11 object-cover group-hover:scale-105 transition duration-300" />
+          <div class="bg-[#f7eedc] text-[#241c15] text-[10.5px] font-bold text-center py-1">재물운 ›</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- PANEL 1: BLOOD TYPE -->
+    <div id="panel-1" class="char-panel hidden space-y-3 pt-2">
+      <div class="blood-diary-card px-4 pb-3.5">
+        <div class="spiral-rings">
+          <span class="spiral-ring"></span><span class="spiral-ring"></span><span class="spiral-ring"></span>
+          <span class="spiral-ring"></span><span class="spiral-ring"></span><span class="spiral-ring"></span>
+          <span class="spiral-ring"></span><span class="spiral-ring"></span>
+        </div>
+
+        <div class="flex items-center justify-between mb-1">
+          <h2 class="font-serif-kr text-[16px] font-extrabold text-[#47162c]">🦇 혈액형 비밀 다이어리</h2>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-700 border border-rose-400/40">Blood Type ♥</span>
+        </div>
+        <p class="text-[11px] text-[#7c435c] mb-2.5">두 사람의 혈액형 스탬프를 꾹 눌러 케미를 확인해 봐!</p>
+
+        <div class="grid grid-cols-2 gap-2.5 mb-3">
+          <div class="bg-white/75 rounded-xl p-2 border border-pink-300/70">
+            <div class="text-[10.5px] text-rose-700 mb-1.5 font-bold text-center">♥ 나의 혈액형</div>
+            <div class="grid grid-cols-2 gap-1.5" id="blood-me-group">
+              <button type="button" data-blood-me="A" class="blood-me-btn py-1.5 rounded-lg text-xs font-extrabold border-2 border-rose-500 bg-rose-500 text-white shadow-sm">A형</button>
+              <button type="button" data-blood-me="B" class="blood-me-btn py-1.5 rounded-lg text-xs font-bold border border-pink-300 bg-pink-50 text-rose-900">B형</button>
+              <button type="button" data-blood-me="O" class="blood-me-btn py-1.5 rounded-lg text-xs font-bold border border-pink-300 bg-pink-50 text-rose-900">O형</button>
+              <button type="button" data-blood-me="AB" class="blood-me-btn py-1.5 rounded-lg text-xs font-bold border border-pink-300 bg-pink-50 text-rose-900">AB형</button>
+            </div>
+          </div>
+          <div class="bg-white/75 rounded-xl p-2 border border-pink-300/70">
+            <div class="text-[10.5px] text-rose-700 mb-1.5 font-bold text-center">🦇 상대 혈액형</div>
+            <div class="grid grid-cols-2 gap-1.5" id="blood-you-group">
+              <button type="button" data-blood-you="A" class="blood-you-btn py-1.5 rounded-lg text-xs font-bold border border-pink-300 bg-pink-50 text-rose-900">A형</button>
+              <button type="button" data-blood-you="B" class="blood-you-btn py-1.5 rounded-lg text-xs font-bold border border-pink-300 bg-pink-50 text-rose-900">B형</button>
+              <button type="button" data-blood-you="O" class="blood-you-btn py-1.5 rounded-lg text-xs font-extrabold border-2 border-rose-500 bg-rose-500 text-white shadow-sm">O형</button>
+              <button type="button" data-blood-you="AB" class="blood-you-btn py-1.5 rounded-lg text-xs font-bold border border-pink-300 bg-pink-50 text-rose-900">AB형</button>
+            </div>
+          </div>
+        </div>
+
+        <button id="btn-run-blood" type="button" class="w-full py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#5a1736] via-[#a32255] to-[#e0427b] text-white shadow-md active:scale-95 transition">
+          비밀 노트 궁합 펼쳐보기 ♥
+        </button>
+      </div>
+
+      <div id="blood-inline-result" class="rounded-2xl p-3.5 bg-white/5 border border-pink-300/30"></div>
+    </div>
+
+    <!-- PANEL 2: ZODIAC -->
+    <div id="panel-2" class="char-panel hidden space-y-3 pt-1">
+      <div class="zodiac-chart-card p-3.5">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-1.5">
+            <span class="text-base">🔭</span>
+            <h2 class="font-serif-kr text-base font-bold text-amber-100">스텔라의 천문 성도</h2>
+          </div>
+          <div class="flex rounded-full overflow-hidden border border-amber-300/50 text-[10.5px] bg-black/35">
+            <button type="button" id="zodiac-tab-daily" class="px-2.5 py-1 bg-violet-500/70 text-white font-semibold">오늘 성좌</button>
+            <button type="button" id="zodiac-tab-match" class="px-2.5 py-1 bg-transparent text-violet-200">성좌 궁합</button>
+          </div>
+        </div>
+
+        <div id="zodiac-daily-box" class="space-y-2.5">
+          <div class="flex items-center gap-2 bg-black/40 rounded-xl px-3 py-2 border border-amber-300/35">
+            <span class="text-xs text-amber-200 shrink-0">✦ 나의 별자리</span>
+            <select id="zodiac-me-select" class="flex-1 bg-transparent text-sm font-semibold text-white focus:outline-none"></select>
+          </div>
+          <button id="btn-run-zodiac-daily" type="button" class="w-full py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500 text-white shadow-lg border border-amber-200/40 active:scale-95 transition">
+            망원경으로 오늘의 별빛 읽기 ★
+          </button>
+        </div>
+
+        <div id="zodiac-match-box" class="hidden space-y-2.5">
+          <div class="grid grid-cols-2 gap-2">
+            <div class="bg-black/40 rounded-xl px-2.5 py-2 border border-amber-300/35">
+              <div class="text-[10px] text-amber-200 mb-1">✦ 나의 별자리</div>
+              <select id="zodiac-match-me" class="w-full bg-transparent text-xs font-semibold text-white focus:outline-none"></select>
+            </div>
+            <div class="bg-black/40 rounded-xl px-2.5 py-2 border border-amber-300/35">
+              <div class="text-[10px] text-amber-200 mb-1">✦ 상대 별자리</div>
+              <select id="zodiac-match-you" class="w-full bg-transparent text-xs font-semibold text-white focus:outline-none"></select>
+            </div>
+          </div>
+          <button id="btn-run-zodiac-match" type="button" class="w-full py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-fuchsia-500 to-violet-500 text-white shadow-lg border border-amber-200/40 active:scale-95 transition">
+            두 성좌의 공명 점쳐보기 ✦
+          </button>
+        </div>
+      </div>
+
+      <div id="zodiac-inline-result" class="rounded-2xl p-3.5 bg-white/5 border border-violet-300/30"></div>
+    </div>
+
+    <!-- PANEL 3: TAROT -->
+    <div id="panel-3" class="char-panel hidden space-y-3 pt-1">
+      <div class="tarot-altar-card p-3.5">
+        <div class="flex items-center justify-between mb-1.5">
+          <h2 class="font-serif-kr text-base font-bold text-amber-200">🔮 셀레네의 타로 제단</h2>
+          <button id="btn-tarot-reset" type="button" class="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-400/15 text-amber-200 border border-amber-300/40 hover:bg-amber-400/25 transition">
+            덱 다시 섞기 ↻
+          </button>
+        </div>
+        <p class="text-[11px] text-purple-200/80 mb-2.5">수정구슬에 질문을 띄우고, 운명이 이끄는 카드 한 장을 뽑으세요</p>
+
+        <div class="grid grid-cols-4 gap-1.5 mb-3" id="tarot-topic-group">
+          <button type="button" data-topic="today" class="tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold bg-amber-400/25 border border-amber-300 text-amber-100">오늘운</button>
+          <button type="button" data-topic="love" class="tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold bg-white/5 border border-white/15 text-purple-200">연애·속마음</button>
+          <button type="button" data-topic="work" class="tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold bg-white/5 border border-white/15 text-purple-200">재물·일</button>
+          <button type="button" data-topic="advice" class="tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold bg-white/5 border border-white/15 text-purple-200">고민조언</button>
+        </div>
+
+        <div id="tarot-deck" class="grid grid-cols-5 gap-2 py-1"></div>
+      </div>
+
+      <div id="tarot-inline-result" class="rounded-2xl p-3.5 bg-white/5 border border-amber-300/30 text-center text-xs text-purple-200/85">
+        제단 위의 카드 중 한 장을 터치하면 셀레네가 운명의 메시지를 읽어드립니다.
+      </div>
+    </div>
+
+    <!-- PANEL 4: MBTI -->
+    <div id="panel-4" class="char-panel hidden space-y-3 pt-2">
+      <div class="mbti-clipboard-card px-4 pb-3.5">
+        <div class="clipboard-clip"></div>
+        <div class="flex items-center justify-between mb-1">
+          <h2 class="font-serif-kr text-[16px] font-extrabold text-[#22304d]">📋 하린의 MBTI 상담 차트</h2>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-300">Today Check ✓</span>
+        </div>
+        <p class="text-[11px] text-slate-500 mb-2.5">각 자리 글자를 눌러 나와 상대방의 MBTI를 맞춰보세요 ♡</p>
+
+        <div class="grid grid-cols-2 gap-2.5 mb-3">
+          <div class="bg-white rounded-xl p-2 border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[10.5px] font-bold text-slate-500">나의 유형</span>
+              <span id="mbti-me-badge" class="text-xs font-extrabold text-sky-700">INFP</span>
+            </div>
+            <div class="grid grid-cols-4 gap-1" id="mbti-me-toggles"></div>
+          </div>
+          <div class="bg-white rounded-xl p-2 border border-slate-200 shadow-sm">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[10.5px] font-bold text-slate-500">상대 유형</span>
+              <span id="mbti-you-badge" class="text-xs font-extrabold text-indigo-700">ENFJ</span>
+            </div>
+            <div class="grid grid-cols-4 gap-1" id="mbti-you-toggles"></div>
+          </div>
+        </div>
+
+        <button id="btn-run-mbti" type="button" class="w-full py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#3b5b92] to-[#5678b8] text-white shadow-md active:scale-95 transition">
+          하린의 심리 궁합 처방전 받기 💙
+        </button>
+      </div>
+
+      <div id="mbti-inline-result" class="rounded-2xl p-3.5 bg-white/5 border border-sky-300/30"></div>
+    </div>
+  </main>
+
+  <!-- ==================== ORIENTAL ARCH FAN DIAL NAVIGATION ==================== -->
+  <nav id="bottom-dial">
+    <div class="dial-arch-accent"></div>
+    <div class="flex items-center justify-between gap-1.5 pt-1">
+      <button type="button" data-nav-idx="0" class="dial-btn active flex-1 py-1.5 px-1 rounded-xl border border-[#e6c67c]/30 bg-white/5 text-center">
+        <div class="text-sm leading-none mb-0.5">🏮</div>
+        <div class="text-[10.5px] font-semibold font-serif-kr">사주</div>
+      </button>
+      <button type="button" data-nav-idx="1" class="dial-btn flex-1 py-1.5 px-1 rounded-xl border border-[#e6c67c]/30 bg-white/5 text-center text-slate-300">
+        <div class="text-sm leading-none mb-0.5">🩸</div>
+        <div class="text-[10.5px] font-semibold font-serif-kr">혈액형</div>
+      </button>
+      <button type="button" data-nav-idx="2" class="dial-btn flex-1 py-1.5 px-1 rounded-xl border border-[#e6c67c]/30 bg-white/5 text-center text-slate-300">
+        <div class="text-sm leading-none mb-0.5">✨</div>
+        <div class="text-[10.5px] font-semibold font-serif-kr">별자리</div>
+      </button>
+      <button type="button" data-nav-idx="3" class="dial-btn flex-1 py-1.5 px-1 rounded-xl border border-[#e6c67c]/30 bg-white/5 text-center text-slate-300">
+        <div class="text-sm leading-none mb-0.5">🔮</div>
+        <div class="text-[10.5px] font-semibold font-serif-kr">타로</div>
+      </button>
+      <button type="button" data-nav-idx="4" class="dial-btn flex-1 py-1.5 px-1 rounded-xl border border-[#e6c67c]/30 bg-white/5 text-center text-slate-300">
+        <div class="text-sm leading-none mb-0.5">💙</div>
+        <div class="text-[10.5px] font-semibold font-serif-kr">MBTI</div>
+      </button>
+    </div>
+    <div class="text-center text-[10px] text-[#e6c67c]/75 mt-1 tracking-wider">
+      ‹ 좌우 스와이프: 3D 마스터 전환 · 터치: 표정 &amp; 모션 리액션 ›
+    </div>
+  </nav>
+
+  <!-- ==================== DETAIL RESULT MODAL ==================== -->
+  <div id="result-modal" role="dialog" aria-modal="true">
+    <div id="result-modal-sheet">
+      <div class="w-10 h-1 bg-white/25 rounded-full mx-auto mb-3"></div>
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <div id="modal-tag" class="text-[11px] font-semibold text-[#e6c67c] tracking-wide">사주 명리 분석</div>
+          <h3 id="modal-title" class="font-serif-kr text-xl font-bold text-white mt-0.5">결과 제목</h3>
+        </div>
+        <button id="btn-close-modal" type="button" class="w-8 h-8 rounded-full bg-white/10 text-white/80 flex items-center justify-center hover:bg-white/20">✕</button>
+      </div>
+      <div id="modal-body" class="space-y-3 text-sm text-slate-200 leading-relaxed"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ==================== HIGH-END 3D CHARACTER MODELS (OPEN + REAL BLINK FRAMES) ==================== */
+  const CHARACTERS = [
+    {
+      id: 'saju',
+      name: '연화',
+      role: '운명상점 주인 · 사주 명리',
+      openSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/char3d_saju_open.jpg',
+      blinkSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/char3d_saju_blink.jpg',
+      backdrop: 'linear-gradient(180deg, #10192b 0%, #0b111c 100%)',
+      sheetBg: 'linear-gradient(180deg, #17120f 0%, #0c0a09 100%)',
+      particleColor: 0xf7c5d3,
+      uvOffsetY: 0.13,
+      lines: [
+        '어서 오세요. 옥판에 생년월일시를 적어 주실래요?',
+        '달빛 아래에서는 숨겨진 인연의 실이 잘 보인답니다.',
+        '나를 톡 터치하시면 미소로 답해 드릴게요.',
+        '좌우로 넘겨 보시면 상점의 다른 식구들도 기다리고 있어요.'
+      ]
+    },
+    {
+      id: 'blood',
+      name: '루미',
+      role: '혈액형 궁합 마스터',
+      openSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/char3d_blood_open.jpg',
+      blinkSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/char3d_blood_blink.jpg',
+      backdrop: 'linear-gradient(180deg, #2a1322 0%, #150a14 100%)',
+      sheetBg: 'linear-gradient(180deg, #24111e 0%, #140911 100%)',
+      particleColor: 0xff85b3,
+      uvOffsetY: 0.13,
+      lines: [
+        '안녕! 내 비밀 다이어리에 혈액형 스탬프 찍어볼래?',
+        '3D로 예쁘게 변신했지? 히히, 나를 톡톡 건드려 봐!',
+        'A, B, O, AB… 피 속에 숨은 성격 비밀을 다 알려줄게!',
+        '너랑 그 사람 케미가 엄청 궁금해! ♥'
+      ]
+    },
+    {
+      id: 'zodiac',
+      name: '스텔라',
+      role: '별자리 천문 점성술사',
+      openSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/char3d_zodiac_open.jpg',
+      blinkSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/char3d_zodiac_blink.jpg',
+      backdrop: 'linear-gradient(180deg, #1b1644 0%, #0d0b24 100%)',
+      sheetBg: 'linear-gradient(180deg, #19143a 0%, #0d0a21 100%)',
+      particleColor: 0xffe89e,
+      uvOffsetY: 0.09,
+      lines: [
+        '반짝반짝! 천문 성도에서 네 별자리를 골라줘!',
+        '망원경으로 보니까 오늘 네 별자리가 아주 밝게 빛나고 있어!',
+        '불·흙·공기·물, 네 원소가 만나는 별자리 궁합도 봐줄게!',
+        '별똥별에 소원을 빌어볼래? ★'
+      ]
+    },
+    {
+      id: 'tarot',
+      name: '셀레네',
+      role: '신비의 타로 리더',
+      openSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/char3d_tarot_open.jpg',
+      blinkSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/char3d_tarot_blink.jpg',
+      backdrop: 'linear-gradient(180deg, #1e1236 0%, #0e081d 100%)',
+      sheetBg: 'linear-gradient(180deg, #1a102e 0%, #0c0719 100%)',
+      particleColor: 0xc084fc,
+      uvOffsetY: 0.06,
+      lines: [
+        '제단 위의 카드 중 마음이 이끄는 한 장을 골라보세요…',
+        '수정구슬 너머로 지금 당신에게 필요한 메시지가 보입니다.',
+        '우연히 뽑은 카드는 없어요. 모든 패는 운명의 부름이죠.',
+        '정방향이든 역방향이든, 해답은 언제나 당신 안에 있습니다.'
+      ]
+    },
+    {
+      id: 'mbti',
+      name: '하린',
+      role: 'MBTI 심리 & 궁합 상담사',
+      openSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/char3d_mbti_open.jpg',
+      blinkSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/char3d_mbti_blink.jpg',
+      backdrop: 'linear-gradient(180deg, #1c243a 0%, #101524 100%)',
+      sheetBg: 'linear-gradient(180deg, #1a2134 0%, #0f1422 100%)',
+      particleColor: 0x93c5fd,
+      uvOffsetY: 0.08,
+      lines: [
+        '오늘 하루도 고생 많았어요. 상담 차트에 MBTI를 체크해 볼까요? ♡',
+        '성격 유형이 달라도 서로 이해하는 법을 알면 훨씬 가까워져요.',
+        '네 글자 칩을 톡톡 눌러서 상대방과의 케미를 확인해 봐!',
+        '따뜻한 차 한 잔 마시면서 천천히 이야기해 볼까요?'
+      ]
+    }
+  ];
+
+  const state = {
+    currentIdx: 0,
+    motionEnabled: true,
+    modelMode: 'plus',
+    customVideoUrl: null,
+    userName: '',
+    userGender: 'F',
+    bloodMe: 'A',
+    bloodYou: 'O',
+    zodiacTab: 'daily',
+    zodiacMe: 1,
+    zodiacYou: 4,
+    tarotTopic: 'today',
+    tarotSpread: [],
+    tarotPickedIdx: -1,
+    mbtiMe: ['I', 'N', 'F', 'P'],
+    mbtiYou: ['E', 'N', 'F', 'J'],
+    speechIdx: [0, 0, 0, 0, 0]
+  };
+
+  /* ==================== WEB AUDIO SOUND ENGINE ==================== */
+  let audioCtx = null;
+  let soundEnabled = true;
+
+  function ensureAudio() {
+    if (!soundEnabled) return null;
+    try {
+      if (!audioCtx) {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (Ctx) audioCtx = new Ctx();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    } catch (e) {}
+    return audioCtx;
+  }
+
+  function playKnockSound() {
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    [0, 0.24, 0.48].forEach((offset) => {
+      const t = ctx.currentTime + offset;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(145, t);
+      osc.frequency.exponentialRampToValueAtTime(48, t + 0.14);
+      gain.gain.setValueAtTime(0.45, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.16);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.17);
+    });
+  }
+
+  function playChimeSound(freq = 660) {
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    [freq, freq * 1.25, freq * 1.5].forEach((f, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(f, now + i * 0.07);
+      gain.gain.setValueAtTime(0.11, now + i * 0.07);
+      gain.gain.exponentialRampToValueAtTime(0.0008, now + i * 0.07 + 0.65);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(now + i * 0.07);
+      osc.stop(now + i * 0.07 + 0.7);
+    });
+  }
+
+  function playSwipeSound() {
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(320, now);
+    osc.frequency.exponentialRampToValueAtTime(520, now + 0.09);
+    gain.gain.setValueAtTime(0.06, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.12);
+  }
+
+  /* ==================== THREE.JS HIGH-END 3D RENDER STAGE (ZERO WARP + REAL 2-FRAME BLINK) ==================== */
+  const stageWrapper = document.getElementById('stage-wrapper');
+  const stageBgAura = document.getElementById('stage-bg-aura');
+  const threeContainer = document.getElementById('three-container');
+
+  let renderer, scene, camera, charMesh, charMaterial, particleSystem, particleGeo;
+  const openTextures = [];
+  const blinkTextures = [];
+  const customGlbModels = [null, null, null, null, null];
+
+  const rigPhys = {
+    targetX: 0,
+    targetY: 0,
+    curX: 0,
+    curY: 0,
+    blinkVal: 0,
+    blinkState: 0, // 0=open, 1=closing, 2=opening
+    nextBlinkTime: 2.2,
+    happyTimer: 0,
+    tapImpulse: 0,
+    flinchElapsed: 99,
+    tapUv: [0.5, 0.35],
+    bounceVel: 0,
+    bounceY: 0,
+    time: 0
+  };
+
+  // Face-Protected Soft-Body 3D Morphing + Real 2-Frame Blink Shader
+  const CLEAN_VERT = `
+    uniform float uTime;
+    uniform float uMotion;
+    uniform float uTapImpulse;
+    uniform vec2 uTapUv;
+    uniform vec2 uFaceUv;
+    uniform vec2 uChestUv;
+    varying vec2 vUv;
+    varying float vMorphGlow;
+
+    void main() {
+      vUv = uv;
+      vec3 pos = position;
+      vMorphGlow = 0.0;
+
+      if (uMotion > 0.5) {
+        // Protect face/eyes region 100% from distortion
+        float faceDist = length((uv - uFaceUv) * vec2(1.25, 1.45));
+        float faceProtect = smoothstep(0.18, 0.32, faceDist);
+
+        // 1. Subtle, calm natural breathing (chest & shoulders rise gently every ~4.3s, face stays crisp)
+        float breath = sin(uTime * 1.45) * 0.5 + 0.5;
+        float chestMask = exp(-pow(length((uv - uChestUv) * vec2(2.1, 2.4)), 2.0)) * faceProtect;
+        pos.y += breath * 0.011 * chestMask;
+        pos.z += breath * 0.028 * chestMask;
+        pos.x += (uv.x - 0.5) * breath * 0.010 * chestMask;
+
+        // 2. Touch-only Shy Flinch / Recoil Tuck-in Morph (ZERO wave/ripple!)
+        if (uTapImpulse > 0.002) {
+          float tapDist = length((uv - uTapUv) * vec2(1.2, 1.35));
+          float localMask = exp(-tapDist * tapDist * 6.5) * faceProtect;
+
+          pos.z -= uTapImpulse * 0.16 * localMask;
+          vec2 toCenter = vec2(0.5, 0.42) - uv;
+          pos.xy += toCenter * uTapImpulse * 0.065 * localMask;
+
+          float shoulderMask = exp(-pow((uv.y - 0.42) / 0.24, 2.0)) * faceProtect;
+          pos.y -= uTapImpulse * 0.022 * shoulderMask;
+          pos.x -= (uv.x - 0.5) * uTapImpulse * 0.032 * shoulderMask;
+
+          vMorphGlow = uTapImpulse * exp(-tapDist * tapDist * 9.0);
+        }
+      }
+
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+    }
+  `;
+
+  const CLEAN_FRAG = `
+    uniform sampler2D uTexOpen;
+    uniform sampler2D uTexBlink;
+    uniform float uBlink;
+    uniform vec2 uUvScale;
+    uniform float uUvOffsetY;
+    uniform float uTime;
+    uniform float uMotion;
+    varying vec2 vUv;
+    varying float vMorphGlow;
+
+    void main() {
+      vec2 uv = (vUv - 0.5) * uUvScale + 0.5;
+      uv.y += uUvOffsetY;
+      uv = clamp(uv, 0.002, 0.998);
+
+      vec4 colOpen = texture2D(uTexOpen, uv);
+      vec4 colBlink = texture2D(uTexBlink, uv);
+      vec4 col = mix(colOpen, colBlink, clamp(uBlink, 0.0, 1.0));
+
+      if (uMotion > 0.5) {
+        float sheen = 0.02 * sin(uTime * 1.4 + vUv.x * 2.5);
+        col.rgb += vec3(sheen);
+        // Subtle golden touch-morph highlight shimmer
+        col.rgb += vec3(1.0, 0.88, 0.65) * vMorphGlow * 0.16;
+      }
+      gl_FragColor = col;
+    }
+  `;
+
+  function initThreeScene() {
+    if (typeof THREE === 'undefined') return;
+    const w = threeContainer.clientWidth || 390;
+    const h = threeContainer.clientHeight || 330;
+
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(35, w / h, 0.1, 30);
+    camera.position.set(0, 0, 3.1);
+
+    try {
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    } catch (e) {
+      return;
+    }
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setSize(w, h);
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    threeContainer.innerHTML = '';
+    threeContainer.appendChild(renderer.domElement);
+
+    // Lights for optional external .glb 3D models
+    scene.add(new THREE.HemisphereLight(0xfff6eb, 0x3b2d54, 1.0));
+    const dl = new THREE.DirectionalLight(0xfff8ee, 1.0);
+    dl.position.set(2, 3, 4);
+    scene.add(dl);
+
+    const loader = new THREE.TextureLoader();
+    CHARACTERS.forEach((c, idx) => {
+      const tOpen = loader.load(c.openSrc, () => {
+        if (idx === state.currentIdx && charMaterial) {
+          charMaterial.uniforms.uTexOpen.value = tOpen;
+          resizeThree();
+        }
+      });
+      const tBlink = loader.load(c.blinkSrc, () => {
+        if (idx === state.currentIdx && charMaterial) {
+          charMaterial.uniforms.uTexBlink.value = tBlink;
+        }
+      });
+      [tOpen, tBlink].forEach(t => {
+        t.minFilter = THREE.LinearFilter;
+        t.magFilter = THREE.LinearFilter;
+        t.encoding = THREE.sRGBEncoding;
+      });
+      openTextures[idx] = tOpen;
+      blinkTextures[idx] = tBlink;
+    });
+
+    charMaterial = new THREE.ShaderMaterial({
+      vertexShader: CLEAN_VERT,
+      fragmentShader: CLEAN_FRAG,
+      uniforms: {
+        uTexOpen: { value: openTextures[0] },
+        uTexBlink: { value: blinkTextures[0] },
+        uBlink: { value: 0.0 },
+        uUvScale: { value: new THREE.Vector2(1.0, 0.72) },
+        uUvOffsetY: { value: CHARACTERS[0].uvOffsetY },
+        uTime: { value: 0.0 },
+        uMotion: { value: 1.0 },
+        uTapImpulse: { value: 0.0 },
+        uTapUv: { value: new THREE.Vector2(0.5, 0.35) },
+        uFaceUv: { value: new THREE.Vector2(0.5, 0.68) },
+        uChestUv: { value: new THREE.Vector2(0.5, 0.36) }
+      },
+      transparent: true
+    });
+
+    charMesh = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 2.4, 48, 56), charMaterial);
+    scene.add(charMesh);
+
+    // 3D Floating Foreground Particles
+    const count = 56;
+    const positions = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 3.4;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 2.6;
+      positions[i * 3 + 2] = 0.25 + Math.random() * 1.1;
+    }
+    particleGeo = new THREE.BufferGeometry();
+    particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    particleSystem = new THREE.Points(particleGeo, new THREE.PointsMaterial({
+      color: CHARACTERS[0].particleColor,
+      size: 0.052,
+      transparent: true,
+      opacity: 0.82,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    }));
+    scene.add(particleSystem);
+
+    resizeThree();
+  }
+
+  function resizeThree() {
+    if (!renderer || !camera || !charMesh || !charMaterial) return;
+    const w = threeContainer.clientWidth || 390;
+    const h = threeContainer.clientHeight || 330;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+
+    const vFov = (camera.fov * Math.PI) / 180;
+    const frustumH = 2 * Math.tan(vFov / 2) * camera.position.z;
+    const frustumW = frustumH * camera.aspect;
+    const bleed = state.modelMode === 'mini' ? 0.88 : 1.08;
+    charMesh.scale.set((frustumW / 2.4) * bleed, (frustumH / 2.4) * bleed, 1);
+
+    const imgAspect = 0.75;
+    const viewAspect = w / h;
+    if (viewAspect > imgAspect) {
+      charMaterial.uniforms.uUvScale.value.set(1.0, imgAspect / viewAspect);
+    } else {
+      charMaterial.uniforms.uUvScale.value.set(viewAspect / imgAspect, 1.0);
+    }
+  }
+
+  function showCharacter3D(idx) {
+    const cfg = CHARACTERS[idx];
+    const hasGlb = !!customGlbModels[idx];
+    customGlbModels.forEach((m, i) => { if (m) m.visible = (i === idx); });
+    if (charMesh) charMesh.visible = !hasGlb;
+    if (charMaterial) {
+      if (openTextures[idx]) charMaterial.uniforms.uTexOpen.value = openTextures[idx];
+      if (blinkTextures[idx]) charMaterial.uniforms.uTexBlink.value = blinkTextures[idx];
+      charMaterial.uniforms.uUvOffsetY.value = cfg.uvOffsetY;
+    }
+    if (particleSystem) particleSystem.material.color.setHex(cfg.particleColor);
+    stageBgAura.style.backgroundImage = `url('${cfg.openSrc}')`;
+    rigPhys.blinkState = 1;
+    rigPhys.bounceVel = 0.04;
+  }
+
+  // External GLB/VRM Loader Support
+  const inputGlb = document.getElementById('input-glb-model');
+  document.getElementById('btn-load-glb').addEventListener('click', () => inputGlb.click());
+  inputGlb.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file || typeof THREE.GLTFLoader === 'undefined') return;
+    const url = URL.createObjectURL(file);
+    const loader = new THREE.GLTFLoader();
+    showToast('외부 3D 모델(.glb)을 불러오는 중...');
+    loader.load(url, (gltf) => {
+      const idx = state.currentIdx;
+      if (customGlbModels[idx]) scene.remove(customGlbModels[idx]);
+      const model = gltf.scene;
+      const box = new THREE.Box3().setFromObject(model);
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z) || 1;
+      const scale = 1.65 / maxDim;
+      model.scale.setScalar(scale);
+      const center = box.getCenter(new THREE.Vector3());
+      model.position.set(-center.x * scale, -center.y * scale, -center.z * scale);
+      customGlbModels[idx] = model;
+      if (charMesh) charMesh.visible = false;
+      scene.add(model);
+      URL.revokeObjectURL(url);
+      showToast(`${CHARACTERS[idx].name} 자리에 3D 모델(${file.name})을 적용했어요 ✨`);
+    }, undefined, () => {
+      URL.revokeObjectURL(url);
+      showToast('지원되지 않는 3D 파일 형식입니다 (.glb 권장)');
+    });
+  });
+
+  let lastAnimTs = performance.now();
+  function animateThree(now) {
+    requestAnimationFrame(animateThree);
+    const dt = Math.min(0.05, (now - lastAnimTs) / 1000);
+    lastAnimTs = now;
+    if (!renderer || !scene || !camera) return;
+
+    rigPhys.time += dt;
+    const t = rigPhys.time;
+
+    rigPhys.curX += (rigPhys.targetX - rigPhys.curX) * 0.08;
+    rigPhys.curY += (rigPhys.targetY - rigPhys.curY) * 0.08;
+
+    // Real 2-Frame Eyelid Blink + Happy Smile Hold on Tap!
+    if (state.motionEnabled) {
+      if (rigPhys.happyTimer > 0) {
+        rigPhys.happyTimer = Math.max(0, rigPhys.happyTimer - dt);
+        rigPhys.blinkVal += (1.0 - rigPhys.blinkVal) * Math.min(1, dt * 14);
+      } else {
+        if (rigPhys.blinkState === 0 && t >= rigPhys.nextBlinkTime) {
+          rigPhys.blinkState = 1;
+        } else if (rigPhys.blinkState === 1) {
+          rigPhys.blinkVal += dt * 14.0;
+          if (rigPhys.blinkVal >= 1.0) { rigPhys.blinkVal = 1.0; rigPhys.blinkState = 2; }
+        } else if (rigPhys.blinkState === 2) {
+          rigPhys.blinkVal -= dt * 10.5;
+          if (rigPhys.blinkVal <= 0.0) {
+            rigPhys.blinkVal = 0.0;
+            rigPhys.blinkState = 0;
+            rigPhys.nextBlinkTime = t + 2.6 + Math.random() * 2.8;
+          }
+        }
+      }
+    } else {
+      rigPhys.blinkVal = 0;
+    }
+
+    // Gentle Spring Bounce
+    rigPhys.bounceVel += -rigPhys.bounceY * 140 * dt;
+    rigPhys.bounceVel *= 0.84;
+    rigPhys.bounceY += rigPhys.bounceVel;
+
+    const activeGlb = customGlbModels[state.currentIdx];
+    if (activeGlb && state.motionEnabled) {
+      activeGlb.rotation.y = rigPhys.curX * 0.55 + Math.sin(t * 0.8) * 0.08;
+      activeGlb.position.y = Math.sin(t * 1.8) * 0.03 + rigPhys.bounceY;
+    } else if (charMesh && charMaterial) {
+      if (rigPhys.flinchElapsed < 0.95) {
+        rigPhys.flinchElapsed += dt;
+        const ft = rigPhys.flinchElapsed;
+        // Fast shy recoil (0 -> 0.18s), then smooth relaxed return (0.18 -> 0.95s), zero wave!
+        if (ft < 0.18) {
+          const p = ft / 0.18;
+          rigPhys.tapImpulse = 1.0 - Math.pow(1.0 - p, 2.5);
+        } else {
+          const p = Math.min(1.0, (ft - 0.18) / 0.77);
+          rigPhys.tapImpulse = Math.pow(1.0 - p, 2.2);
+        }
+      } else {
+        rigPhys.tapImpulse = 0;
+      }
+      charMaterial.uniforms.uBlink.value = rigPhys.blinkVal;
+      charMaterial.uniforms.uTime.value = t;
+      charMaterial.uniforms.uMotion.value = state.motionEnabled ? 1.0 : 0.0;
+      charMaterial.uniforms.uTapImpulse.value = rigPhys.tapImpulse;
+      charMaterial.uniforms.uTapUv.value.set(rigPhys.tapUv[0], rigPhys.tapUv[1]);
+
+      if (state.motionEnabled) {
+        // Rock-steady when idle; gently recoils/hunches slightly back on touch (no bounce wobble!)
+        const flinch = rigPhys.tapImpulse;
+        charMesh.rotation.y = -flinch * (rigPhys.tapUv[0] - 0.5) * 0.14;
+        charMesh.rotation.x = flinch * 0.045;
+        const calmBreath = Math.sin(t * 1.45) * 0.006;
+        charMesh.position.y = calmBreath - flinch * 0.028;
+        charMesh.position.z = -flinch * 0.075;
+      } else {
+        charMesh.rotation.set(0, 0, 0);
+        charMesh.position.set(0, 0, 0);
+      }
+    }
+
+    // 3D Particles
+    if (particleSystem && particleGeo) {
+      particleSystem.visible = state.motionEnabled;
+      const posAttr = particleGeo.attributes.position;
+      const isSakura = state.currentIdx === 0;
+      for (let i = 0; i < posAttr.count; i++) {
+        let px = posAttr.getX(i);
+        let py = posAttr.getY(i);
+        px += Math.sin(t * 0.8 + i) * 0.0025;
+        py += isSakura ? -0.0042 : 0.0036;
+        if (py < -1.35) py = 1.35;
+        if (py > 1.35) py = -1.35;
+        posAttr.setXYZ(i, px, py, posAttr.getZ(i));
+      }
+      posAttr.needsUpdate = true;
+      particleSystem.rotation.y = -rigPhys.curX * 0.22;
+    }
+
+    renderer.render(scene, camera);
+  }
+
+  /* ==================== SAJU / BLOOD / ZODIAC / TAROT / MBTI DATABASES ==================== */
+  const CHEONGAN = ['갑(甲)', '을(乙)', '병(丙)', '정(丁)', '무(戊)', '기(己)', '경(庚)', '신(辛)', '임(壬)', '계(癸)'];
+  const CHEONGAN_OHAENG = ['목', '목', '화', '화', '토', '토', '금', '금', '수', '수'];
+  const JIJI = ['자(子)', '축(丑)', '인(寅)', '묘(卯)', '진(辰)', '사(巳)', '오(午)', '미(未)', '신(申)', '유(酉)', '술(戌)', '해(亥)'];
+  const JIJI_OHAENG = ['수', '토', '목', '목', '토', '화', '화', '토', '금', '금', '토', '수'];
+  const JIJI_ANIMAL = ['쥐', '소', '호랑이', '토끼', '용', '뱀', '말', '양', '원숭이', '닭', '개', '돼지'];
+
+  const ILGAN_PROFILES = [
+    { title: '거목의 기상 · 갑목(甲木)', desc: '곧게 뻗어 올라가는 큰 나무처럼 추진력과 리더십이 뛰어납니다. 한 번 마음먹은 일은 끝까지 밀어붙이는 개척자 기질이 강합니다.', lucky: '청록색 · 동쪽 · 나무 소품' },
+    { title: '유연한 덩굴 · 을목(乙木)', desc: '부드럽지만 강한 생명력을 지닌 화초와 같습니다. 섬세한 감수성과 뛰어난 적응력으로 주변 사람들과 자연스럽게 어우러집니다.', lucky: '연두색 · 아침 산책 · 허브티' },
+    { title: '찬란한 태양 · 병화(丙火)', desc: '어디서나 존재감을 드러내는 따뜻한 태양의 기운입니다. 솔직하고 열정적이며 주변 사람들에게 긍정적인 에너지를 전파합니다.', lucky: '코랄 레드 · 남쪽 · 햇살' },
+    { title: '은은한 촛불 · 정화(丁火)', desc: '어둠을 밝히는 촛불처럼 깊은 통찰력과 따뜻한 배려심을 지녔습니다. 예술적 감각과 집중력이 뛰어나 한 분야에서 빛을 발합니다.', lucky: '와인빛 · 캔들 · 조용한 밤' },
+    { title: '든든한 태산 · 무토(戊土)', desc: '넓고 묵직한 산처럼 신뢰감을 주는 성품입니다. 흔들리지 않는 중심과 포용력으로 주변 사람들이 의지하는 든든한 버팀목이 됩니다.', lucky: '황토색 · 도자기 · 안정된 루틴' },
+    { title: '비옥한 대지 · 기토(己土)', desc: '만물을 길러내는 부드러운 땅의 기운입니다. 실속 있고 꼼꼼하며, 작은 씨앗도 크게 키워내는 꾸준한 성취력을 갖추고 있습니다.', lucky: '베이지 · 노트 기록 · 식물' },
+    { title: '단단한 강철 · 경금(庚金)', desc: '결단력과 의리가 뚜렷한 원석의 기운입니다. 옳고 그름이 분명하며, 시련을 겪을수록 더욱 단단하고 빛나는 결과물을 만들어냅니다.', lucky: '실버/화이트 · 서쪽 · 금속 악세서리' },
+    { title: '빛나는 보석 · 신금(辛金)', desc: '섬세하게 다듬어진 보석처럼 깔끔하고 예리한 미적 감각을 지녔습니다. 완벽주의 성향이 있으며 디테일에서 남다른 품격을 보여줍니다.', lucky: '진주빛 · 미스트 · 깔끔한 공간' },
+    { title: '도도한 큰바다 · 임수(壬水)', desc: '깊고 넓은 바다처럼 스케일이 크고 지혜롭습니다. 유연한 사고와 창의력이 풍부해 변화가 빠른 환경에서 큰 기회를 잡습니다.', lucky: '네이비 · 북쪽 · 물가 산책' },
+    { title: '맑은 봄비 · 계수(癸水)', desc: '만물을 촉촉이 적시는 이슬과 비의 기운입니다. 직관력과 공감 능력이 탁월하며, 부드러운 설득력으로 사람들의 마음을 움직입니다.', lucky: '스카이블루 · 음악 · 빗소리' }
+  ];
+
+  function calculateSaju(y, m, d, timeVal) {
+    const yStemIdx = ((y - 4) % 10 + 10) % 10;
+    const yBranchIdx = ((y - 4) % 12 + 12) % 12;
+    const mBranchIdx = (m + 1) % 12;
+    const mStemIdx = ((yStemIdx % 5) * 2 + 2 + (m - 1)) % 10;
+    const refDate = Date.UTC(1900, 0, 31);
+    const curDate = Date.UTC(y, m - 1, d);
+    const diffDays = Math.floor((curDate - refDate) / 86400000);
+    const dStemIdx = ((diffDays % 10) + 10) % 10;
+    const dBranchIdx = (((diffDays + 4) % 12) + 12) % 12;
+
+    let hStemIdx = null, hBranchIdx = null;
+    if (timeVal !== 'unknown') {
+      hBranchIdx = parseInt(timeVal, 10) || 0;
+      hStemIdx = ((dStemIdx % 5) * 2 + hBranchIdx) % 10;
+    }
+
+    const pillars = [
+      { label: '년주(年)', stem: CHEONGAN[yStemIdx], branch: JIJI[yBranchIdx], sOh: CHEONGAN_OHAENG[yStemIdx], bOh: JIJI_OHAENG[yBranchIdx] },
+      { label: '월주(月)', stem: CHEONGAN[mStemIdx], branch: JIJI[mBranchIdx], sOh: CHEONGAN_OHAENG[mStemIdx], bOh: JIJI_OHAENG[mBranchIdx] },
+      { label: '일주(日)', stem: CHEONGAN[dStemIdx], branch: JIJI[dBranchIdx], sOh: CHEONGAN_OHAENG[dStemIdx], bOh: JIJI_OHAENG[dBranchIdx] },
+      hStemIdx !== null
+        ? { label: '시주(時)', stem: CHEONGAN[hStemIdx], branch: JIJI[hBranchIdx], sOh: CHEONGAN_OHAENG[hStemIdx], bOh: JIJI_OHAENG[hBranchIdx] }
+        : { label: '시주(時)', stem: '미상', branch: '삼주', sOh: null, bOh: null }
+    ];
+
+    const counts = { 목: 0, 화: 0, 토: 0, 금: 0, 수: 0 };
+    pillars.forEach(p => { if (p.sOh) counts[p.sOh]++; if (p.bOh) counts[p.bOh]++; });
+    const totalEl = Object.values(counts).reduce((a, b) => a + b, 0) || 1;
+    const dominant = Object.entries(counts).sort((a, b) => b[1] - a[1])[0][0];
+    const lacking = Object.entries(counts).sort((a, b) => a[1] - b[1])[0][0];
+    const seed = (y * 13 + m * 31 + d * 7 + 20261119) % 100;
+
+    return {
+      pillars, counts, totalEl, dominant, lacking,
+      animal: JIJI_ANIMAL[yBranchIdx],
+      ilgan: ILGAN_PROFILES[dStemIdx],
+      scores: { today: 76 + (seed % 22), love: 72 + ((seed * 3) % 26), wealth: 74 + ((seed * 7) % 24) }
+    };
+  }
+
+  const BLOOD_DB = {
+    'A-A': { score: 82, tag: '섬세한 거울 커플', text: '서로의 배려심이 깊어 다툼이 적고 안정적인 관계를 만듭니다. 가끔은 속마음을 솔직하게 꺼내놓는 대화 시간이 핵심이에요!', tip: '작은 서운함도 그날 바로 부드럽게 말하기' },
+    'A-B': { score: 74, tag: '정반대 매력의 끌림', text: '신중한 A형과 자유로운 B형이 만나 서로에게 없는 매력에 강하게 끌립니다. 서로의 속도 차이를 존중하면 최고의 시너지가 납니다.', tip: '계획과 즉흥의 황금 비율(5:5) 맞추기' },
+    'A-O': { score: 94, tag: '운명적 환상 케미', text: '세심한 A형을 듬직하고 유쾌한 O형이 따뜻하게 감싸주는 최고의 조합! 오래갈수록 더 빛나는 대표적 천생연분입니다.', tip: 'O형의 리드에 A형이 칭찬으로 화답해 주기' },
+    'A-AB': { score: 80, tag: '지적인 힐링 파트너', text: '차분하고 감각적인 대화가 잘 통하는 조합입니다. 서로의 개인 시간을 존중해 주면 깊이 있는 신뢰 관계로 발전합니다.', tip: '혼자만의 충전 시간도 사랑의 일부로 인정하기' },
+    'B-A': { score: 74, tag: '톡톡 튀는 밀당 케미', text: 'B형의 솔직한 표현이 조심스러운 A형의 마음을 열어주는 매력적인 조합입니다. A형의 섬세한 배려에 자주 고마워해 주세요.', tip: '약속 시간과 작은 기념일 챙겨주기' },
+    'B-B': { score: 86, tag: '텐션 폭발 절친 연인', text: '함께 있으면 지루할 틈이 없는 에너지 넘치는 커플! 취향과 유머 코드가 잘 맞아 연인이자 가장 친한 친구처럼 즐겁습니다.', tip: '감정이 뜨거워질 땐 10분만 숨 고르기' },
+    'B-O': { score: 91, tag: '유쾌 발랄 파워 커플', text: '어디를 가도 웃음이 끊이지 않는 찰떡궁합! B형의 기발한 아이디어를 O형이 시원하게 실현해 주며 행운이 따릅니다.', tip: '함께 여행이나 새로운 취미 도전하기' },
+    'B-AB': { score: 88, tag: '자유로운 영혼의 만남', text: '서로를 구속하지 않고 개성을 가장 잘 이해해 주는 쿨하고 세련된 조합입니다. 독특한 취향을 공유할수록 깊어집니다.', tip: '가끔은 로맨틱한 이벤트로 설렘 더하기' },
+    'O-A': { score: 94, tag: '든든한 수호천사 케미', text: 'O형의 따뜻한 추진력과 A형의 꼼꼼한 내조가 완벽한 균형을 이룹니다. 서로에게 가장 편안한 안식처가 되어주는 천생연분!', tip: 'A형의 작은 디테일을 자주 칭찬해 주기' },
+    'O-B': { score: 91, tag: '시너지 폭발 짝꿍', text: '서로의 열정을 응원해 주는 활기찬 관계입니다. 솔직하고 뒤끝 없는 소통 덕분에 갈등이 생겨도 금방 화해하고 돈독해집니다.', tip: '주도권 다툼보다 공동 목표 세우기' },
+    'O-O': { score: 84, tag: '화끈한 의리 커플', text: '애정 표현이 솔직하고 화끈해 연애 초반부터 급속도로 가까워집니다. 서로를 향한 믿음이 강해 주변에서 부러워하는 커플!', tip: '서로 양보하는 날을 번갈아 정해보기' },
+    'O-AB': { score: 78, tag: '신비로운 상호보완', text: '직진 본능 O형과 신비로운 매력의 AB형이 만나 색다른 설렘을 느낍니다. AB형의 독특한 생각을 호기심 있게 들어주세요.', tip: '결정을 서두르지 않고 여유 있게 기다려주기' },
+    'AB-A': { score: 80, tag: '잔잔한 감성 궁합', text: '요란하지 않아도 깊은 진심이 통하는 어른스러운 연애를 합니다. 서로의 취향을 존중하며 품격 있는 추억을 쌓아갑니다.', tip: '감정 표현을 평소보다 20% 더 자주 하기' },
+    'AB-B': { score: 88, tag: '통통 튀는 천재 콤비', text: '남들은 이해 못 할 우리만의 세계를 공유하는 특별한 궁합! 서로의 개성을 있는 그대로 사랑해 주어 편안함과 설렘이 공존합니다.', tip: '중요한 일은 메모로 한 번 더 확인하기' },
+    'AB-O': { score: 78, tag: '호기심 자극 로맨스', text: '이성적인 AB형에게 O형의 따뜻한 인간미가 큰 위로가 됩니다. 서로 다른 시선으로 세상을 바라보며 함께 성장하는 관계입니다.', tip: '솔직한 애정 표현에 미소로 화답하기' },
+    'AB-AB': { score: 85, tag: '텔레파시 소울메이트', text: '말하지 않아도 서로의 템포와 경계를 정확히 아는 신기한 조합! 적당한 거리감 속에서 가장 깊은 이해와 존중을 나눕니다.', tip: '함께 전시회나 심야 영화 같은 감성 데이트 즐기기' }
+  };
+
+  const ZODIAC_LIST = [
+    { name: '양자리', symbol: '♈', dates: '3/21~4/19', el: '불', ruler: '화성', color: '루비 레드', num: '9', item: '메탈 키링', msg: '주저하던 일에 첫 발을 내딛기 좋은 날! 당신의 솔직한 추진력이 행운을 끌어당깁니다.' },
+    { name: '황소자리', symbol: '♉', dates: '4/20~5/20', el: '흙', ruler: '금성', color: '에메랄드', num: '6', item: '향수·디퓨저', msg: '오감이 즐거워지는 달콤한 하루입니다. 맛있는 식사나 작은 선물이 예상치 못한 기쁨을 가져다줍니다.' },
+    { name: '쌍둥이자리', symbol: '♊', dates: '5/21~6/21', el: '공기', ruler: '수성', color: '레몬 옐로우', num: '5', item: '이어폰', msg: '반가운 연락이나 흥미로운 소식이 들려올 예감! 가벼운 대화 속에서 빛나는 아이디어가 탄생합니다.' },
+    { name: '게자리', symbol: '♋', dates: '6/22~7/22', el: '물', ruler: '달', color: '실버 문', num: '2', item: '따뜻한 머그컵', msg: '마음이 통하는 사람과의 시간이 큰 힐링이 됩니다. 직감이 예리해지는 날이니 첫 느낌을 믿어보세요.' },
+    { name: '사자자리', symbol: '♌', dates: '7/23~8/22', el: '불', ruler: '태양', color: '골드 앰버', num: '1', item: '골드 액세서리', msg: '어디서나 주목받는 주인공의 에너지가 흐릅니다! 자신감 있게 의견을 표현하면 좋은 제안이 들어옵니다.' },
+    { name: '처녀자리', symbol: '♍', dates: '8/23~9/22', el: '흙', ruler: '수성', color: '세이지 그린', num: '4', item: '만년필·다이어리', msg: '복잡했던 일들이 깔끔하게 정리되는 개운한 하루! 꼼꼼한 준비가 기대 이상의 성과로 돌아옵니다.' },
+    { name: '천칭자리', symbol: '♎', dates: '9/23~10/22', el: '공기', ruler: '금성', color: '로즈 쿼츠', num: '7', item: '손거울', msg: '인간관계와 연애운에 부드러운 훈풍이 불어옵니다. 센스 있는 코디가 좋은 인연을 부르는 열쇠예요.' },
+    { name: '전갈자리', symbol: '♏', dates: '10/23~11/22', el: '물', ruler: '명왕성', color: '딥 바이올렛', num: '8', item: '블랙 노트', msg: '숨겨진 진실이나 핵심을 꿰뚫어 보는 집중력이 최고조에 달합니다. 깊이 몰입한 일에서 큰 보람을 얻어요.' },
+    { name: '사수자리', symbol: '♐', dates: '11/23~12/21', el: '불', ruler: '목성', color: '로열 블루', num: '3', item: '스니커즈', msg: '새로운 장소나 낯선 경험 속에 행운이 숨어 있습니다! 평소 안 가던 카페나 산책길을 걸어보세요.' },
+    { name: '염소자리', symbol: '♑', dates: '12/22~1/19', el: '흙', ruler: '토성', color: '차콜 골드', num: '10', item: '손목시계', msg: '묵묵히 쌓아온 노력이 드디어 인정받는 흐름입니다. 장기적인 목표를 한 단계 끌어올릴 절호의 타이밍!' },
+    { name: '물병자리', symbol: '♒', dates: '1/20~2/18', el: '공기', ruler: '천왕성', color: '일렉트릭 블루', num: '11', item: '스마트 기기', msg: '남들과 다른 독창적인 발상이 빛을 발합니다. 뜻이 맞는 동료나 친구와 재미있는 프로젝트가 시작될 수 있어요.' },
+    { name: '물고기자리', symbol: '♓', dates: '2/19~3/20', el: '물', ruler: '해왕성', color: '라벤더 미스트', num: '12', item: '플레이리스트', msg: '감수성과 상상력이 별빛처럼 반짝이는 날입니다. 로맨틱한 우연이나 마음을 울리는 선물을 기대해 보세요.' }
+  ];
+
+  function getZodiacIndex(m, d) {
+    if ((m === 3 && d >= 21) || (m === 4 && d <= 19)) return 0;
+    if ((m === 4 && d >= 20) || (m === 5 && d <= 20)) return 1;
+    if ((m === 5 && d >= 21) || (m === 6 && d <= 21)) return 2;
+    if ((m === 6 && d >= 22) || (m === 7 && d <= 22)) return 3;
+    if ((m === 7 && d >= 23) || (m === 8 && d <= 22)) return 4;
+    if ((m === 8 && d >= 23) || (m === 9 && d <= 22)) return 5;
+    if ((m === 9 && d >= 23) || (m === 10 && d <= 22)) return 6;
+    if ((m === 10 && d >= 23) || (m === 11 && d <= 22)) return 7;
+    if ((m === 11 && d >= 23) || (m === 12 && d <= 21)) return 8;
+    if ((m === 12 && d >= 22) || (m === 1 && d <= 19)) return 9;
+    if ((m === 1 && d >= 20) || (m === 2 && d <= 18)) return 10;
+    return 11;
+  }
+
+  function getZodiacMatch(idxA, idxB) {
+    const a = ZODIAC_LIST[idxA], b = ZODIAC_LIST[idxB];
+    const pair = [a.el, b.el].sort().join('-');
+    let score = 78, title = '서로를 배우는 신비한 성좌', desc = '서로 다른 원소의 매력이 만나 색다른 자극을 줍니다. 다름을 호기심으로 바라볼 때 관계가 깊어집니다.';
+    if (idxA === idxB) {
+      score = 88; title = '쌍둥이 별빛 소울메이트';
+      desc = `같은 ${a.el}의 원소를 공유해 말하지 않아도 통하는 편안함이 큽니다. 서로의 장점을 가장 잘 알아봐 주는 단짝이에요!`;
+    } else if (a.el === b.el) {
+      score = 94; title = `찬란한 ${a.el} 원소 공명`;
+      desc = `두 별자리 모두 ${a.el}의 에너지를 품고 있어 템포와 가치관이 완벽하게 맞아떨어집니다. 함께 있을수록 행운이 증폭되는 천생연분!`;
+    } else if (pair === '공기-불') {
+      score = 92; title = '불꽃을 키우는 바람의 케미';
+      desc = '불의 열정과 공기의 지성이 만나 최고의 시너지를 일으킵니다! 함께 도전하고 대화할수록 눈부시게 성장하는 커플입니다.';
+    } else if (pair === '물-흙') {
+      score = 91; title = '대지를 적시는 감성 궁합';
+      desc = '흙의 안정감이 물의 섬세한 감정을 든든히 지켜주는 힐링 조합입니다. 시간이 지날수록 깊은 신뢰와 사랑이 뿌리내립니다.';
+    } else if (pair === '물-불') {
+      score = 76; title = '뜨거운 설렘과 깊은 감성';
+      desc = '강렬한 끌림이 있는 드라마틱한 조합! 불의 직진과 물의 배려가 속도를 맞추면 영화 같은 로맨스가 펼쳐집니다.';
+    } else if (pair === '공기-흙') {
+      score = 79; title = '현실과 이상의 완벽한 조화';
+      desc = '공기의 자유로운 아이디어를 흙이 현실로 단단히 만들어 줍니다. 서로의 강점을 역할 분담하면 최강의 파트너가 됩니다.';
+    }
+    return { a, b, score, title, desc };
+  }
+
+  const TAROT_CARDS = [
+    { num: '0', name: '광대 (The Fool)', icon: '🃏', kw: '새로운 시작 · 순수 · 모험', up: '두려움을 내려놓고 새로운 가능성을 향해 발을 내디딜 때입니다. 뜻밖의 즐거운 기회가 기다립니다.', rev: '조금만 더 신중히 주변을 살펴보세요. 작은 준비가 큰 실수를 막아줍니다.' },
+    { num: 'I', name: '마법사 (The Magician)', icon: '✨', kw: '창조력 · 실현 · 자신감', up: '당신에게는 이미 원하는 것을 현실로 만들 모든 도구가 갖춰져 있습니다. 지금 바로 실행에 옮기세요!', rev: '집중력이 분산되어 있을 수 있어요. 가장 중요한 한 가지에 에너지를 모아보세요.' },
+    { num: 'II', name: '여사제 (The High Priestess)', icon: '🌙', kw: '직관 · 신비 · 내면의 지혜', up: '겉으로 드러난 말보다 당신의 고요한 직감이 정답을 알고 있습니다. 조급해하지 말고 흐름을 지켜보세요.', rev: '마음속 불안을 감추기보다 신뢰할 수 있는 사람과 솔직히 나눠보세요.' },
+    { num: 'III', name: '여황제 (The Empress)', icon: '🌸', kw: '풍요 · 사랑 · 매력 발산', up: '애정과 풍요가 자연스럽게 흘러들어오는 축복의 카드입니다. 스스로를 아낄수록 더 큰 사랑이 다가옵니다.', rev: '남을 챙기느라 정작 자신의 휴식을 놓치고 있진 않나요? 오늘은 나를 위한 선물을 해주세요.' },
+    { num: 'VI', name: '연인 (The Lovers)', icon: '💘', kw: '운명적 끌림 · 조화 · 선택', up: '마음이 깊이 통하는 인연과의 교감이 강해집니다. 가슴이 설레는 쪽을 선택해도 후회 없을 거예요.', rev: '엇갈린 오해를 풀기 위해 먼저 따뜻한 손길을 내밀어 볼 타이밍입니다.' },
+    { num: 'VII', name: '전차 (The Chariot)', icon: '🏆', kw: '승리 · 돌파력 · 전진', up: '망설이던 장애물을 시원하게 돌파하고 목표에 도달할 기운입니다! 흔들리지 않는 의지가 승리를 부릅니다.', rev: '속도를 잠시 줄이고 방향을 재점검하면 훨씬 수월하게 도착할 수 있어요.' },
+    { num: 'IX', name: '은둔자 (The Hermit)', icon: '🕯️', kw: '성찰 · 깨달음 · 고요한 빛', up: '잠시 소음을 멀리하고 나만의 시간을 가지면 안개처럼 흐렸던 해답이 또렷하게 떠오릅니다.', rev: '혼자 고민을 끌어안기보다는 이제 세상 밖으로 나와 따뜻한 교류를 시작해 보세요.' },
+    { num: 'X', name: '운명의 수레바퀴 (Wheel of Fortune)', icon: '☸️', kw: '전환점 · 행운 · 운명의 흐름', up: '긍정적인 변화의 바람이 불어옵니다! 우연처럼 찾아오는 제안이나 만남이 인생의 좋은 전환점이 될 거예요.', rev: '잠시 정체된 듯 보여도 수레바퀴는 곧 다시 상승 곡선으로 돌아섭니다. 마음을 편히 가지세요.' },
+    { num: 'XVII', name: '별 (The Star)', icon: '🌟', kw: '희망 · 치유 · 소원 성취', up: '어두운 밤하늘에 가장 밝은 별이 뜨듯, 간절히 바라던 소망에 희망찬 빛이 비칩니다. 치유와 평온의 시기예요.', rev: '기대치를 조금 내려놓고 오늘 이룬 작은 성취부터 스스로 칭찬해 주세요.' },
+    { num: 'XVIII', name: '달 (The Moon)', icon: '🌕', kw: '감성 · 숨겨진 마음 · 상상력', up: '겉모습 너머의 진심이 서서히 드러납니다. 예술적 영감이 풍부해지며 감정의 결을 섬세하게 읽는 힘이 커집니다.', rev: '막연한 걱정은 실체보다 크기 마련입니다. 사실만 차분히 확인하면 안도하게 될 거예요.' },
+    { num: 'XIX', name: '태양 (The Sun)', icon: '☀️', kw: '기쁨 · 성공 · 눈부신 활력', up: '타로에서 가장 밝은 축복의 카드! 고민이 눈 녹듯 사라지고 환한 웃음과 명확한 성과가 찾아옵니다.', rev: '이미 충분히 잘 해내고 있어요. 완벽하지 않아도 지금의 빛을 마음껏 즐기세요.' },
+    { num: 'XXI', name: '세계 (The World)', icon: '🌍', kw: '완성 · 성취 · 새로운 챕터', up: '그동안 공들여 온 일이 아름다운 결실을 맺습니다! 한 단계 더 넓은 무대로 나아갈 준비가 완벽히 끝났어요.', rev: '마지막 1%의 마무리를 꼼꼼히 챙기면 완벽한 해피엔딩을 맞이할 수 있습니다.' }
+  ];
+
+  const MBTI_GOLDEN_PAIRS = new Set([
+    'INFP-ENFJ', 'INFP-ENTJ', 'INFJ-ENFP', 'INFJ-ENTP', 'ENFP-INFJ', 'ENFP-INTJ', 'ENFJ-INFP', 'ENFJ-ISFP',
+    'INTP-ENTJ', 'INTP-ESTJ', 'INTJ-ENFP', 'INTJ-ENTP', 'ENTP-INFJ', 'ENTP-INTJ', 'ENTJ-INFP', 'ENTJ-INTP',
+    'ISFP-ENFJ', 'ISFP-ESFJ', 'ISFJ-ESFP', 'ISFJ-ESTP', 'ESFP-ISFJ', 'ESFP-ISTJ', 'ESFJ-ISFP', 'ESFJ-ISTP',
+    'ISTP-ESFJ', 'ISTP-ESTJ', 'ISTJ-ESFP', 'ISTJ-ESTP', 'ESTP-ISFJ', 'ESTP-ISTJ', 'ESTJ-INTP', 'ESTJ-ISTP'
+  ]);
+
+  function analyzeMBTI(a, b) {
+    const key = `${a}-${b}`;
+    let score = 78, grade = '설레는 발견의 관계', summary = '', tip = '';
+    if (MBTI_GOLDEN_PAIRS.has(key)) {
+      score = 96; grade = '천생연분 · 황금 궁합 💎';
+      summary = `${a}와 ${b}는 심리 기능의 퍼즐이 기적처럼 맞물리는 대표적 황금 궁합입니다! 서로 부족한 에너지를 자연스럽게 채워주며, 함께 있을 때 가장 나다운 모습을 편안하게 드러낼 수 있어요.`;
+      tip = '서로의 장점을 당연하게 여기지 말고 자주 언어로 표현해 주세요.';
+    } else if (a === b) {
+      score = 86; grade = '거울처럼 닮은 소울메이트 🪞';
+      summary = `같은 ${a} 유형이라 말하지 않아도 고민과 취향을 100% 이해합니다. 세상에서 가장 편한 내 편이 되어주는 따뜻한 관계예요.`;
+      tip = '비슷한 약점 때문에 결정을 미룰 땐 가위바위보라도 정해 가볍게 실행해 보세요!';
+    } else {
+      const sameN = a[1] === b[1], sameF = a[2] === b[2], diffE = a[0] !== b[0], diffJ = a[3] !== b[3];
+      if (sameN && sameF) {
+        score = 90; grade = '깊은 공감 · 마음의 단짝 🌿';
+        summary = `${a}와 ${b}는 세상을 바라보는 시선(${a[1]})과 가치 판단(${a[2]})이 같아 대화가 끝없이 이어집니다. 감성적 유대감이 아주 탄탄해요.`;
+        tip = diffE ? '외향형은 충전 시간을 배려하고, 내향형은 가끔 함께 외출해 보세요.' : '실행 계획만 가볍게 공유하면 완벽한 팀워크가 됩니다.';
+      } else if (sameN && diffE) {
+        score = 85; grade = '티키타카 아이디어 파트너 ⚡';
+        summary = `같은 직관/감각 코드(${a[1]})를 공유하면서 에너지 방향이 달라 서로에게 신선한 활력을 줍니다.`;
+        tip = a[2] !== b[2] ? 'T는 공감을 먼저 한 마디, F는 핵심 결론을 살짝 덧붙여 대화해 보세요.' : '서로의 일정 스타일을 미리 조율하면 다툼이 사라져요.';
+      } else if (a[1] !== b[1] && a[2] !== b[2]) {
+        score = 73; grade = '반전 매력 · 성장형 케미 🌈';
+        summary = `사고방식과 표현법이 꽤 달라 초반엔 신기하고 흥미롭습니다. 서로의 번역가가 되어주면 시야가 두 배로 넓어지는 값진 인연이에요!`;
+        tip = '"왜 그렇게 생각해?" 대신 "너의 관점이 궁금해!"라고 물어보면 마법처럼 풀립니다.';
+      } else {
+        score = 81; grade = '균형 잡힌 보완 파트너 ✨';
+        summary = `${a}의 섬세함과 ${b}의 매력이 균형을 이루는 안정적인 조합입니다. 함께 일상을 쌓아갈수록 서로에게 없어서는 안 될 존재가 됩니다.`;
+        tip = diffJ ? 'J의 계획 속에 P를 위한 자유 시간 2시간을 비워두세요!' : '새로운 데이트 코스를 번갈아 제안해 보세요.';
+      }
+    }
+    return { a, b, score, grade, summary, tip };
+  }
+
+  /* ==================== UI HELPERS ==================== */
+  const toastEl = document.getElementById('toast');
+  let toastTimer = null;
+  function showToast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2300);
+  }
+
+  const modalEl = document.getElementById('result-modal');
+  const modalTag = document.getElementById('modal-tag');
+  const modalTitle = document.getElementById('modal-title');
+  const modalBody = document.getElementById('modal-body');
+
+  function openModal(tag, title, html) {
+    modalTag.textContent = tag;
+    modalTitle.textContent = title;
+    modalBody.innerHTML = html;
+    modalEl.classList.add('open');
+    playChimeSound(620);
+  }
+  function closeModal() { modalEl.classList.remove('open'); }
+  document.getElementById('btn-close-modal').addEventListener('click', closeModal);
+  modalEl.addEventListener('click', (e) => { if (e.target === modalEl) closeModal(); });
+
+  /* ==================== ORIGINAL VIDEO OPENING PLAYER (PRESS TO PLAY -> SAJU MAIN) ==================== */
+  const openingOverlay = document.getElementById('opening-overlay');
+  const openingPoster = document.getElementById('opening-poster');
+  const openingVignette = document.getElementById('opening-vignette');
+  const openingVideo = document.getElementById('opening-video');
+  const inputOpeningVideo = document.getElementById('input-opening-video');
+  const mp4BtnLabel = document.getElementById('mp4-btn-label');
+  const knockSubLabel = document.getElementById('knock-sub-label');
+  const openingCaption = document.getElementById('opening-caption');
+  const doorLightBeam = document.getElementById('door-light-beam');
+  const knockArea = document.getElementById('opening-knock-area');
+  const openingHeader = document.getElementById('opening-header');
+
+  let openingPlaying = false;
+
+  function saveVideoToDB(blob, name) {
+    try {
+      const req = indexedDB.open('FortuneShopDB', 1);
+      req.onupgradeneeded = () => {
+        if (!req.result.objectStoreNames.contains('media')) req.result.createObjectStore('media');
+      };
+      req.onsuccess = () => {
+        const tx = req.result.transaction('media', 'readwrite');
+        tx.objectStore('media').put({ blob, name }, 'openingVideo');
+      };
+    } catch (e) {}
+  }
+
+  function loadVideoFromDB() {
+    try {
+      const req = indexedDB.open('FortuneShopDB', 1);
+      req.onupgradeneeded = () => {
+        if (!req.result.objectStoreNames.contains('media')) req.result.createObjectStore('media');
+      };
+      req.onsuccess = () => {
+        const tx = req.result.transaction('media', 'readonly');
+        const getReq = tx.objectStore('media').get('openingVideo');
+        getReq.onsuccess = () => {
+          if (getReq.result && getReq.result.blob) {
+            attachOpeningVideo(getReq.result.blob, getReq.result.name || '원본 오프닝 영상', false);
+          }
+        };
+      };
+    } catch (e) {}
+  }
+
+  function attachOpeningVideo(blob, filename, showMsg = true) {
+    if (state.customVideoUrl) URL.revokeObjectURL(state.customVideoUrl);
+    state.customVideoUrl = URL.createObjectURL(blob);
+    openingVideo.src = state.customVideoUrl;
+    openingVideo.currentTime = 0;
+    openingVideo.classList.add('playing');
+    openingVideo.pause();
+    mp4BtnLabel.textContent = '원본 영상 연결됨 ✓';
+    knockSubLabel.textContent = '영상 시작하기';
+    openingCaption.innerHTML = `<strong>${filename}</strong> 준비 완료!<br>버튼을 누르면 오프닝 영상 후 사주 화면으로 이동합니다`;
+    if (showMsg) showToast('오프닝 영상이 연결되었습니다! 버튼을 눌러 시작하세요 🎬');
+  }
+
+  function finishOpening() {
+    openingPlaying = false;
+    doorLightBeam.classList.remove('flash');
+    try {
+      openingVideo.pause();
+      openingVideo.currentTime = 0;
+    } catch (e) {}
+    openingOverlay.classList.add('hidden-seq');
+    goToCharacter(0, true);
+    playChimeSound(720);
+  }
+
+  openingVideo.addEventListener('ended', () => {
+    doorLightBeam.classList.add('flash');
+    setTimeout(finishOpening, 420);
+  });
+
+  document.getElementById('btn-load-mp4').addEventListener('click', () => {
+    inputOpeningVideo.click();
+  });
+
+  inputOpeningVideo.addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    attachOpeningVideo(file, file.name, true);
+    saveVideoToDB(file, file.name);
+  });
+
+  function startOpeningSequence() {
+    if (openingPlaying) return;
+
+    if (state.customVideoUrl) {
+      openingPlaying = true;
+      playKnockSound();
+      knockArea.style.opacity = '0';
+      knockArea.style.pointerEvents = 'none';
+      openingHeader.style.opacity = '0';
+      openingVignette.style.opacity = '0';
+      openingVideo.classList.add('playing');
+      openingVideo.currentTime = 0;
+      openingVideo.muted = !soundEnabled;
+      const p = openingVideo.play();
+      if (p && typeof p.catch === 'function') {
+        p.catch(() => {
+          openingVideo.muted = true;
+          openingVideo.play().catch(() => finishOpening());
+        });
+      }
+      return;
+    }
+
+    openingPlaying = true;
+    playKnockSound();
+    knockArea.style.opacity = '0';
+    knockArea.style.pointerEvents = 'none';
+    openingPoster.style.transform = 'scale(1.12)';
+    doorLightBeam.classList.add('flash');
+    showToast('상단에서 원본 .mp4 영상을 연결하면 오프닝 영상이 재생됩니다');
+    setTimeout(finishOpening, 950);
+  }
+
+  function replayOpening() {
+    openingPlaying = false;
+    doorLightBeam.classList.remove('flash');
+    openingPoster.style.transform = 'scale(1)';
+    openingVignette.style.opacity = '1';
+    knockArea.style.opacity = '1';
+    knockArea.style.pointerEvents = 'auto';
+    openingHeader.style.opacity = '1';
+    if (state.customVideoUrl) {
+      openingVideo.classList.add('playing');
+      try { openingVideo.pause(); openingVideo.currentTime = 0; } catch (e) {}
+    } else {
+      openingVideo.classList.remove('playing');
+    }
+    openingOverlay.classList.remove('hidden-seq');
+  }
+
+  document.getElementById('btn-knock-door').addEventListener('click', startOpeningSequence);
+  document.getElementById('btn-skip-opening').addEventListener('click', finishOpening);
+  document.getElementById('btn-replay-opening').addEventListener('click', replayOpening);
+
+  /* ==================== CHARACTER NAVIGATION & GESTURES ==================== */
+  const themeBackdrop = document.getElementById('theme-backdrop');
+  const contentSheet = document.getElementById('content-sheet');
+  const badgeRole = document.getElementById('badge-role');
+  const badgeName = document.getElementById('badge-name');
+  const speechBubble = document.getElementById('speech-bubble');
+  const modelModeText = document.getElementById('model-mode-text');
+  const panels = Array.from(document.querySelectorAll('.char-panel'));
+  const navBtns = Array.from(document.querySelectorAll('[data-nav-idx]'));
+
+  function formatSpeech(text) {
+    if (state.userName && state.userName.trim()) {
+      return text.replace(/당신/g, `${state.userName.trim()}님`).replace(/너(?=[랑의에게와])/g, `${state.userName.trim()}님`);
+    }
+    return text;
+  }
+
+  function toggleModelMode() {
+    state.modelMode = state.modelMode === 'plus' ? 'mini' : 'plus';
+    const isMini = state.modelMode === 'mini';
+    modelModeText.textContent = isMini ? '무료 미니 3D' : '운명플러스 3D';
+    resizeThree();
+    playChimeSound(isMini ? 560 : 760);
+    showToast(isMini ? '무료 모델 (미니 3D 전신 뷰)로 전환했어요' : '유료 모델 (운명플러스 3D 클로즈업)로 전환했어요 ✨');
+  }
+  document.getElementById('model-mode-pill').addEventListener('click', toggleModelMode);
+
+  function goToCharacter(idx, silent = false) {
+    const wrapped = ((idx % 5) + 5) % 5;
+    state.currentIdx = wrapped;
+
+    const char = CHARACTERS[wrapped];
+    themeBackdrop.style.background = char.backdrop;
+    contentSheet.style.background = char.sheetBg;
+    badgeRole.textContent = char.role;
+    badgeName.textContent = `${char.name} (3D)`;
+    speechBubble.innerHTML = formatSpeech(char.lines[state.speechIdx[wrapped]]);
+
+    panels.forEach((p, i) => p.classList.toggle('hidden', i !== wrapped));
+    navBtns.forEach((b, i) => {
+      const active = i === wrapped;
+      b.classList.toggle('active', active);
+      b.classList.toggle('text-slate-300', !active);
+    });
+
+    showCharacter3D(wrapped);
+    contentSheet.scrollTo({ top: 0, behavior: 'smooth' });
+    if (!silent) playSwipeSound();
+  }
+
+  let dragStartX = 0, dragStartY = 0, dragDeltaX = 0, dragDeltaY = 0;
+  let isDragging = false, gestureAxis = null;
+
+  function onPointerDown(e) {
+    if (e.target.closest('button') || e.target.closest('#speech-bubble')) return;
+    isDragging = true;
+    gestureAxis = null;
+    dragStartX = e.touches ? e.touches[0].clientX : e.clientX;
+    dragStartY = e.touches ? e.touches[0].clientY : e.clientY;
+    dragDeltaX = 0;
+    dragDeltaY = 0;
+    threeContainer.classList.add('dragging');
+  }
+
+  function onPointerMove(e) {
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const rect = stageWrapper.getBoundingClientRect();
+    rigPhys.targetX = Math.max(-1, Math.min(1, ((clientX - rect.left) / (rect.width || 380) - 0.5) * 2));
+    rigPhys.targetY = Math.max(-1, Math.min(1, ((clientY - rect.top) / (rect.height || 300) - 0.5) * 2));
+
+    if (!isDragging) return;
+    const dx = clientX - dragStartX;
+    const dy = clientY - dragStartY;
+    if (gestureAxis === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8)) {
+      gestureAxis = Math.abs(dx) >= Math.abs(dy) ? 'x' : 'y';
+    }
+    dragDeltaX = dx;
+    dragDeltaY = dy;
+    if (gestureAxis === 'x') threeContainer.style.transform = `translate3d(${dx * 0.42}px, 0, 0)`;
+  }
+
+  function onPointerUp() {
+    if (!isDragging) return;
+    isDragging = false;
+    threeContainer.classList.remove('dragging');
+    threeContainer.style.transform = 'translate3d(0, 0, 0)';
+
+    if (gestureAxis === 'x' && Math.abs(dragDeltaX) > 46) {
+      goToCharacter(dragDeltaX < 0 ? state.currentIdx + 1 : state.currentIdx - 1);
+    } else if (gestureAxis === 'y' && Math.abs(dragDeltaY) > 48) {
+      toggleModelMode();
+    } else if (Math.abs(dragDeltaX) < 12 && Math.abs(dragDeltaY) < 12) {
+      const rect = stageWrapper.getBoundingClientRect();
+      const tx = Math.max(0.15, Math.min(0.85, (dragStartX - rect.left) / (rect.width || 380)));
+      const ty = Math.max(0.12, Math.min(0.55, 1.0 - (dragStartY - rect.top) / (rect.height || 300)));
+      triggerCharacterTapReaction(tx, ty);
+    }
+    dragDeltaX = 0;
+    dragDeltaY = 0;
+    gestureAxis = null;
+  }
+
+  stageWrapper.addEventListener('touchstart', onPointerDown, { passive: true });
+  stageWrapper.addEventListener('touchmove', onPointerMove, { passive: true });
+  stageWrapper.addEventListener('touchend', onPointerUp);
+  stageWrapper.addEventListener('mousedown', onPointerDown);
+  window.addEventListener('mousemove', onPointerMove);
+  window.addEventListener('mouseup', onPointerUp);
+
+  document.getElementById('btn-stage-prev').addEventListener('click', () => goToCharacter(state.currentIdx - 1));
+  document.getElementById('btn-stage-next').addEventListener('click', () => goToCharacter(state.currentIdx + 1));
+  navBtns.forEach(btn => btn.addEventListener('click', () => goToCharacter(parseInt(btn.dataset.navIdx, 10))));
+
+  window.addEventListener('keydown', (e) => {
+    if (document.activeElement && ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+    if (!openingOverlay.classList.contains('hidden-seq')) return;
+    if (e.key === 'ArrowRight') goToCharacter(state.currentIdx + 1);
+    if (e.key === 'ArrowLeft') goToCharacter(state.currentIdx - 1);
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') toggleModelMode();
+  });
+
+  function triggerCharacterTapReaction(tx = 0.5, ty = 0.36) {
+    const idx = state.currentIdx;
+    const char = CHARACTERS[idx];
+    state.speechIdx[idx] = (state.speechIdx[idx] + 1) % char.lines.length;
+    speechBubble.innerHTML = formatSpeech(char.lines[state.speechIdx[idx]]);
+    rigPhys.tapUv = [tx, ty];
+    rigPhys.flinchElapsed = 0.0;
+    rigPhys.happyTimer = 0.95;
+    rigPhys.blinkState = 1;
+    playChimeSound(780);
+  }
+  speechBubble.addEventListener('click', triggerCharacterTapReaction);
+
+  const btn25d = document.getElementById('btn-toggle-25d');
+  btn25d.addEventListener('click', () => {
+    state.motionEnabled = !state.motionEnabled;
+    btn25d.textContent = state.motionEnabled ? '3D ON' : '3D OFF';
+    showToast(state.motionEnabled ? '3D 캐릭터 애니메이션 ON ✨' : '3D 애니메이션 일시 정지');
+  });
+
+  const btnSound = document.getElementById('btn-toggle-sound');
+  btnSound.addEventListener('click', () => {
+    soundEnabled = !soundEnabled;
+    btnSound.textContent = soundEnabled ? '🔊' : '🔇';
+    openingVideo.muted = !soundEnabled;
+    showToast(soundEnabled ? '효과음이 켜졌습니다' : '효과음이 음소거되었습니다');
+  });
+
+  /* ==================== PANEL HANDLERS ==================== */
+  const sajuNameInput = document.getElementById('saju-name');
+  const sajuYearInput = document.getElementById('saju-year');
+  const sajuMonthInput = document.getElementById('saju-month');
+  const sajuDayInput = document.getElementById('saju-day');
+  const sajuTimeSelect = document.getElementById('saju-time');
+  const genderBtns = Array.from(document.querySelectorAll('.saju-gender-btn'));
+
+  genderBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.userGender = btn.dataset.gender;
+      genderBtns.forEach(b => {
+        const active = b.dataset.gender === state.userGender;
+        b.className = `saju-gender-btn px-2 py-1 text-[11px] font-bold ${active ? 'bg-[#154d48] text-[#f7e9c7]' : 'text-[#2b3a32]'}`;
+      });
+    });
+  });
+
+  function syncZodiacFromSajuInputs() {
+    const m = Math.max(1, Math.min(12, parseInt(sajuMonthInput.value, 10) || 5));
+    const d = Math.max(1, Math.min(31, parseInt(sajuDayInput.value, 10) || 14));
+    const zIdx = getZodiacIndex(m, d);
+    state.zodiacMe = zIdx;
+    document.getElementById('zodiac-me-select').value = String(zIdx);
+    document.getElementById('zodiac-match-me').value = String(zIdx);
+    renderZodiacDaily(false);
+  }
+
+  [sajuMonthInput, sajuDayInput].forEach(inp => inp.addEventListener('change', syncZodiacFromSajuInputs));
+  sajuNameInput.addEventListener('input', () => { state.userName = sajuNameInput.value.trim(); });
+
+  document.getElementById('btn-saju-sample').addEventListener('click', () => {
+    sajuNameInput.value = '지민';
+    sajuYearInput.value = '1997';
+    sajuMonthInput.value = '5';
+    sajuDayInput.value = '14';
+    sajuTimeSelect.value = '5';
+    state.userName = '지민';
+    syncZodiacFromSajuInputs();
+    showToast('옥판에 샘플(지민 · 1997년 5월 14일 사시)을 적었습니다');
+  });
+
+  function getSajuParams() {
+    const y = Math.max(1920, Math.min(2026, parseInt(sajuYearInput.value, 10) || 1997));
+    const m = Math.max(1, Math.min(12, parseInt(sajuMonthInput.value, 10) || 5));
+    const d = Math.max(1, Math.min(31, parseInt(sajuDayInput.value, 10) || 14));
+    return { y, m, d, timeVal: sajuTimeSelect.value, name: sajuNameInput.value.trim() || '방문자' };
+  }
+
+  document.getElementById('btn-run-saju').addEventListener('click', () => {
+    const { y, m, d, timeVal, name } = getSajuParams();
+    state.userName = name;
+    syncZodiacFromSajuInputs();
+    rigPhys.bounceVel = 0.08;
+    rigPhys.happyTimer = 1.4;
+
+    const data = calculateSaju(y, m, d, timeVal);
+    const ohColors = { 목: '#34d399', 화: '#fb7185', 토: '#fbbf24', 금: '#e2e8f0', 수: '#60a5fa' };
+    const pillarsHtml = data.pillars.map(p => `
+      <div class="bg-white/5 border border-[#e6c67c]/30 rounded-xl py-2 px-1 text-center">
+        <div class="text-[10px] text-[#e6c67c]/80 mb-1">${p.label}</div>
+        <div class="font-serif-kr text-sm font-bold text-white">${p.stem}</div>
+        <div class="font-serif-kr text-sm font-bold text-[#f3dfb1] mt-0.5">${p.branch}</div>
+      </div>
+    `).join('');
+
+    const ohaengHtml = Object.entries(data.counts).map(([k, v]) => {
+      const pct = Math.round((v / data.totalEl) * 100);
+      return `
+        <div class="flex items-center gap-2 text-xs">
+          <span class="w-5 font-bold" style="color:${ohColors[k]}">${k}</span>
+          <div class="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
+            <div class="h-full rounded-full" style="width:${Math.max(8, pct)}%; background:${ohColors[k]}"></div>
+          </div>
+          <span class="w-9 text-right text-slate-300">${v}개</span>
+        </div>
+      `;
+    }).join('');
+
+    openModal('연화의 옥구슬 사주 풀이', `${name}님의 사주팔자`, `
+      <div class="text-xs text-slate-300 bg-white/5 rounded-xl p-3 border border-white/10">
+        <strong class="text-[#f3dfb1]">${name}</strong>님 (${y}년 ${m}월 ${d}일 · ${data.animal}띠)의 사주 원국입니다.
+      </div>
+      <div class="grid grid-cols-4 gap-2">${pillarsHtml}</div>
+      <div class="bg-[#154d48]/30 border border-[#e6c67c]/40 rounded-xl p-3.5">
+        <div class="text-xs font-bold text-[#e6c67c] mb-1">✦ 타고난 일간(日干) 기질</div>
+        <div class="font-serif-kr text-base font-bold text-white mb-1">${data.ilgan.title}</div>
+        <p class="text-xs text-slate-200 leading-relaxed">${data.ilgan.desc}</p>
+      </div>
+      <div class="bg-white/5 border border-white/10 rounded-xl p-3.5 space-y-2">
+        <div class="flex items-center justify-between text-xs mb-1">
+          <span class="font-bold text-white">오행(五行) 기운 분포</span>
+          <span class="text-[#e6c67c]">강함: ${data.dominant} · 보완: ${data.lacking}</span>
+        </div>
+        ${ohaengHtml}
+      </div>
+      <div class="flex items-center justify-between bg-amber-500/10 border border-amber-300/30 rounded-xl px-3.5 py-2.5 text-xs">
+        <span class="text-amber-200 font-semibold">🍀 행운 키워드</span>
+        <span class="text-white font-medium">${data.ilgan.lucky}</span>
+      </div>
+    `);
+  });
+
+  document.querySelectorAll('.quick-fortune-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const type = btn.dataset.quickFortune;
+      const { y, m, d, timeVal, name } = getSajuParams();
+      const data = calculateSaju(y, m, d, timeVal);
+      const map = {
+        today: { title: '오늘의 총운', score: data.scores.today, body: `${name}님, 오늘은 ${data.ilgan.title.split('·')[0].trim()} 기운이 맑게 피어오르는 날입니다. 오후 시간대에 반가운 소식이나 작은 행운이 찾아오니 여유롭게 즐겨보세요.` },
+        love: { title: '달빛 연애운', score: data.scores.love, body: `솔직하고 따뜻한 한마디가 인연의 문을 여는 날입니다. 연인이 있다면 사소한 칭찬이 설렘으로 이어지고, 솔로라면 새로운 장소에서 기분 좋은 시선을 느끼게 됩니다.` },
+        wealth: { title: '황금 재물운', score: data.scores.wealth, body: `불필요한 지출을 줄이고 꼭 필요한 곳에 투자할수록 복이 쌓이는 흐름입니다. 주변 지인의 정보 속에 실속 있는 기회가 숨어 있으니 귀를 기울여 보세요.` }
+      };
+      const item = map[type];
+      openModal('연화의 오늘의 점괘', item.title, `
+        <div class="flex items-center justify-between bg-[#154d48]/35 border border-[#e6c67c]/40 rounded-xl p-4">
+          <div>
+            <div class="text-xs text-[#e6c67c]">${name}님의 지수</div>
+            <div class="font-serif-kr text-2xl font-bold text-white mt-0.5">${item.score}점 <span class="text-xs font-normal text-emerald-300">/ 100</span></div>
+          </div>
+          <div class="text-3xl">${type === 'love' ? '🌸' : type === 'wealth' ? '💰' : '🏮'}</div>
+        </div>
+        <p class="text-sm text-slate-200 leading-relaxed bg-white/5 rounded-xl p-3.5 border border-white/10">${item.body}</p>
+        <div class="text-xs text-[#e6c67c]/90 text-center">행운 포인트: ${data.ilgan.lucky}</div>
+      `);
+    });
+  });
+
+  function renderBloodResult(withEffect = false) {
+    const key = `${state.bloodMe}-${state.bloodYou}`;
+    const res = BLOOD_DB[key] || BLOOD_DB['A-O'];
+    document.getElementById('blood-inline-result').innerHTML = `
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-1.5">
+          <span class="px-2 py-0.5 rounded-md bg-pink-500/30 text-pink-100 text-xs font-bold">${state.bloodMe}형 ♥ ${state.bloodYou}형</span>
+          <span class="text-xs font-bold text-pink-200">${res.tag}</span>
+        </div>
+        <span class="text-lg font-extrabold text-pink-300">${res.score}%</span>
+      </div>
+      <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden mb-2.5">
+        <div class="h-full bg-gradient-to-r from-rose-500 to-pink-300 rounded-full transition-all duration-500" style="width:${res.score}%"></div>
+      </div>
+      <p class="text-xs text-pink-100/90 leading-relaxed mb-2">${res.text}</p>
+      <div class="text-[11px] bg-pink-500/15 border border-pink-400/25 rounded-lg px-2.5 py-1.5 text-pink-200">
+        💡 <strong>루미의 비밀 메모:</strong> ${res.tip}
+      </div>
+    `;
+    if (withEffect) {
+      playChimeSound(740);
+      rigPhys.bounceVel = 0.08;
+      rigPhys.happyTimer = 1.4;
+      speechBubble.innerHTML = `${state.bloodMe}형이랑 ${state.bloodYou}형이라구? 궁합 점수 ${res.score}%야! ♥`;
+    }
+  }
+
+  document.querySelectorAll('.blood-me-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.bloodMe = btn.dataset.bloodMe;
+      document.querySelectorAll('.blood-me-btn').forEach(b => {
+        const active = b.dataset.bloodMe === state.bloodMe;
+        b.className = `blood-me-btn py-1.5 rounded-lg text-xs ${active ? 'font-extrabold border-2 border-rose-500 bg-rose-500 text-white shadow-sm' : 'font-bold border border-pink-300 bg-pink-50 text-rose-900'}`;
+      });
+      renderBloodResult(false);
+    });
+  });
+
+  document.querySelectorAll('.blood-you-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.bloodYou = btn.dataset.bloodYou;
+      document.querySelectorAll('.blood-you-btn').forEach(b => {
+        const active = b.dataset.bloodYou === state.bloodYou;
+        b.className = `blood-you-btn py-1.5 rounded-lg text-xs ${active ? 'font-extrabold border-2 border-rose-500 bg-rose-500 text-white shadow-sm' : 'font-bold border border-pink-300 bg-pink-50 text-rose-900'}`;
+      });
+      renderBloodResult(false);
+    });
+  });
+  document.getElementById('btn-run-blood').addEventListener('click', () => renderBloodResult(true));
+
+  const zMeSel = document.getElementById('zodiac-me-select');
+  const zMatchMe = document.getElementById('zodiac-match-me');
+  const zMatchYou = document.getElementById('zodiac-match-you');
+  ZODIAC_LIST.forEach((z, idx) => {
+    const label = `${z.symbol} ${z.name} (${z.dates})`;
+    [zMeSel, zMatchMe, zMatchYou].forEach(sel => {
+      const opt = document.createElement('option');
+      opt.value = String(idx);
+      opt.textContent = label;
+      opt.className = 'bg-[#19143a] text-white';
+      sel.appendChild(opt);
+    });
+  });
+  zMeSel.value = String(state.zodiacMe);
+  zMatchMe.value = String(state.zodiacMe);
+  zMatchYou.value = String(state.zodiacYou);
+
+  function renderZodiacDaily(withEffect = false) {
+    const z = ZODIAC_LIST[parseInt(zMeSel.value, 10) || 0];
+    document.getElementById('zodiac-inline-result').innerHTML = `
+      <div class="flex items-center justify-between mb-2">
+        <div class="font-bold text-sm text-violet-100">${z.symbol} ${z.name} <span class="text-[11px] font-normal text-violet-300">(${z.el} · 수호성 ${z.ruler})</span></div>
+        <span class="text-xs text-amber-300 font-bold">★★★★☆</span>
+      </div>
+      <p class="text-xs text-violet-100/90 leading-relaxed mb-2.5">${z.msg}</p>
+      <div class="grid grid-cols-3 gap-1.5 text-center text-[11px]">
+        <div class="bg-violet-500/15 rounded-lg py-1.5 px-1 border border-violet-300/20">
+          <div class="text-violet-300 text-[10px]">행운 컬러</div>
+          <div class="font-semibold text-white">${z.color}</div>
+        </div>
+        <div class="bg-violet-500/15 rounded-lg py-1.5 px-1 border border-violet-300/20">
+          <div class="text-violet-300 text-[10px]">행운 숫자</div>
+          <div class="font-semibold text-white">${z.num}</div>
+        </div>
+        <div class="bg-violet-500/15 rounded-lg py-1.5 px-1 border border-violet-300/20">
+          <div class="text-violet-300 text-[10px]">럭키 아이템</div>
+          <div class="font-semibold text-white">${z.item}</div>
+        </div>
+      </div>
+    `;
+    if (withEffect) {
+      playChimeSound(820);
+      rigPhys.bounceVel = 0.08;
+      rigPhys.happyTimer = 1.4;
+      speechBubble.innerHTML = `${z.name}의 별빛이 아주 선명해! 오늘 행운 아이템은 ${z.item}야 ★`;
+    }
+  }
+
+  function renderZodiacMatch(withEffect = false) {
+    const res = getZodiacMatch(parseInt(zMatchMe.value, 10) || 0, parseInt(zMatchYou.value, 10) || 0);
+    document.getElementById('zodiac-inline-result').innerHTML = `
+      <div class="flex items-center justify-between mb-2">
+        <div class="text-xs font-bold text-violet-100">${res.a.symbol} ${res.a.name} × ${res.b.symbol} ${res.b.name}</div>
+        <span class="text-base font-extrabold text-amber-300">${res.score}점</span>
+      </div>
+      <div class="text-xs font-bold text-fuchsia-300 mb-1.5">✦ ${res.title}</div>
+      <p class="text-xs text-violet-100/90 leading-relaxed">${res.desc}</p>
+    `;
+    if (withEffect) {
+      playChimeSound(860);
+      rigPhys.bounceVel = 0.08;
+      rigPhys.happyTimer = 1.4;
+      speechBubble.innerHTML = `${res.a.name}와 ${res.b.name}의 별자리 궁합은 ${res.score}점! 정말 반짝여 ✨`;
+    }
+  }
+
+  const zTabDaily = document.getElementById('zodiac-tab-daily');
+  const zTabMatch = document.getElementById('zodiac-tab-match');
+  zTabDaily.addEventListener('click', () => {
+    state.zodiacTab = 'daily';
+    zTabDaily.className = 'px-2.5 py-1 bg-violet-500/70 text-white font-semibold';
+    zTabMatch.className = 'px-2.5 py-1 bg-transparent text-violet-200';
+    document.getElementById('zodiac-daily-box').classList.remove('hidden');
+    document.getElementById('zodiac-match-box').classList.add('hidden');
+    renderZodiacDaily(false);
+  });
+  zTabMatch.addEventListener('click', () => {
+    state.zodiacTab = 'match';
+    zTabMatch.className = 'px-2.5 py-1 bg-violet-500/70 text-white font-semibold';
+    zTabDaily.className = 'px-2.5 py-1 bg-transparent text-violet-200';
+    document.getElementById('zodiac-match-box').classList.remove('hidden');
+    document.getElementById('zodiac-daily-box').classList.add('hidden');
+    renderZodiacMatch(false);
+  });
+  document.getElementById('btn-run-zodiac-daily').addEventListener('click', () => renderZodiacDaily(true));
+  document.getElementById('btn-run-zodiac-match').addEventListener('click', () => renderZodiacMatch(true));
+
+  const tarotDeckEl = document.getElementById('tarot-deck');
+  const tarotResultEl = document.getElementById('tarot-inline-result');
+  function shuffleTarotSpread() {
+    const shuffled = [...TAROT_CARDS].sort(() => Math.random() - 0.5).slice(0, 5);
+    state.tarotSpread = shuffled.map(c => ({ ...c, reversed: Math.random() < 0.28 }));
+    state.tarotPickedIdx = -1;
+    tarotDeckEl.innerHTML = state.tarotSpread.map((card, i) => `
+      <div class="tarot-card-wrap h-24" data-card-idx="${i}">
+        <div class="tarot-card-inner">
+          <div class="tarot-face bg-gradient-to-b from-[#2a1d54] to-[#150d30] border border-amber-300/70 flex flex-col items-center justify-center shadow-md hover:-translate-y-1 transition">
+            <div class="text-amber-300/90 text-base">✦</div>
+            <div class="text-[9px] text-amber-200/75 mt-1 tracking-widest">TAROT</div>
+          </div>
+          <div class="tarot-face tarot-front bg-gradient-to-b from-[#f8eed6] to-[#e4d0a3] border-2 border-amber-500 text-[#241c15] flex flex-col items-center justify-center p-1 text-center">
+            <div class="text-xl ${card.reversed ? 'rotate-180' : ''}">${card.icon}</div>
+            <div class="text-[9px] font-bold leading-tight mt-1">${card.num}</div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+    tarotResultEl.innerHTML = '제단 위의 카드 중 한 장을 터치하면 셀레네가 운명의 메시지를 읽어드립니다.';
+    tarotDeckEl.querySelectorAll('.tarot-card-wrap').forEach(el => {
+      el.addEventListener('click', () => pickTarotCard(parseInt(el.dataset.cardIdx, 10)));
+    });
+  }
+
+  function pickTarotCard(idx) {
+    if (state.tarotPickedIdx !== -1) return;
+    state.tarotPickedIdx = idx;
+    tarotDeckEl.querySelectorAll('.tarot-card-wrap').forEach((w, i) => {
+      if (i === idx) w.classList.add('flipped');
+      else w.style.opacity = '0.45';
+    });
+    const card = state.tarotSpread[idx];
+    const dirLabel = card.reversed ? '역방향 (조언)' : '정방향 (길조)';
+    const reading = card.reversed ? card.rev : card.up;
+    const topicNames = { today: '오늘의 운세', love: '연애·속마음', work: '재물·커리어', advice: '고민 해결' };
+    tarotResultEl.innerHTML = `
+      <div class="text-left">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="font-serif-kr font-bold text-sm text-amber-200">${card.icon} ${card.num}. ${card.name}</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full ${card.reversed ? 'bg-purple-500/30 text-purple-200' : 'bg-amber-400/25 text-amber-200'}">${dirLabel}</span>
+        </div>
+        <div class="text-[11px] text-amber-300/85 mb-1.5">[${topicNames[state.tarotTopic]}] 키워드: ${card.kw}</div>
+        <p class="text-xs text-purple-100/90 leading-relaxed">${reading}</p>
+      </div>
+    `;
+    playChimeSound(540);
+    rigPhys.bounceVel = 0.08;
+    rigPhys.happyTimer = 1.4;
+    speechBubble.innerHTML = `${card.name} 카드가 나왔군요. 지금 당신에게 꼭 필요한 메시지입니다.`;
+  }
+
+  document.querySelectorAll('.tarot-topic-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.tarotTopic = btn.dataset.topic;
+      document.querySelectorAll('.tarot-topic-btn').forEach(b => {
+        const active = b.dataset.topic === state.tarotTopic;
+        b.className = `tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold border ${active ? 'bg-amber-400/25 border-amber-300 text-amber-100' : 'bg-white/5 border-white/15 text-purple-200'}`;
+      });
+      shuffleTarotSpread();
+    });
+  });
+  document.getElementById('btn-tarot-reset').addEventListener('click', () => {
+    shuffleTarotSpread();
+    playSwipeSound();
+    showToast('타로 카드를 새롭게 섞었습니다 🔮');
+  });
+
+  const MBTI_PAIRS = [['E', 'I'], ['N', 'S'], ['F', 'T'], ['P', 'J']];
+  function renderMbtiToggles() {
+    const meBox = document.getElementById('mbti-me-toggles');
+    const youBox = document.getElementById('mbti-you-toggles');
+    meBox.innerHTML = state.mbtiMe.map((ch, idx) => `
+      <button type="button" data-mbti-who="me" data-mbti-pos="${idx}" class="mbti-letter-btn py-2 rounded-lg text-xs font-extrabold bg-sky-100 text-sky-900 border border-sky-300 hover:bg-sky-200 active:scale-95 transition">${ch}</button>
+    `).join('');
+    youBox.innerHTML = state.mbtiYou.map((ch, idx) => `
+      <button type="button" data-mbti-who="you" data-mbti-pos="${idx}" class="mbti-letter-btn py-2 rounded-lg text-xs font-extrabold bg-indigo-100 text-indigo-900 border border-indigo-300 hover:bg-indigo-200 active:scale-95 transition">${ch}</button>
+    `).join('');
+    document.getElementById('mbti-me-badge').textContent = state.mbtiMe.join('');
+    document.getElementById('mbti-you-badge').textContent = state.mbtiYou.join('');
+    document.querySelectorAll('.mbti-letter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const who = btn.dataset.mbtiWho;
+        const pos = parseInt(btn.dataset.mbtiPos, 10);
+        const arr = who === 'me' ? state.mbtiMe : state.mbtiYou;
+        const pair = MBTI_PAIRS[pos];
+        arr[pos] = arr[pos] === pair[0] ? pair[1] : pair[0];
+        playSwipeSound();
+        renderMbtiToggles();
+        renderMBTI(false);
+      });
+    });
+  }
+
+  function renderMBTI(withEffect = false) {
+    const res = analyzeMBTI(state.mbtiMe.join(''), state.mbtiYou.join(''));
+    document.getElementById('mbti-inline-result').innerHTML = `
+      <div class="flex items-center justify-between mb-2">
+        <div>
+          <span class="text-xs font-bold text-sky-200">${res.a} × ${res.b}</span>
+          <div class="text-xs font-bold text-white mt-0.5">${res.grade}</div>
+        </div>
+        <span class="text-lg font-extrabold text-sky-300">${res.score}점</span>
+      </div>
+      <p class="text-xs text-slate-200 leading-relaxed mb-2">${res.summary}</p>
+      <div class="text-[11px] bg-sky-500/15 border border-sky-300/25 rounded-lg px-2.5 py-1.5 text-sky-100">
+        💙 <strong>하린의 상담 처방:</strong> ${res.tip}
+      </div>
+    `;
+    if (withEffect) {
+      playChimeSound(680);
+      rigPhys.bounceVel = 0.08;
+      rigPhys.happyTimer = 1.4;
+      speechBubble.innerHTML = `${res.a}와 ${res.b}의 궁합은 ${res.score}점! 서로의 마음을 조금만 더 들여다보면 완벽해 ♡`;
+    }
+  }
+  document.getElementById('btn-run-mbti').addEventListener('click', () => renderMBTI(true));
+
+  /* ==================== INIT ==================== */
+  window.addEventListener('resize', resizeThree);
+  window.addEventListener('load', resizeThree);
+  setTimeout(resizeThree, 250);
+  loadVideoFromDB();
+  initThreeScene();
+  goToCharacter(0, true);
+  renderBloodResult(false);
+  renderZodiacDaily(false);
+  shuffleTarotSpread();
+  renderMbtiToggles();
+  renderMBTI(false);
+  requestAnimationFrame(animateThree);
+})();
+</script>
+</body>
+</html>
