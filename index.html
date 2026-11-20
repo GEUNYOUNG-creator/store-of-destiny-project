@@ -959,7 +959,7 @@
     <div id="opening-seam-glow"></div>
     <div id="opening-ripple"></div>
     <!-- Optional Custom Opening Video Player -->
-    <video id="opening-video" autoplay muted playsinline preload="auto"></video>
+    <video id="opening-video" playsinline webkit-playsinline preload="auto"></video>
     <div id="door-light-beam"></div>
     <div id="opening-vignette" class="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/55 via-transparent to-black/80 z-[18] transition-opacity duration-700"></div>
 
@@ -3138,44 +3138,42 @@
     } catch (e) {}
   }
 
-  function tryAutoPlayOpeningVideo() {
+  function prepareOpeningVideo(filename, showMsg = false) {
     if (!openingVideo || !openingVideo.src) return;
-    openingVideo.muted = true;
     openingVideo.playsInline = true;
-    openingVideo.currentTime = 0;
+    openingVideo.preload = 'auto';
+    openingVideo.autoplay = false;
+    openingVideo.pause();
+    try { openingVideo.currentTime = 0; } catch (_) {}
     openingVideo.classList.add('playing');
-    openingPlaying = true;
+    openingPlaying = false;
+    openingFadeTriggered = false;
     const knockArea = document.getElementById('opening-knock-area');
     const hdr = document.getElementById('opening-header');
-    if (knockArea) knockArea.style.opacity = '0';
-    if (hdr) hdr.style.opacity = '0.65';
-    const p = openingVideo.play();
-    if (p && typeof p.catch === 'function') {
-      p.catch(() => {
-        // Autoplay blocked -> fall back smoothly to tap-to-play knock button
-        openingPlaying = false;
-        if (knockArea) knockArea.style.opacity = '1';
-        if (hdr) hdr.style.opacity = '1';
-      });
+    if (knockArea) { knockArea.style.opacity = '1'; knockArea.style.pointerEvents = 'auto'; }
+    if (hdr) hdr.style.opacity = '1';
+    if (knockSubLabel) knockSubLabel.textContent = '문을 두드려 입장';
+    if (openingCaption && filename) {
+      openingCaption.innerHTML = `<strong>${filename}</strong> 준비 완료!<br>문을 두드리면 오프닝 영상이 끝까지 재생됩니다`;
     }
+    if (showMsg) showToast('오프닝 영상이 연결되었습니다! 문을 두드려 시작하세요 🎬');
   }
 
   function attachOpeningVideo(blob, filename, showMsg = true) {
     if (state.customVideoUrl) URL.revokeObjectURL(state.customVideoUrl);
     state.customVideoUrl = URL.createObjectURL(blob);
     openingVideo.src = state.customVideoUrl;
-    knockSubLabel.textContent = '영상 시작하기';
-    openingCaption.innerHTML = `<strong>${filename}</strong> 자동 재생 중…`;
-    if (showMsg) showToast('오프닝 영상이 연결되어 자동 재생됩니다 🎬');
-    tryAutoPlayOpeningVideo();
+    openingVideo.load();
+    prepareOpeningVideo(filename, showMsg);
   }
 
-  // Automatically play /opening.mp4 when deployed on Render/web server
+  // Preload /opening.mp4 when deployed on Render/web server (wait for user knock — never auto-skip!)
   if (location.protocol.startsWith('http')) {
     fetch('/opening.mp4', { method: 'HEAD' }).then(r => {
       if (r.ok && !state.customVideoUrl && !openingOverlay.classList.contains('hidden-seq')) {
         openingVideo.src = '/opening.mp4';
-        tryAutoPlayOpeningVideo();
+        openingVideo.load();
+        prepareOpeningVideo('운명상점 오프닝 영상', false);
       }
     }).catch(() => {});
   }
@@ -3187,7 +3185,6 @@
     openingPlaying = false;
     openingFadeTriggered = true;
     doorLightBeam.classList.remove('flash');
-    // 마지막 프레임 유지한 채 오버레이만 부드럽게 페이드아웃 (첫 화면 깜빡임 완전 방지!)
     try { openingVideo.pause(); } catch (e) {}
     goToCharacter(0, true);
     openingOverlay.classList.add('hidden-seq');
@@ -3195,7 +3192,6 @@
       bgmEngine.setMuted(false);
     }
     playChimeSound(720);
-    // 오버레이가 완전히 사라진 뒤(1.1초 후)에만 영상 위치 초기화
     setTimeout(() => {
       if (openingOverlay.classList.contains('hidden-seq')) {
         try { openingVideo.currentTime = 0; } catch (e) {}
@@ -3204,18 +3200,18 @@
     }, 1100);
   }
 
-  // 영상이 끝나기 직전(0.35초 전)부터 자연스럽게 크로스페이드 시작
-  openingVideo.addEventListener('timeupdate', () => {
-    if (openingFadeTriggered || !openingPlaying) return;
-    const dur = openingVideo.duration;
-    if (dur && isFinite(dur) && dur > 1.2 && (dur - openingVideo.currentTime) <= 0.35) {
-      openingFadeTriggered = true;
-      finishOpening();
-    }
-  });
+  let openingPlayStartedAt = 0;
 
+  // 오프닝 영상이 실제로 끝까지 완전히 재생된 뒤에만 본 화면으로 전환 (조기 종료 완벽 방지)
   openingVideo.addEventListener('ended', () => {
-    if (!openingFadeTriggered) finishOpening();
+    const elapsed = Date.now() - openingPlayStartedAt;
+    const dur = openingVideo.duration || 0;
+    const cur = openingVideo.currentTime || 0;
+    const trulyFinished = elapsed > 900 && (dur === 0 || cur >= Math.max(0.5, dur - 0.6));
+    if (!openingFadeTriggered && openingPlaying && trulyFinished) {
+      doorLightBeam.classList.add('flash');
+      setTimeout(finishOpening, 260);
+    }
   });
 
 
@@ -3294,10 +3290,23 @@
   const openingRipple = document.getElementById('opening-ripple');
   const openingWhisper = document.getElementById('opening-whisper');
 
+
+  // Auto-connect root /opening.mp4 if present in the deployed repository
+  state.serverOpeningReady = false;
+  if (location.protocol.startsWith('http')) {
+    fetch('/opening.mp4', { method: 'HEAD' }).then(r => {
+      if (r.ok && !state.customVideoUrl) {
+        state.serverOpeningReady = true;
+        openingVideo.src = '/opening.mp4';
+        openingVideo.load();
+      }
+    }).catch(() => {});
+  }
+
   function startOpeningSequence() {
     if (openingPlaying) return;
 
-    const hasOpeningVid = !!(state.customVideoUrl || (openingVideo && openingVideo.getAttribute('src')));
+    const hasOpeningVid = !!(state.customVideoUrl || state.serverOpeningReady);
     if (hasOpeningVid) {
       openingPlaying = true;
       playKnockSound();
@@ -3307,14 +3316,24 @@
       knockArea.style.pointerEvents = 'none';
       openingHeader.style.opacity = '0';
       openingVignette.style.opacity = '0';
+      openingFadeTriggered = false;
+      openingPlayStartedAt = Date.now();
       openingVideo.classList.add('playing');
-      try { openingVideo.currentTime = 0; } catch (_) {}
+      openingVideo.playsInline = true;
+      openingVideo.loop = false;
+      try { openingVideo.pause(); openingVideo.currentTime = 0; } catch (_) {}
       openingVideo.muted = false;
       const p = openingVideo.play();
       if (p && typeof p.catch === 'function') {
         p.catch(() => {
           openingVideo.muted = true;
-          openingVideo.play().catch(() => finishOpening());
+          openingVideo.play().catch(() => {
+            openingPlaying = false;
+            knockArea.style.opacity = '1';
+            knockArea.style.pointerEvents = 'auto';
+            openingHeader.style.opacity = '1';
+            showToast('영상을 다시 한 번 터치해 재생해 주세요 🎬');
+          });
         });
       }
       return;
