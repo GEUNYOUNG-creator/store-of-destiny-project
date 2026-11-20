@@ -645,3 +645,7 @@ def serve_icon512():
 def serve_og():
     p = os.path.join(os.path.dirname(__file__), "..", "og-preview.jpg")
     return FileResponse(p, media_type="image/jpeg")
+
+@app.get("/opening.mp4")
+def serve_opening_video():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "..", "opening.mp4"), media_type="video/mp4")
