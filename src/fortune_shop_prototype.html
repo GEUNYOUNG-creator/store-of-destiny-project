@@ -657,6 +657,71 @@
     }
     .drawer-backdrop.open .drawer-sheet { transform: translateY(0); }
 
+  
+    /* Tarot 22-Card Arc Fan Spread & Detailed Foil Cards */
+    @keyframes tarotDealIn {
+      0% { opacity: 0; transform: translateY(24px) scale(0.72) rotate(-16deg); }
+      70% { opacity: 1; transform: translateY(calc(var(--fan-y, 0px) - 4px)) scale(1.03) rotate(var(--fan-rot, 0deg)); }
+      100% { opacity: 1; transform: translateY(var(--fan-y, 0px)) scale(1) rotate(var(--fan-rot, 0deg)); }
+    }
+    .tarot-arc-row {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      padding: 12px 6px 8px;
+      position: relative;
+    }
+    .tarot-arc-row + .tarot-arc-row {
+      margin-top: -10px;
+      padding-top: 8px;
+    }
+    .tarot-fan-card {
+      position: relative;
+      width: 54px;
+      height: 92px;
+      flex-shrink: 0;
+      margin-left: -24px;
+      opacity: 0;
+      animation: tarotDealIn 0.44s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.26s ease, filter 0.26s ease;
+    }
+    .tarot-fan-card:first-child { margin-left: 0; }
+    .tarot-fan-card:hover {
+      transform: translateY(calc(var(--fan-y, 0px) - 14px)) scale(1.14) rotate(0deg) !important;
+      z-index: 30 !important;
+    }
+    .tarot-fan-card.picked {
+      transform: translateY(calc(var(--fan-y, 0px) - 16px)) scale(1.18) rotate(0deg) !important;
+      z-index: 35 !important;
+    }
+    .tarot-fan-card.picked .tarot-face {
+      box-shadow: 0 0 20px rgba(246, 206, 114, 0.85), 0 8px 18px rgba(0, 0, 0, 0.6);
+    }
+    .tarot-face {
+      border-radius: 8px !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.52);
+    }
+    .tarot-showcase-card {
+      border-radius: 11px;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(244, 211, 138, 0.55);
+      transition: transform 0.25s ease;
+    }
+    .tarot-showcase-card:hover { transform: translateY(-3px) scale(1.03); }
+
+    /* Cleaner character-themed question input styling */
+    .char-q-input {
+      width: 100%;
+      border-radius: 12px;
+      padding: 7px 11px;
+      font-size: 11.5px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .char-q-input:focus {
+      box-shadow: 0 0 0 2px rgba(230, 198, 124, 0.35);
+    }
+
   </style>
 </head>
 <body>
@@ -715,14 +780,11 @@
     </div>
 
     <div class="flex items-center gap-1">
-      <button id="btn-open-chat" type="button" title="Ollama AI 캐릭터 대화" class="px-2 py-1 rounded-full bg-emerald-500/25 border border-emerald-300/60 text-[10.5px] font-semibold text-emerald-100 hover:bg-emerald-500/35 transition">
+      <button id="btn-open-chat" type="button" title="Gemini AI 캐릭터 대화" class="px-2.5 py-1 rounded-full bg-emerald-500/25 border border-emerald-300/60 text-[11px] font-semibold text-emerald-100 hover:bg-emerald-500/35 transition">
         💬 대화
       </button>
-      <button id="btn-open-settings" type="button" title="DB &amp; Ollama 연동 설정" class="w-7 h-7 rounded-full bg-black/55 border border-[#e6c67c]/45 flex items-center justify-center text-xs text-[#f3dfb1]">
+      <button id="btn-open-settings" type="button" title="앱 설정 및 3D 모델 관리" class="w-7 h-7 rounded-full bg-black/55 border border-[#e6c67c]/50 flex items-center justify-center text-xs text-[#f3dfb1]">
         ⚙️
-      </button>
-      <button id="btn-toggle-25d" type="button" title="3D 모션 토글" class="px-2 py-1 rounded-full bg-[#e6c67c]/20 border border-[#e6c67c]/65 text-[10px] font-semibold text-[#fae7bc] transition">
-        3D
       </button>
       <button id="btn-toggle-sound" type="button" title="효과음 켜기/끄기" class="w-7 h-7 rounded-full bg-black/50 border border-[#e6c67c]/40 flex items-center justify-center text-xs text-[#f3dfb1]">
         🔊
@@ -753,18 +815,7 @@
 
     <div class="absolute inset-x-0 bottom-0 h-20 pointer-events-none bg-gradient-to-t from-[#0c101a] via-[#0c101a]/45 to-transparent z-[16]"></div>
 
-    <!-- Stage Tools: Model Zoom Mode & Custom GLB Loader -->
-    <div id="stage-tools-bar">
-      <button id="model-mode-pill" type="button" class="stage-pill-btn" title="상반신 / 전신 미니 3D 카메라 전환">
-        <span>✦</span>
-        <span id="model-mode-text">운명플러스 3D</span>
-        <span class="text-[9px] opacity-75">⇅</span>
-      </button>
-      <button id="btn-load-glb" type="button" class="stage-pill-btn" title="외부 Blender/VRoid .glb 3D 모델 불러오기">
-        <span>📦</span>
-        <span>.glb 모델 불러오기</span>
-      </button>
-    </div>
+    <!-- Stage sightline kept clean; Model Mode & GLB Loader moved into Settings Drawer -->
 
     <button id="btn-stage-prev" type="button" aria-label="이전 캐릭터" class="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/45 border border-[#e6c67c]/45 text-[#f7e5be] flex items-center justify-center hover:bg-black/70 transition">
       ‹
@@ -817,42 +868,41 @@
           </button>
         </div>
 
-        <div class="grid grid-cols-12 gap-x-1.5 gap-y-2 items-end pr-12 pb-1">
-          <div class="col-span-4 flex items-end gap-0.5">
+        <div class="grid grid-cols-12 gap-x-2 gap-y-2 items-end pr-12 pb-1">
+          <div class="col-span-5 flex items-end gap-1">
             <input id="saju-year" type="number" min="1920" max="2026" value="1997" class="saju-underline-input w-full text-[15px]" aria-label="출생 연도" />
             <span class="font-serif-kr text-xs font-bold text-[#24302a] pb-0.5 shrink-0">년</span>
           </div>
-          <div class="col-span-3 flex items-end gap-0.5">
+          <div class="col-span-3 flex items-end gap-1">
             <input id="saju-month" type="number" min="1" max="12" value="5" class="saju-underline-input w-full text-[15px]" aria-label="출생 월" />
             <span class="font-serif-kr text-xs font-bold text-[#24302a] pb-0.5 shrink-0">월</span>
           </div>
-          <div class="col-span-3 flex items-end gap-0.5">
+          <div class="col-span-4 flex items-end gap-1">
             <input id="saju-day" type="number" min="1" max="31" value="14" class="saju-underline-input w-full text-[15px]" aria-label="출생 일" />
             <span class="font-serif-kr text-xs font-bold text-[#24302a] pb-0.5 shrink-0">일</span>
           </div>
-          <div class="col-span-2 flex items-end">
-            <select id="saju-time" class="saju-underline-input w-full text-[12px] cursor-pointer" aria-label="태어난 시">
-              <option value="unknown">모름</option>
-              <option value="0">자시</option>
-              <option value="1">축시</option>
-              <option value="2">인시</option>
-              <option value="3">묘시</option>
-              <option value="4">진시</option>
-              <option value="5" selected>사시</option>
-              <option value="6">오시</option>
-              <option value="7">미시</option>
-              <option value="8">신시</option>
-              <option value="9">유시</option>
-              <option value="10">술시</option>
-              <option value="11">해시</option>
+          <div class="col-span-12 flex items-center gap-2 pt-0.5">
+            <span class="font-serif-kr text-xs font-bold text-[#24302a] shrink-0">출생시간</span>
+            <select id="saju-time" class="saju-underline-input flex-1 text-[12.5px] font-semibold cursor-pointer text-left pl-1" aria-label="태어난 시간">
+              <option value="unknown">모름 (시간 미상)</option>
+              <option value="0">자시 (23:30 ~ 01:29)</option>
+              <option value="1">축시 (01:30 ~ 03:29)</option>
+              <option value="2">인시 (03:30 ~ 05:29)</option>
+              <option value="3">묘시 (05:30 ~ 07:29)</option>
+              <option value="4">진시 (07:30 ~ 09:29)</option>
+              <option value="5" selected>사시 (09:30 ~ 11:29)</option>
+              <option value="6">오시 (11:30 ~ 13:29)</option>
+              <option value="7">미시 (13:30 ~ 15:29)</option>
+              <option value="8">신시 (15:30 ~ 17:29)</option>
+              <option value="9">유시 (17:30 ~ 19:29)</option>
+              <option value="10">술시 (19:30 ~ 21:29)</option>
+              <option value="11">해시 (21:30 ~ 23:29)</option>
             </select>
           </div>
         </div>
 
-        <div class="flex items-center justify-center gap-2 mt-2.5 pr-10">
-          <span class="h-[1px] flex-1 bg-[#4b6357]/40"></span>
-          <span class="text-[9px] text-[#3a5246]">◇</span>
-          <span class="h-[1px] flex-1 bg-[#4b6357]/40"></span>
+        <div class="mt-2.5 pr-12">
+          <input id="saju-question" type="text" placeholder="🏮 연화에게 묻고 싶은 사주 고민 (선택)" class="char-q-input bg-white/60 border border-[#527060]/45 text-[#1c2620] placeholder-[#5e7366]" />
         </div>
 
         <div class="fortune-mini-flag" title="부귀영화 · 무병장수">
@@ -923,8 +973,9 @@
           </div>
         </div>
 
+        <input id="blood-question" type="text" placeholder="💌 루미의 비밀노트에 적을 연애 고민 (선택)" class="char-q-input mb-2.5 bg-white/85 border border-pink-300 text-rose-950 placeholder-rose-400/80" />
         <button id="btn-run-blood" type="button" class="w-full py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#5a1736] via-[#a32255] to-[#e0427b] text-white shadow-md active:scale-95 transition">
-          비밀 노트 궁합 펼쳐보기 ♥
+          비밀 노트 AI 궁합 펼쳐보기 ♥
         </button>
       </div>
 
@@ -972,32 +1023,38 @@
         </div>
       </div>
 
+      <div class="px-0.5">
+        <input id="zodiac-question" type="text" placeholder="✨ 스텔라에게 별빛으로 묻고 싶은 질문 (선택)" class="char-q-input bg-black/35 border border-amber-300/35 text-violet-100 placeholder-violet-300/60" />
+      </div>
       <div id="zodiac-inline-result" class="rounded-2xl p-3.5 bg-white/5 border border-violet-300/30"></div>
     </div>
 
-    <!-- PANEL 3: TAROT -->
+    <!-- PANEL 3: TAROT (RIFFLE FAN-OUT + 3-CARD SELECTION) -->
     <div id="panel-3" class="char-panel hidden space-y-3 pt-1">
       <div class="tarot-altar-card p-3.5">
         <div class="flex items-center justify-between mb-1.5">
           <h2 class="font-serif-kr text-base font-bold text-amber-200">🔮 셀레네의 타로 제단</h2>
-          <button id="btn-tarot-reset" type="button" class="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-400/15 text-amber-200 border border-amber-300/40 hover:bg-amber-400/25 transition">
-            덱 다시 섞기 ↻
-          </button>
+          <span id="tarot-pick-counter" class="text-[10.5px] font-bold px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-200 border border-amber-300/45">카드 뽑기 대기</span>
         </div>
-        <p class="text-[11px] text-purple-200/80 mb-2.5">수정구슬에 질문을 띄우고, 운명이 이끄는 카드 한 장을 뽑으세요</p>
 
-        <div class="grid grid-cols-4 gap-1.5 mb-3" id="tarot-topic-group">
+        <div class="grid grid-cols-4 gap-1.5 mb-2.5" id="tarot-topic-group">
           <button type="button" data-topic="today" class="tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold bg-amber-400/25 border border-amber-300 text-amber-100">오늘운</button>
           <button type="button" data-topic="love" class="tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold bg-white/5 border border-white/15 text-purple-200">연애·속마음</button>
           <button type="button" data-topic="work" class="tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold bg-white/5 border border-white/15 text-purple-200">재물·일</button>
           <button type="button" data-topic="advice" class="tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold bg-white/5 border border-white/15 text-purple-200">고민조언</button>
         </div>
 
-        <div id="tarot-deck" class="grid grid-cols-5 gap-2 py-1"></div>
+        <input id="tarot-question" type="text" placeholder="🕯️ 수정구슬에 속삭일 질문을 적어보세요 (선택)" class="char-q-input mb-2.5 bg-black/40 border border-amber-300/35 text-amber-50 placeholder-purple-300/60" />
+
+        <button id="btn-tarot-reset" type="button" class="w-full py-2.5 mb-2 rounded-xl font-serif-kr font-bold text-sm bg-gradient-to-r from-[#3a1f6e] via-[#5d2f9e] to-[#3a1f6e] text-amber-100 border border-amber-300/70 shadow-lg active:scale-95 transition">
+          ✨ 타로카드 펼치기 (메이저 아르카나 22장)
+        </button>
+
+        <div id="tarot-deck" class="hidden pt-1 pb-1 select-none"></div>
       </div>
 
       <div id="tarot-inline-result" class="rounded-2xl p-3.5 bg-white/5 border border-amber-300/30 text-center text-xs text-purple-200/85">
-        제단 위의 카드 중 한 장을 터치하면 셀레네가 운명의 메시지를 읽어드립니다.
+        <strong>타로카드 펼치기</strong>를 누르면 22장의 메이저 아르카나 덱이 펼쳐집니다. 마음이 이끄는 카드 <strong>3장(과거·현재·미래)</strong>을 골라주세요.
       </div>
     </div>
 
@@ -1028,8 +1085,9 @@
           </div>
         </div>
 
+        <input id="mbti-question" type="text" placeholder="📝 하린 선생님께 털어놓고 싶은 관계 고민 (선택)" class="char-q-input mb-2.5 bg-white border border-slate-300 text-slate-800 placeholder-slate-400" />
         <button id="btn-run-mbti" type="button" class="w-full py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#3b5b92] to-[#5678b8] text-white shadow-md active:scale-95 transition">
-          하린의 심리 궁합 처방전 받기 💙
+          하린의 AI 심리 궁합 처방전 받기 💙
         </button>
       </div>
 
@@ -1041,9 +1099,12 @@
       <div class="face-study-card p-3.5">
         <div class="flex items-center justify-between mb-1">
           <h2 class="font-serif-kr text-[16px] font-extrabold text-[#163d31]">🪞 아린의 청동거울 관상</h2>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-800/15 text-emerald-900 border border-emerald-700/30">Ollama Vision</span>
+          <div class="flex items-center gap-1 rounded-full overflow-hidden border border-[#1b5746]/45 bg-white/75 text-[10px]">
+            <button type="button" data-spouse="M" class="spouse-gender-btn px-2 py-0.5 bg-[#1b5746] text-[#fae9c3] font-bold">남성 배우자</button>
+            <button type="button" data-spouse="F" class="spouse-gender-btn px-2 py-0.5 text-[#1e3d32] font-semibold">여성 배우자</button>
+          </div>
         </div>
-        <p class="text-[11px] text-[#5c503e] mb-2.5">정면 얼굴 사진을 직접 찍거나 올려주시면 초년·중년·말년 관상을 봐드려요</p>
+        <p class="text-[11px] text-[#5c503e] mb-2.5">얼굴 사진을 올리면 <strong>나의 관상 타입</strong>을 분석하고 <strong>미래 배우자 얼굴</strong>을 AI로 그려드려요</p>
 
         <input id="input-face-upload" type="file" accept="image/*" class="hidden" />
         <input id="input-face-camera" type="file" accept="image/*" capture="user" class="hidden" />
@@ -1065,7 +1126,7 @@
         <input id="face-question" type="text" placeholder="궁금한 점 (예: 올해 재물운과 인복이 궁금해요)" class="w-full mb-2.5 px-3 py-2 rounded-xl text-xs bg-white/85 border border-[#b9a57c] text-[#231e16] focus:outline-none placeholder-[#8c7b62]" />
 
         <button id="btn-run-face" type="button" class="w-full py-2.5 rounded-xl font-serif-kr font-bold text-sm bg-gradient-to-r from-[#164a3b] to-[#246954] text-[#fae9c3] border border-[#d6b266] shadow-md active:scale-95 transition">
-          청동거울로 관상 분석하기 ✨
+          관상 분석 & 미래 배우자 얼굴 그리기 ✨
         </button>
       </div>
 
@@ -1164,7 +1225,7 @@
       <div class="w-10 h-1 bg-white/25 rounded-full mx-auto mb-2.5"></div>
       <div class="flex items-center justify-between pb-2.5 border-b border-white/10">
         <div>
-          <div id="chat-mode-pill" class="text-[10px] font-semibold text-emerald-300">● 데모 AI 모드 (설정에서 Ollama 연결 가능)</div>
+          <div id="chat-mode-pill" class="text-[10px] font-semibold text-emerald-300">● 데모 AI 모드 (설정에서 Gemini AI 연결 가능)</div>
           <h3 id="chat-char-title" class="font-serif-kr text-base font-bold text-white">연화 마스터와 대화</h3>
         </div>
         <button id="btn-close-chat" type="button" class="w-8 h-8 rounded-full bg-white/10 text-white/80 flex items-center justify-center">✕</button>
@@ -1177,43 +1238,57 @@
     </div>
   </div>
 
-  <!-- ==================== DB & OLLAMA BACKEND SETTINGS DRAWER ==================== -->
+  <!-- ==================== CLEAN MVP SETTINGS DRAWER (MODEL MODE + GLB + GEMINI AI STATUS) ==================== -->
   <div id="settings-drawer" class="drawer-backdrop" role="dialog" aria-modal="true">
     <div class="drawer-sheet space-y-3 overflow-y-auto">
       <div class="w-10 h-1 bg-white/25 rounded-full mx-auto"></div>
       <div class="flex items-center justify-between">
-        <h3 class="font-serif-kr text-base font-bold text-[#fae6b8]">⚙️ DB &amp; 로컬 Ollama 연동 설정</h3>
+        <h3 class="font-serif-kr text-base font-bold text-[#fae6b8]">⚙️ 운명상점 설정</h3>
         <button id="btn-close-settings" type="button" class="w-8 h-8 rounded-full bg-white/10 text-white/80 flex items-center justify-center">✕</button>
       </div>
-      <p class="text-[11px] text-slate-300 leading-relaxed">
-        로컬 PC에서 백엔드 서버(FastAPI + SQLite + Ollama)를 실행한 뒤 아래 스위치를 켜면 실제 DB 저장과 로컬 LLM 대화·관상/손금 비전 분석이 연결됩니다.
-      </p>
-      <div class="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl p-3">
-        <div>
-          <div class="text-xs font-bold text-white">실제 백엔드(DB + Ollama) 연동</div>
-          <div class="text-[10.5px] text-slate-400">끄면 내장 데모 모드로 즉시 체험</div>
+
+      <!-- Moved from Stage Top-Right for Clean Sightline -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between bg-white/5 border border-[#e6c67c]/25 rounded-xl p-3">
+          <div>
+            <div class="text-xs font-bold text-white">✦ 캐릭터 모델 모드</div>
+            <div class="text-[10.5px] text-slate-400">운명플러스 3D ↔ 무료 미니 펫 전환</div>
+          </div>
+          <button id="model-mode-pill" type="button" class="px-3 py-1.5 rounded-full text-xs font-bold bg-[#154d48] text-[#fae8bf] border border-[#e6c67c]/60">
+            <span id="model-mode-text">운명플러스 3D</span> ⇅
+          </button>
         </div>
-        <button id="btn-toggle-live-api" type="button" class="px-3 py-1.5 rounded-full text-xs font-bold bg-slate-700 text-slate-200 border border-white/15">OFF</button>
-      </div>
-      <div class="space-y-2 text-xs">
-        <label class="block">
-          <span class="text-slate-300 text-[11px]">백엔드 API 서버 주소 (로컬 실행 시 입력)</span>
-          <input id="cfg-api-url" type="text" placeholder="예: http://127.0.0.1:8000" value="" class="w-full mt-1 px-3 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:outline-none" />
-        </label>
-        <div class="grid grid-cols-2 gap-2">
-          <label class="block">
-            <span class="text-slate-300 text-[11px]">Ollama 채팅 모델</span>
-            <input id="cfg-chat-model" type="text" value="qwen2.5:7b" class="w-full mt-1 px-2.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:outline-none" />
-          </label>
-          <label class="block">
-            <span class="text-slate-300 text-[11px]">Ollama 비전(사진) 모델</span>
-            <input id="cfg-vision-model" type="text" value="llama3.2-vision" class="w-full mt-1 px-2.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:outline-none" />
-          </label>
+
+        <div class="flex items-center justify-between bg-white/5 border border-[#e6c67c]/25 rounded-xl p-3">
+          <div>
+            <div class="text-xs font-bold text-white">📦 커스텀 3D 모델 (.glb)</div>
+            <div class="text-[10.5px] text-slate-400">현재 캐릭터 자리에 외부 3D 모델 불러오기</div>
+          </div>
+          <button id="btn-load-glb" type="button" class="px-3 py-1.5 rounded-full text-xs font-bold bg-white/10 text-white border border-white/25 hover:bg-white/20">
+            파일 선택
+          </button>
+        </div>
+
+        <div class="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl p-3">
+          <div>
+            <div class="text-xs font-bold text-white">✨ 3D 모션 (호흡 · 터치 모핑)</div>
+            <div class="text-[10.5px] text-slate-400">캐릭터 눈 깜빡임 및 바디 모핑 효과</div>
+          </div>
+          <button id="btn-toggle-25d" type="button" class="px-3 py-1.5 rounded-full text-xs font-bold bg-[#e6c67c]/25 text-[#fae8bf] border border-[#e6c67c]/60">3D ON</button>
+        </div>
+
+        <div class="flex items-center justify-between bg-white/5 border border-emerald-400/25 rounded-xl p-3">
+          <div>
+            <div class="text-xs font-bold text-emerald-200">🤖 Gemini AI &amp; DB 서버 연동</div>
+            <div id="gemini-status-sub" class="text-[10.5px] text-slate-400">배포 서버 접속 시 자동 연결됩니다</div>
+          </div>
+          <button id="btn-toggle-live-api" type="button" class="px-3 py-1.5 rounded-full text-xs font-bold bg-slate-700 text-slate-200 border border-white/15">OFF</button>
         </div>
       </div>
+
       <div class="grid grid-cols-2 gap-2">
-        <button id="btn-test-api" type="button" class="py-2 rounded-xl bg-[#154d48] border border-[#e6c67c]/60 text-xs font-bold text-[#fae8bf]">연결 테스트</button>
-        <button id="btn-view-db-history" type="button" class="py-2 rounded-xl bg-white/10 border border-white/20 text-xs font-bold text-white">📜 DB 기록 보기</button>
+        <button id="btn-test-api" type="button" class="py-2 rounded-xl bg-[#154d48] border border-[#e6c67c]/60 text-xs font-bold text-[#fae8bf]">Gemini 서버 확인</button>
+        <button id="btn-view-db-history" type="button" class="py-2 rounded-xl bg-white/10 border border-white/20 text-xs font-bold text-white">📜 DB 운세 기록</button>
       </div>
       <div id="db-history-box" class="hidden max-h-40 overflow-y-auto space-y-1.5 text-[11px] bg-black/35 rounded-xl p-2.5 border border-white/10"></div>
     </div>
@@ -1266,7 +1341,19 @@
       role: '운명상점 주인 · 사주 명리',
       openSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/char3d_saju_open.jpg',
       blinkSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/char3d_saju_blink.jpg',
-      pet: null, // Under construction!
+      pet: {
+        name: '아기 옥룡 청옥이',
+        role: '무료 미니 펫 · 사주 수호령',
+        openSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/pet3d_saju_open.jpg',
+        blinkSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/pet3d_saju_blink.jpg',
+        uvOffsetY: 0.04,
+        lines: [
+          '크앙~ 아기 옥룡 청옥이가 오늘 사주 오행을 봐줄게!',
+          '반짝이는 옥 비늘을 톡 터치하면 행운의 기운이 솟아나!',
+          '태어난 해·월·일·시를 적고 아래 옥구슬을 눌러줘!',
+          '옥구슬을 위로 올리면 연화 주인님이 반겨줄 거야!'
+        ]
+      },
       backdrop: 'linear-gradient(180deg, #10192b 0%, #0b111c 100%)',
       sheetBg: 'linear-gradient(180deg, #17120f 0%, #0c0a09 100%)',
       particleColor: 0xf7c5d3,
@@ -1382,7 +1469,19 @@
       role: 'MBTI 심리 & 궁합 상담사',
       openSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/char3d_mbti_open.jpg',
       blinkSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/char3d_mbti_blink.jpg',
-      pet: null, // Under construction!
+      pet: {
+        name: '구름토끼 모모',
+        role: '무료 미니 펫 · MBTI 심리 요정',
+        openSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/pet3d_mbti_open.jpg',
+        blinkSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/pet3d_mbti_blink.jpg',
+        uvOffsetY: 0.04,
+        lines: [
+          '깡총! 몽실몽실 구름토끼 모모가 너의 심리 케미를 분석해 줄게 ♡',
+          '동그란 안경 너머로 네 성향 큐브가 반짝반짝 보여!',
+          '폭신한 볼을 톡 건드리면 기분 좋아져서 배시시 웃을래!',
+          '옥구슬을 위로 올리면 하린 상담사님이 돌아와!'
+        ]
+      },
       backdrop: 'linear-gradient(180deg, #1c243a 0%, #101524 100%)',
       sheetBg: 'linear-gradient(180deg, #1a2134 0%, #0f1422 100%)',
       particleColor: 0x93c5fd,
@@ -1402,7 +1501,19 @@
       role: '청동거울 관상가 · Vision AI',
       openSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/char3d_face_open.jpg',
       blinkSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/char3d_face_blink.jpg',
-      pet: null,
+      pet: {
+        name: '옥부엉이',
+        role: '무료 미니 펫 · 관상 수호령',
+        openSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/pet3d_face_open.jpg',
+        blinkSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/pet3d_face_blink.jpg',
+        uvOffsetY: 0.04,
+        lines: [
+          '부엉~ 청동거울로 네 복스러운 관상을 살펴줄게!',
+          '동글동글한 날개를 톡 터치하면 행운의 눈웃음을 지어줄래!',
+          '카메라로 얼굴을 찍어주면 Gemini AI로 관상을 풀어줘!',
+          '옥구슬을 위로 올리면 아린 마스터가 돌아와!'
+        ]
+      },
       backdrop: 'linear-gradient(180deg, #1b241c 0%, #0d130f 100%)',
       sheetBg: 'linear-gradient(180deg, #18211a 0%, #0c120e 100%)',
       particleColor: 0xf6dc9b,
@@ -1410,7 +1521,7 @@
       lines: [
         '어서 오세요. 얼굴 사진을 보여주시면 초년·중년·말년 관상을 짚어드릴게요.',
         '이마의 빛과 눈매에 좋은 귀인운이 서려 있으시네요.',
-        '카메라로 바로 찍거나 사진을 올려 Ollama 비전 분석을 받아보세요.',
+        '카메라로 바로 찍거나 사진을 올려 Gemini AI 관상 분석을 받아보세요.',
         '상단 💬 대화 버튼으로 관상 고민도 편하게 물어보실 수 있어요.'
       ]
     },
@@ -1422,7 +1533,19 @@
       role: '황금 돋보기 손금가 · Vision AI',
       openSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/char3d_palm_open.jpg',
       blinkSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/char3d_palm_blink.jpg',
-      pet: null,
+      pet: {
+        name: '금별냥이',
+        role: '무료 미니 펫 · 손금 요정',
+        openSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/pet3d_palm_open.jpg',
+        blinkSrc: 'artifacts/file_generation/ttl=63d/intermediate/assets/pet3d_palm_blink.jpg',
+        uvOffsetY: 0.04,
+        lines: [
+          '야옹~ 내 분홍 젤리처럼 네 손바닥에도 별자리가 빛나고 있어!',
+          '보송보송한 볼을 톡 건드리면 기분 좋아져서 골골송 부를래 ✦',
+          '손바닥 사진을 올리면 생명선이랑 재물선을 콕 집어줄게!',
+          '옥구슬을 위로 올리면 서연 마스터가 반겨줄 거야!'
+        ]
+      },
       backdrop: 'linear-gradient(180deg, #11242b 0%, #081317 100%)',
       sheetBg: 'linear-gradient(180deg, #0e2026 0%, #071216 100%)',
       particleColor: 0x5eead4,
@@ -1459,8 +1582,8 @@
     palmImgBase64: null,
     liveApiEnabled: false,
     apiBaseUrl: '',
-    chatModel: 'qwen2.5:7b',
-    visionModel: 'llama3.2-vision',
+    chatModel: 'gemini-3.5-flash-lite',
+    visionModel: 'gemini-3.5-flash-lite',
     localHistory: []
   };
 
@@ -1529,6 +1652,32 @@
     osc.connect(gain).connect(ctx.destination);
     osc.start(now);
     osc.stop(now + 0.12);
+  }
+
+  // Crisp realistic "Chwa-ra-ra-rak!" Tarot Card Riffle Sound via Web Audio noise bursts
+  function playTarotRiffleSound(count = 7) {
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    for (let i = 0; i < count; i++) {
+      const startT = ctx.currentTime + i * 0.055;
+      const bufSize = Math.floor(ctx.sampleRate * 0.045);
+      const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let j = 0; j < bufSize; j++) {
+        data[j] = (Math.random() * 2 - 1) * Math.exp(-j / (bufSize * 0.35));
+      }
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 1800 + i * 190;
+      filter.Q.value = 1.6;
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.24, startT);
+      gain.gain.exponentialRampToValueAtTime(0.001, startT + 0.045);
+      src.connect(filter).connect(gain).connect(ctx.destination);
+      src.start(startT);
+    }
   }
 
   /* ==================== THREE.JS HIGH-END 3D RENDER STAGE (ZERO WARP + REAL 2-FRAME BLINK) ==================== */
@@ -1990,8 +2139,40 @@
     const lacking = Object.entries(counts).sort((a, b) => a[1] - b[1])[0][0];
     const seed = (y * 13 + m * 31 + d * 7 + 20261119) % 100;
 
+    // 전통 신살(神殺) 분석: 도화살 · 역마살 · 화개살 · 천을귀인
+    const allBranches = [yBranchIdx, mBranchIdx, dBranchIdx];
+    if (hBranchIdx !== null) allBranches.push(hBranchIdx);
+    const dohwaSet = new Set([0, 3, 6, 9]);    // 자·묘·오·유
+    const yeokmaSet = new Set([2, 5, 8, 11]);  // 인·사·신·해
+    const hwagaeSet = new Set([1, 4, 7, 10]);  // 축·진·미·술
+    const gwiinMap = {
+      0: [1, 7], 4: [1, 7], 6: [1, 7],
+      1: [0, 8], 5: [0, 8],
+      2: [11, 9], 3: [11, 9],
+      7: [6, 2],
+      8: [3, 5], 9: [3, 5]
+    };
+    const dohwaCnt = allBranches.filter(b => dohwaSet.has(b)).length;
+    const yeokmaCnt = allBranches.filter(b => yeokmaSet.has(b)).length;
+    const hwagaeCnt = allBranches.filter(b => hwagaeSet.has(b)).length;
+    const hasGwiin = allBranches.some(b => (gwiinMap[dStemIdx] || []).includes(b));
+
+    const sinsalTags = [];
+    if (dohwaCnt > 0) sinsalTags.push({ key: 'dohwa', label: '🌸 도화살(桃花殺)', desc: '복숭아꽃처럼 주변의 시선과 호감을 자연스레 끌어당기는 치명적인 매력의 기운' });
+    if (yeokmaCnt > 0) sinsalTags.push({ key: 'yeokma', label: '🐎 역마살(驛馬殺)', desc: '한곳에 머무르기보다 넓은 세상을 누비며 이동·여행·글로벌 무대에서 대성하는 기운' });
+    if (hwagaeCnt > 0) sinsalTags.push({ key: 'hwagae', label: '🎨 화개살(華蓋殺)', desc: '남다른 예술적 감각, 깊은 통찰력과 전문성으로 빛나는 지혜의 기운' });
+    if (hasGwiin) sinsalTags.push({ key: 'gwiin', label: '✨ 천을귀인(天乙貴人)', desc: '결정적인 순간마다 뜻밖의 귀인이 나타나 길을 열어주는 최고의 길신' });
+    if (!sinsalTags.length) sinsalTags.push({ key: 'hwagae', label: '✨ 천을귀인(天乙貴人)', desc: '고요한 지혜와 품격으로 귀한 인연을 부르는 기운' });
+
+    let primarySinsal = 'dohwa';
+    if (yeokmaCnt > dohwaCnt && yeokmaCnt >= hwagaeCnt) primarySinsal = 'yeokma';
+    else if (hwagaeCnt > dohwaCnt && hwagaeCnt > yeokmaCnt) primarySinsal = 'hwagae';
+    else if (dohwaCnt === 0 && yeokmaCnt === 0) primarySinsal = 'hwagae';
+    else if (dohwaCnt === 0) primarySinsal = 'yeokma';
+
     return {
       pillars, counts, totalEl, dominant, lacking,
+      sinsalTags, primarySinsal,
       animal: JIJI_ANIMAL[yBranchIdx],
       ilgan: ILGAN_PROFILES[dStemIdx],
       scores: { today: 76 + (seed % 22), love: 72 + ((seed * 3) % 26), wealth: 74 + ((seed * 7) % 24) }
@@ -2074,18 +2255,28 @@
   }
 
   const TAROT_CARDS = [
-    { num: '0', name: '광대 (The Fool)', icon: '🃏', kw: '새로운 시작 · 순수 · 모험', up: '두려움을 내려놓고 새로운 가능성을 향해 발을 내디딜 때입니다. 뜻밖의 즐거운 기회가 기다립니다.', rev: '조금만 더 신중히 주변을 살펴보세요. 작은 준비가 큰 실수를 막아줍니다.' },
-    { num: 'I', name: '마법사 (The Magician)', icon: '✨', kw: '창조력 · 실현 · 자신감', up: '당신에게는 이미 원하는 것을 현실로 만들 모든 도구가 갖춰져 있습니다. 지금 바로 실행에 옮기세요!', rev: '집중력이 분산되어 있을 수 있어요. 가장 중요한 한 가지에 에너지를 모아보세요.' },
-    { num: 'II', name: '여사제 (The High Priestess)', icon: '🌙', kw: '직관 · 신비 · 내면의 지혜', up: '겉으로 드러난 말보다 당신의 고요한 직감이 정답을 알고 있습니다. 조급해하지 말고 흐름을 지켜보세요.', rev: '마음속 불안을 감추기보다 신뢰할 수 있는 사람과 솔직히 나눠보세요.' },
-    { num: 'III', name: '여황제 (The Empress)', icon: '🌸', kw: '풍요 · 사랑 · 매력 발산', up: '애정과 풍요가 자연스럽게 흘러들어오는 축복의 카드입니다. 스스로를 아낄수록 더 큰 사랑이 다가옵니다.', rev: '남을 챙기느라 정작 자신의 휴식을 놓치고 있진 않나요? 오늘은 나를 위한 선물을 해주세요.' },
-    { num: 'VI', name: '연인 (The Lovers)', icon: '💘', kw: '운명적 끌림 · 조화 · 선택', up: '마음이 깊이 통하는 인연과의 교감이 강해집니다. 가슴이 설레는 쪽을 선택해도 후회 없을 거예요.', rev: '엇갈린 오해를 풀기 위해 먼저 따뜻한 손길을 내밀어 볼 타이밍입니다.' },
-    { num: 'VII', name: '전차 (The Chariot)', icon: '🏆', kw: '승리 · 돌파력 · 전진', up: '망설이던 장애물을 시원하게 돌파하고 목표에 도달할 기운입니다! 흔들리지 않는 의지가 승리를 부릅니다.', rev: '속도를 잠시 줄이고 방향을 재점검하면 훨씬 수월하게 도착할 수 있어요.' },
-    { num: 'IX', name: '은둔자 (The Hermit)', icon: '🕯️', kw: '성찰 · 깨달음 · 고요한 빛', up: '잠시 소음을 멀리하고 나만의 시간을 가지면 안개처럼 흐렸던 해답이 또렷하게 떠오릅니다.', rev: '혼자 고민을 끌어안기보다는 이제 세상 밖으로 나와 따뜻한 교류를 시작해 보세요.' },
-    { num: 'X', name: '운명의 수레바퀴 (Wheel of Fortune)', icon: '☸️', kw: '전환점 · 행운 · 운명의 흐름', up: '긍정적인 변화의 바람이 불어옵니다! 우연처럼 찾아오는 제안이나 만남이 인생의 좋은 전환점이 될 거예요.', rev: '잠시 정체된 듯 보여도 수레바퀴는 곧 다시 상승 곡선으로 돌아섭니다. 마음을 편히 가지세요.' },
-    { num: 'XVII', name: '별 (The Star)', icon: '🌟', kw: '희망 · 치유 · 소원 성취', up: '어두운 밤하늘에 가장 밝은 별이 뜨듯, 간절히 바라던 소망에 희망찬 빛이 비칩니다. 치유와 평온의 시기예요.', rev: '기대치를 조금 내려놓고 오늘 이룬 작은 성취부터 스스로 칭찬해 주세요.' },
-    { num: 'XVIII', name: '달 (The Moon)', icon: '🌕', kw: '감성 · 숨겨진 마음 · 상상력', up: '겉모습 너머의 진심이 서서히 드러납니다. 예술적 영감이 풍부해지며 감정의 결을 섬세하게 읽는 힘이 커집니다.', rev: '막연한 걱정은 실체보다 크기 마련입니다. 사실만 차분히 확인하면 안도하게 될 거예요.' },
-    { num: 'XIX', name: '태양 (The Sun)', icon: '☀️', kw: '기쁨 · 성공 · 눈부신 활력', up: '타로에서 가장 밝은 축복의 카드! 고민이 눈 녹듯 사라지고 환한 웃음과 명확한 성과가 찾아옵니다.', rev: '이미 충분히 잘 해내고 있어요. 완벽하지 않아도 지금의 빛을 마음껏 즐기세요.' },
-    { num: 'XXI', name: '세계 (The World)', icon: '🌍', kw: '완성 · 성취 · 새로운 챕터', up: '그동안 공들여 온 일이 아름다운 결실을 맺습니다! 한 단계 더 넓은 무대로 나아갈 준비가 완벽히 끝났어요.', rev: '마지막 1%의 마무리를 꼼꼼히 챙기면 완벽한 해피엔딩을 맞이할 수 있습니다.' }
+    { num: '0', kr: '광대', en: 'THE FOOL', name: '광대 (The Fool)', icon: '🃏', c1: '#23396b', c2: '#5f87c2', motif: 'fool', kw: '새로운 시작 · 순수 · 모험', up: '두려움을 내려놓고 새로운 가능성을 향해 발을 내디딜 때입니다. 뜻밖의 즐거운 기회가 기다립니다.', rev: '조금만 더 신중히 주변을 살펴보세요. 작은 준비가 큰 실수를 막아줍니다.' },
+    { num: 'I', kr: '마법사', en: 'THE MAGICIAN', name: '마법사 (The Magician)', icon: '✨', c1: '#4c1638', c2: '#a8385d', motif: 'magician', kw: '창조력 · 실현 · 자신감', up: '당신에게는 이미 원하는 것을 현실로 만들 모든 도구가 갖춰져 있습니다. 지금 바로 실행에 옮기세요!', rev: '집중력이 분산되어 있을 수 있어요. 가장 중요한 한 가지에 에너지를 모아보세요.' },
+    { num: 'II', kr: '여사제', en: 'HIGH PRIESTESS', name: '여사제 (The High Priestess)', icon: '🌙', c1: '#152447', c2: '#3b5998', motif: 'priestess', kw: '직관 · 신비 · 내면의 지혜', up: '겉으로 드러난 말보다 당신의 고요한 직감이 정답을 알고 있습니다. 조급해하지 말고 흐름을 지켜보세요.', rev: '마음속 불안을 감추기보다 신뢰할 수 있는 사람과 솔직히 나눠보세요.' },
+    { num: 'III', kr: '여황제', en: 'THE EMPRESS', name: '여황제 (The Empress)', icon: '🌸', c1: '#3d2817', c2: '#9a6b32', motif: 'empress', kw: '풍요 · 사랑 · 매력 발산', up: '애정과 풍요가 자연스럽게 흘러들어오는 축복의 카드입니다. 스스로를 아낄수록 더 큰 사랑이 다가옵니다.', rev: '남을 챙기느라 정작 자신의 휴식을 놓치고 있진 않나요? 오늘은 나를 위한 선물을 해주세요.' },
+    { num: 'IV', kr: '황제', en: 'THE EMPEROR', name: '황제 (The Emperor)', icon: '👑', c1: '#4a1414', c2: '#9e2b25', motif: 'emperor', kw: '안정 · 리더십 · 결단력', up: '흔들리지 않는 기준과 추진력으로 상황을 주도할 수 있는 시기입니다. 자신 있게 결정을 내리세요.', rev: '너무 완벽하게 통제하려 하면 피로해져요. 유연함을 한 스푼 더해 보세요.' },
+    { num: 'V', kr: '교황', en: 'THE HIEROPHANT', name: '교황 (The Hierophant)', icon: '🗝️', c1: '#2d2342', c2: '#6b5394', motif: 'hierophant', kw: '조언 · 신뢰 · 정석의 길', up: '경험 많은 귀인의 조언이나 검증된 방법이 큰 도움이 됩니다. 신뢰를 쌓는 선택이 길합니다.', rev: '익숙한 틀에서 벗어나 나만의 방식을 시도해 볼 때가 왔습니다.' },
+    { num: 'VI', kr: '연인', en: 'THE LOVERS', name: '연인 (The Lovers)', icon: '💘', c1: '#4d1935', c2: '#b8426f', motif: 'lovers', kw: '운명적 끌림 · 조화 · 선택', up: '마음이 깊이 통하는 인연과의 교감이 강해집니다. 가슴이 설레는 쪽을 선택해도 후회 없을 거예요.', rev: '엇갈린 오해를 풀기 위해 먼저 따뜻한 손길을 내밀어 볼 타이밍입니다.' },
+    { num: 'VII', kr: '전차', en: 'THE CHARIOT', name: '전차 (The Chariot)', icon: '🏆', c1: '#162c46', c2: '#2d6a9f', motif: 'chariot', kw: '승리 · 돌파력 · 전진', up: '망설이던 장애물을 시원하게 돌파하고 목표에 도달할 기운입니다! 흔들리지 않는 의지가 승리를 부릅니다.', rev: '속도를 잠시 줄이고 방향을 재점검하면 훨씬 수월하게 도착할 수 있어요.' },
+    { num: 'VIII', kr: '힘', en: 'STRENGTH', name: '힘 (Strength)', icon: '🦁', c1: '#522914', c2: '#b86b28', motif: 'strength', kw: '내면의 용기 · 부드러운 카리스마', up: '강압이 아닌 따뜻한 인내와 부드러운 카리스마가 상황을 완벽히 해결합니다. 당신은 생각보다 강해요.', rev: '스스로를 너무 다그치지 마세요. 잠시 숨을 고르면 다시 힘이 차오릅니다.' },
+    { num: 'IX', kr: '은둔자', en: 'THE HERMIT', name: '은둔자 (The Hermit)', icon: '🕯️', c1: '#1b2236', c2: '#465375', motif: 'hermit', kw: '성찰 · 깨달음 · 고요한 빛', up: '잠시 소음을 멀리하고 나만의 시간을 가지면 안개처럼 흐렸던 해답이 또렷하게 떠오릅니다.', rev: '혼자 고민을 끌어안기보다는 이제 세상 밖으로 나와 따뜻한 교류를 시작해 보세요.' },
+    { num: 'X', kr: '운명의 수레바퀴', en: 'WHEEL OF FORTUNE', name: '운명의 수레바퀴 (Wheel of Fortune)', icon: '☸️', c1: '#231b4d', c2: '#6d4db8', motif: 'wheel', kw: '전환점 · 행운 · 운명의 흐름', up: '긍정적인 변화의 바람이 불어옵니다! 우연처럼 찾아오는 제안이나 만남이 인생의 좋은 전환점이 될 거예요.', rev: '잠시 정체된 듯 보여도 수레바퀴는 곧 다시 상승 곡선으로 돌아섭니다. 마음을 편히 가지세요.' },
+    { num: 'XI', kr: '정의', en: 'JUSTICE', name: '정의 (Justice)', icon: '⚖️', c1: '#1d332d', c2: '#3f7868', motif: 'justice', kw: '균형 · 공정 · 명확한 결실', up: '그동안 성실히 쌓아온 노력에 딱 맞는 정당한 보상이 돌아옵니다. 객관적인 판단이 빛을 발해요.', rev: '감정에 치우친 결정은 잠시 미루고 사실관계를 차분히 정리해 보세요.' },
+    { num: 'XII', kr: '매달린 사람', en: 'THE HANGED MAN', name: '매달린 사람 (The Hanged Man)', icon: '🔮', c1: '#163140', c2: '#346d87', motif: 'hanged', kw: '관점 전환 · 깨달음 · 기다림', up: '상황을 거꾸로 바라보는 순간 놀라운 돌파구가 열립니다. 지금의 멈춤은 더 큰 도약을 위한 준비예요.', rev: '불필요한 미련을 털어내면 막혀 있던 흐름이 단숨에 풀리기 시작합니다.' },
+    { num: 'XIII', kr: '죽음', en: 'DEATH', name: '죽음 (Death)', icon: '🥀', c1: '#1e162b', c2: '#4f3563', motif: 'death', kw: '끝과 새출발 · 대변화 · 재생', up: '낡은 챕터가 깔끔히 마무리되고 완전히 새로운 시작이 열립니다. 변화를 반갑게 맞이해 보세요.', rev: '이미 지나간 일에 마음을 붙잡아 두지 마세요. 새로운 문이 바로 앞에 열려 있습니다.' },
+    { num: 'XIV', kr: '절제', en: 'TEMPERANCE', name: '절제 (Temperance)', icon: '🏺', c1: '#1b3847', c2: '#4389a2', motif: 'temperance', kw: '조화 · 치유 · 완만한 균형', up: '서로 다른 요소들이 부드럽게 어우러지며 평온한 조화를 이룹니다. 서두르지 않을수록 완벽해져요.', rev: '생활 리듬이나 감정의 균형을 살짝 다듬어 주면 컨디션이 빠르게 회복됩니다.' },
+    { num: 'XV', kr: '악마', en: 'THE DEVIL', name: '악마 (The Devil)', icon: '🔥', c1: '#33121b', c2: '#7a2237', motif: 'devil', kw: '강렬한 열정 · 유혹 · 집착 경계', up: '강한 매력과 몰입의 에너지가 솟구칩니다. 욕망을 건강하게 다스리면 큰 성취의 동력이 됩니다.', rev: '나를 얽매던 습관이나 부담에서 벗어날 절호의 해방 타이밍이에요.' },
+    { num: 'XVI', kr: '탑', en: 'THE TOWER', name: '탑 (The Tower)', icon: '⚡', c1: '#2b1829', c2: '#7d3448', motif: 'tower', kw: '번개 같은 깨달음 · 판 바꾸기', up: '답답하던 고정관념이 단번에 깨지며 진실이 드러납니다. 비 온 뒤 땅이 굳듯 훨씬 단단한 기반이 열려요.', rev: '작은 균열을 미리 살피고 정리하면 큰 흔들림 없이 부드럽게 넘어갈 수 있습니다.' },
+    { num: 'XVII', kr: '별', en: 'THE STAR', name: '별 (The Star)', icon: '🌟', c1: '#12224d', c2: '#2d5ca8', motif: 'star', kw: '희망 · 치유 · 소원 성취', up: '어두운 밤하늘에 가장 밝은 별이 뜨듯, 간절히 바라던 소망에 희망찬 빛이 비칩니다. 치유와 평온의 시기예요.', rev: '기대치를 조금 내려놓고 오늘 이룬 작은 성취부터 스스로 칭찬해 주세요.' },
+    { num: 'XVIII', kr: '달', en: 'THE MOON', name: '달 (The Moon)', icon: '🌕', c1: '#1c1840', c2: '#4d418f', motif: 'moon', kw: '감성 · 숨겨진 마음 · 상상력', up: '겉모습 너머의 진심이 서서히 드러납니다. 예술적 영감이 풍부해지며 감정의 결을 섬세하게 읽는 힘이 커집니다.', rev: '막연한 걱정은 실체보다 크기 마련입니다. 사실만 차분히 확인하면 안도하게 될 거예요.' },
+    { num: 'XIX', kr: '태양', en: 'THE SUN', name: '태양 (The Sun)', icon: '☀️', c1: '#69390c', c2: '#d98a1e', motif: 'sun', kw: '기쁨 · 성공 · 눈부신 활력', up: '타로에서 가장 밝은 축복의 카드! 고민이 눈 녹듯 사라지고 환한 웃음과 명확한 성과가 찾아옵니다.', rev: '이미 충분히 잘 해내고 있어요. 완벽하지 않아도 지금의 빛을 마음껏 즐기세요.' },
+    { num: 'XX', kr: '심판', en: 'JUDGEMENT', name: '심판 (Judgement)', icon: '🎺', c1: '#2a1d4a', c2: '#7353ad', motif: 'judgement', kw: '부름 · 각성 · 반가운 소식', up: '기다리던 반가운 소식이나 두 번째 기회가 찾아옵니다. 과거의 경험이 값진 열매로 돌아와요.', rev: '스스로에 대한 과한 자책은 내려놓고 이제 가볍게 다음 단계로 나아가세요.' },
+    { num: 'XXI', kr: '세계', en: 'THE WORLD', name: '세계 (The World)', icon: '🌍', c1: '#153632', c2: '#318075', motif: 'world', kw: '완성 · 성취 · 새로운 챕터', up: '그동안 공들여 온 일이 아름다운 결실을 맺습니다! 한 단계 더 넓은 무대로 나아갈 준비가 완벽히 끝났어요.', rev: '마지막 1%의 마무리를 꼼꼼히 챙기면 완벽한 해피엔딩을 맞이할 수 있습니다.' }
   ];
 
   const MBTI_GOLDEN_PAIRS = new Set([
@@ -2724,8 +2915,36 @@
     return { y, m, d, timeVal: sajuTimeSelect.value, name: sajuNameInput.value.trim() || '방문자' };
   }
 
+  const SINSAL_ARTWORKS = {
+    dohwa: {
+      title: '도화살(桃花殺)',
+      badge: '🌸 매력 · 인기 · 연애운',
+      F: { src: 'artifacts/file_generation/ttl=63d/intermediate/assets/sinsal_dohwa_f.jpg', caption: '달빛 아래 흩날리는 복숭아꽃처럼, 자연스레 시선을 모으고 인연을 피워내는 화사한 도화의 기운입니다.' },
+      M: { src: 'artifacts/file_generation/ttl=63d/intermediate/assets/sinsal_dohwa_m.jpg', caption: '은은한 달빛 도화 아래 짙은 카리스마와 다정함으로 사람들의 마음을 사로잡는 매력의 기운입니다.' }
+    },
+    yeokma: {
+      title: '역마살(驛馬殺)',
+      badge: '🐎 이동 · 해외 · 개척운',
+      F: { src: 'artifacts/file_generation/ttl=63d/intermediate/assets/sinsal_yeokma_f.jpg', caption: '안개 낀 능선 너머 더 넓은 세상으로 나아갈수록 기회가 활짝 열리는 역동적인 개척의 기운입니다.' },
+      M: { src: 'artifacts/file_generation/ttl=63d/intermediate/assets/sinsal_yeokma_m.jpg', caption: '거침없는 바람을 타고 새로운 무대와 해외·이동운에서 큰 성취를 거두는 당당한 역마의 기운입니다.' }
+    },
+    hwagae: {
+      title: '화개살 · 천을귀인',
+      badge: '🎨 예술 · 지혜 · 귀인운',
+      F: { src: 'artifacts/file_generation/ttl=63d/intermediate/assets/sinsal_hwagae_f.jpg', caption: '고운 빛의 붓끝처럼 섬세한 예술적 감성과 깊은 통찰력이 명예와 귀인을 불러들이는 기운입니다.' },
+      M: { src: 'artifacts/file_generation/ttl=63d/intermediate/assets/sinsal_hwagae_m.jpg', caption: '옥빛 두루마리를 펼치듯 깊이 있는 전문성과 차분한 지혜로 귀한 인연을 얻는 고귀한 기운입니다.' }
+    }
+  };
+
+  const SPOUSE_FALLBACK_ART = {
+    M: 'artifacts/file_generation/ttl=63d/intermediate/assets/spouse_m.jpg',
+    F: 'artifacts/file_generation/ttl=63d/intermediate/assets/spouse_f.jpg'
+  };
+
   document.getElementById('btn-run-saju').addEventListener('click', () => {
     const { y, m, d, timeVal, name } = getSajuParams();
+    const gKey = (state.userGender === 'M') ? 'M' : 'F';
+    const genderLabel = gKey === 'M' ? '남성' : '여성';
     state.userName = name;
     syncZodiacFromSajuInputs();
     rigPhys.bounceVel = 0.08;
@@ -2754,11 +2973,40 @@
       `;
     }).join('');
 
-    openModal('연화의 옥구슬 사주 풀이', `${name}님의 사주팔자`, `
+    const artGroup = SINSAL_ARTWORKS[data.primarySinsal] || SINSAL_ARTWORKS.dohwa;
+    const artItem = artGroup[gKey];
+    const sinsalBadgesHtml = data.sinsalTags.map(s =>
+      `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10.5px] font-bold bg-amber-400/20 text-amber-100 border border-amber-300/45">${s.label}</span>`
+    ).join('');
+    const sinsalDescHtml = data.sinsalTags.map(s =>
+      `<div class="text-[11px] text-slate-200/90"><strong class="text-[#f5dc9c]">${s.label}</strong>: ${s.desc}</div>`
+    ).join('');
+
+    openModal('연화의 옥구슬 사주 풀이', `${name}님의 사주팔자 · 신살`, `
       <div class="text-xs text-slate-300 bg-white/5 rounded-xl p-3 border border-white/10">
-        <strong class="text-[#f3dfb1]">${name}</strong>님 (${y}년 ${m}월 ${d}일 · ${data.animal}띠)의 사주 원국입니다.
+        <strong class="text-[#f3dfb1]">${name}</strong>님 (${genderLabel} · ${y}년 ${m}월 ${d}일 · ${data.animal}띠)의 사주 원국입니다.
       </div>
       <div class="grid grid-cols-4 gap-2">${pillarsHtml}</div>
+
+      <!-- 성별 맞춤 신살 상황 일러스트 카드 -->
+      <div class="rounded-2xl overflow-hidden border border-[#e6c67c]/55 bg-[#121622] shadow-lg">
+        <div class="relative aspect-[4/4.3] w-full overflow-hidden bg-black">
+          <img src="${artItem.src}" alt="${artGroup.title} 일러스트" class="w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-gradient-to-t from-[#0d111a] via-transparent to-black/35"></div>
+          <div class="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-full bg-black/65 backdrop-blur border border-amber-300/55 text-[10.5px] font-bold text-amber-200">
+            ${artGroup.badge}
+          </div>
+          <div class="absolute bottom-2.5 left-3 right-3">
+            <div class="font-serif-kr text-base font-extrabold text-[#fff1cc] drop-shadow">${name}님의 핵심 신살: ${artGroup.title}</div>
+            <p class="text-[11px] text-slate-100/90 leading-snug mt-0.5">${artItem.caption}</p>
+          </div>
+        </div>
+        <div class="p-3 space-y-1.5 bg-white/5">
+          <div class="flex flex-wrap gap-1.5 pb-1">${sinsalBadgesHtml}</div>
+          ${sinsalDescHtml}
+        </div>
+      </div>
+
       <div class="bg-[#154d48]/30 border border-[#e6c67c]/40 rounded-xl p-3.5">
         <div class="text-xs font-bold text-[#e6c67c] mb-1">✦ 타고난 일간(日干) 기질</div>
         <div class="font-serif-kr text-base font-bold text-white mb-1">${data.ilgan.title}</div>
@@ -2771,11 +3019,22 @@
         </div>
         ${ohaengHtml}
       </div>
+      <div class="bg-white/5 border border-[#e6c67c]/35 rounded-xl p-3.5">
+        <div class="text-xs font-bold text-[#e6c67c] mb-1">✨ 연화의 Gemini AI 심층 사주 · 신살 풀이</div>
+        <p id="saju-llm-box" class="text-xs text-slate-100 leading-relaxed whitespace-pre-line">연화가 사주 원국과 신살의 흐름을 깊이 살펴보는 중…</p>
+      </div>
       <div class="flex items-center justify-between bg-amber-500/10 border border-amber-300/30 rounded-xl px-3.5 py-2.5 text-xs">
         <span class="text-amber-200 font-semibold">🍀 행운 키워드</span>
         <span class="text-white font-medium">${data.ilgan.lucky}</span>
       </div>
     `);
+    const q = (document.getElementById('saju-question')?.value || '').trim();
+    const sinsalNames = data.sinsalTags.map(s => s.label).join(', ');
+    const details = `${name}(${genderLabel}), ${y}년 ${m}월 ${d}일 (${data.animal}띠), 일간: ${data.ilgan.title}, 보유 신살: ${sinsalNames}, 오행 강함:${data.dominant}/보완:${data.lacking}`;
+    askGeminiFortune('saju', '사주 명리·신살', details, q, `${data.ilgan.desc} 특히 ${artGroup.title}의 기운이 강하게 자리 잡아 ${artItem.caption}`).then(txt => {
+      const el = document.getElementById('saju-llm-box');
+      if (el) el.textContent = txt;
+    });
   });
 
   document.querySelectorAll('.quick-fortune-btn').forEach(btn => {
@@ -2824,9 +3083,15 @@
     `;
     if (withEffect) {
       playChimeSound(740);
-      rigPhys.bounceVel = 0.08;
-      rigPhys.happyTimer = 1.4;
+      rigPhys.flinchElapsed = 0.0;
+      rigPhys.happyTimer = 1.0;
       speechBubble.innerHTML = `${state.bloodMe}형이랑 ${state.bloodYou}형이라구? 궁합 점수 ${res.score}%야! ♥`;
+      const q = (document.getElementById('blood-question')?.value || '').trim();
+      const box = document.getElementById('blood-inline-result');
+      askGeminiFortune('blood', '혈액형 궁합', `${state.bloodMe}형과 ${state.bloodYou}형 (${res.score}%)`, q, res.text).then(txt => {
+        const p = box.querySelector('p');
+        if (p) p.textContent = txt;
+      });
     }
   }
 
@@ -2895,9 +3160,15 @@
     `;
     if (withEffect) {
       playChimeSound(820);
-      rigPhys.bounceVel = 0.08;
-      rigPhys.happyTimer = 1.4;
+      rigPhys.flinchElapsed = 0.0;
+      rigPhys.happyTimer = 1.0;
       speechBubble.innerHTML = `${z.name}의 별빛이 아주 선명해! 오늘 행운 아이템은 ${z.item}야 ★`;
+      const q = (document.getElementById('zodiac-question')?.value || '').trim();
+      const box = document.getElementById('zodiac-inline-result');
+      askGeminiFortune('zodiac', '별자리 운세', `${z.name} (${z.el} 원소, 수호성 ${z.ruler})`, q, z.msg).then(txt => {
+        const p = box.querySelector('p');
+        if (p) p.textContent = txt;
+      });
     }
   }
 
@@ -2942,55 +3213,189 @@
 
   const tarotDeckEl = document.getElementById('tarot-deck');
   const tarotResultEl = document.getElementById('tarot-inline-result');
-  function shuffleTarotSpread() {
-    const shuffled = [...TAROT_CARDS].sort(() => Math.random() - 0.5).slice(0, 5);
-    state.tarotSpread = shuffled.map(c => ({ ...c, reversed: Math.random() < 0.28 }));
-    state.tarotPickedIdx = -1;
-    tarotDeckEl.innerHTML = state.tarotSpread.map((card, i) => `
-      <div class="tarot-card-wrap h-24" data-card-idx="${i}">
-        <div class="tarot-card-inner">
-          <div class="tarot-face bg-gradient-to-b from-[#2a1d54] to-[#150d30] border border-amber-300/70 flex flex-col items-center justify-center shadow-md hover:-translate-y-1 transition">
-            <div class="text-amber-300/90 text-base">✦</div>
-            <div class="text-[9px] text-amber-200/75 mt-1 tracking-widest">TAROT</div>
-          </div>
-          <div class="tarot-face tarot-front bg-gradient-to-b from-[#f8eed6] to-[#e4d0a3] border-2 border-amber-500 text-[#241c15] flex flex-col items-center justify-center p-1 text-center">
-            <div class="text-xl ${card.reversed ? 'rotate-180' : ''}">${card.icon}</div>
-            <div class="text-[9px] font-bold leading-tight mt-1">${card.num}</div>
-          </div>
-        </div>
-      </div>
-    `).join('');
-    tarotResultEl.innerHTML = '제단 위의 카드 중 한 장을 터치하면 셀레네가 운명의 메시지를 읽어드립니다.';
+  const tarotPickCounter = document.getElementById('tarot-pick-counter');
+  let tarotPickedIndices = [];
+  let tarotDealt = false;
+
+  function renderTarotBackSVG() {
+    return `
+      <svg viewBox="0 0 100 170" class="w-full h-full block" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="tbBg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#281854"/>
+            <stop offset="50%" stop-color="#140b2e"/>
+            <stop offset="100%" stop-color="#221247"/>
+          </linearGradient>
+        </defs>
+        <rect width="100" height="170" rx="7" fill="url(#tbBg)"/>
+        <rect x="4" y="4" width="92" height="162" rx="5" fill="none" stroke="#e6c373" stroke-width="1.3" opacity="0.9"/>
+        <rect x="8.5" y="8.5" width="83" height="153" rx="3" fill="none" stroke="#e6c373" stroke-width="0.6" stroke-dasharray="2 2" opacity="0.65"/>
+        <path d="M12 18 L18 12 M88 18 L82 12 M12 152 L18 158 M88 152 L82 158" stroke="#f5d98e" stroke-width="1" opacity="0.8"/>
+        <circle cx="50" cy="85" r="26" fill="none" stroke="#e6c373" stroke-width="1" opacity="0.85"/>
+        <circle cx="50" cy="85" r="19" fill="none" stroke="#c084fc" stroke-width="0.7" opacity="0.6"/>
+        <polygon points="50,55 55,78 78,85 55,92 50,115 45,92 22,85 45,78" fill="#f5d98e" opacity="0.92"/>
+        <circle cx="50" cy="85" r="6" fill="#1b0f3b" stroke="#f5d98e" stroke-width="1.1"/>
+        <circle cx="50" cy="85" r="2.2" fill="#f5d98e"/>
+        <path d="M43 32 A8 8 0 1 0 57 32 A6 6 0 1 1 43 32 Z" fill="#f5d98e" opacity="0.9"/>
+        <path d="M43 138 A8 8 0 1 1 57 138 A6 6 0 1 0 43 138 Z" fill="#f5d98e" opacity="0.9"/>
+        <circle cx="24" cy="40" r="1.2" fill="#f5d98e"/><circle cx="76" cy="40" r="1.2" fill="#f5d98e"/>
+        <circle cx="24" cy="130" r="1.2" fill="#f5d98e"/><circle cx="76" cy="130" r="1.2" fill="#f5d98e"/>
+      </svg>`;
+  }
+
+  function getTarotMotifArt(motif) {
+    const arts = {
+      fool: `<circle cx="74" cy="46" r="10" fill="#fde68a"/><path d="M16 116 L46 86 L62 100 L84 116 Z" fill="#1e293b" opacity="0.65"/><circle cx="50" cy="70" r="11" fill="none" stroke="#fef08a" stroke-width="1.5"/><path d="M36 96 Q50 74 64 96" fill="none" stroke="#f5d98e" stroke-width="1.8"/><path d="M50 52 L50 86 M38 66 L62 66" stroke="#fde68a" stroke-width="1.2"/>`,
+      magician: `<path d="M34 48 C34 41 44 41 50 48 C56 55 66 55 66 48 C66 41 56 41 50 48 C44 55 34 55 34 48 Z" fill="none" stroke="#fde68a" stroke-width="1.8"/><line x1="50" y1="58" x2="50" y2="108" stroke="#f5d98e" stroke-width="2.2"/><polygon points="50,56 54,65 50,63 46,65" fill="#fef08a"/><circle cx="30" cy="86" r="6" fill="none" stroke="#f5d98e" stroke-width="1.2"/><polygon points="70,80 76,92 64,92" fill="none" stroke="#f5d98e" stroke-width="1.2"/>`,
+      priestess: `<rect x="20" y="42" width="11" height="72" fill="#0f172a" stroke="#f5d98e" stroke-width="1"/><rect x="69" y="42" width="11" height="72" fill="#e2e8f0" opacity="0.88" stroke="#f5d98e" stroke-width="1"/><path d="M40 76 A14 14 0 1 0 60 76 A11 11 0 1 1 40 76 Z" fill="#fef08a"/><circle cx="50" cy="54" r="7" fill="none" stroke="#fde68a" stroke-width="1.4"/>`,
+      empress: `<circle cx="50" cy="68" r="15" fill="none" stroke="#fde68a" stroke-width="2"/><line x1="50" y1="83" x2="50" y2="108" stroke="#fde68a" stroke-width="2"/><line x1="40" y1="95" x2="60" y2="95" stroke="#fde68a" stroke-width="2"/><path d="M32 48 L41 38 L50 46 L59 38 L68 48" fill="none" stroke="#fef08a" stroke-width="1.6"/>`,
+      emperor: `<path d="M28 54 L36 40 L50 50 L64 40 L72 54 L68 62 L32 62 Z" fill="#f5d98e" opacity="0.9"/><rect x="30" y="68" width="40" height="40" rx="4" fill="none" stroke="#fde68a" stroke-width="1.6"/><line x1="50" y1="68" x2="50" y2="108" stroke="#fde68a" stroke-width="1.4"/><circle cx="50" cy="86" r="8" fill="none" stroke="#fef08a" stroke-width="1.4"/>`,
+      hierophant: `<line x1="34" y1="106" x2="66" y2="54" stroke="#fde68a" stroke-width="2.2"/><line x1="66" y1="106" x2="34" y2="54" stroke="#f5d98e" stroke-width="2.2"/><circle cx="34" cy="106" r="6" fill="none" stroke="#fde68a" stroke-width="1.8"/><circle cx="66" cy="106" r="6" fill="none" stroke="#f5d98e" stroke-width="1.8"/><circle cx="50" cy="46" r="7" fill="#fef08a" opacity="0.9"/>`,
+      lovers: `<circle cx="50" cy="46" r="10" fill="#fde68a"/><path d="M50 104 C28 88 24 68 36 62 C44 58 50 66 50 70 C50 66 56 58 64 62 C76 68 72 88 50 104 Z" fill="#f9a8d4" opacity="0.88" stroke="#fef08a" stroke-width="1.4"/>`,
+      chariot: `<polygon points="50,38 74,56 68,104 32,104 26,56" fill="none" stroke="#fde68a" stroke-width="1.6"/><circle cx="28" cy="100" r="9" fill="none" stroke="#f5d98e" stroke-width="1.8"/><circle cx="72" cy="100" r="9" fill="none" stroke="#f5d98e" stroke-width="1.8"/><polygon points="50,52 55,66 68,66 57,74 61,88 50,80 39,88 43,74 32,66 45,66" fill="#fef08a"/>`,
+      strength: `<path d="M35 46 C35 39 45 39 50 46 C55 53 65 53 65 46 C65 39 55 39 50 46 C45 53 35 53 35 46 Z" fill="none" stroke="#fef08a" stroke-width="1.8"/><circle cx="50" cy="82" r="20" fill="none" stroke="#fde68a" stroke-width="2" stroke-dasharray="4 3"/><circle cx="50" cy="82" r="12" fill="#f5d98e" opacity="0.85"/><circle cx="46" cy="80" r="1.8" fill="#451a03"/><circle cx="54" cy="80" r="1.8" fill="#451a03"/>`,
+      hermit: `<polygon points="50,42 64,66 58,96 42,96 36,66" fill="none" stroke="#fde68a" stroke-width="1.6"/><circle cx="50" cy="70" r="9" fill="#fef08a" opacity="0.9"/><line x1="50" y1="36" x2="50" y2="42" stroke="#fde68a" stroke-width="2"/><path d="M26 112 L50 96 L74 112" fill="none" stroke="#cbd5e1" stroke-width="1.4"/>`,
+      wheel: `<circle cx="50" cy="76" r="26" fill="none" stroke="#fde68a" stroke-width="2"/><circle cx="50" cy="76" r="16" fill="none" stroke="#f5d98e" stroke-width="1.2"/><line x1="50" y1="50" x2="50" y2="102" stroke="#fde68a" stroke-width="1.3"/><line x1="24" y1="76" x2="76" y2="76" stroke="#fde68a" stroke-width="1.3"/><line x1="32" y1="58" x2="68" y2="94" stroke="#f5d98e" stroke-width="1"/><line x1="68" y1="58" x2="32" y2="94" stroke="#f5d98e" stroke-width="1"/><circle cx="50" cy="76" r="5" fill="#fef08a"/>`,
+      justice: `<line x1="50" y1="38" x2="50" y2="110" stroke="#fef08a" stroke-width="2.2"/><line x1="24" y1="60" x2="76" y2="60" stroke="#fde68a" stroke-width="1.8"/><path d="M24 60 L18 82 L30 82 Z M76 60 L70 82 L82 82 Z" fill="none" stroke="#fde68a" stroke-width="1.3"/><path d="M16 82 Q24 90 32 82 M68 82 Q76 90 84 82" fill="#f5d98e" opacity="0.85"/>`,
+      hanged: `<line x1="24" y1="44" x2="76" y2="44" stroke="#fde68a" stroke-width="2.4"/><line x1="50" y1="44" x2="50" y2="86" stroke="#f5d98e" stroke-width="1.8"/><circle cx="50" cy="94" r="12" fill="none" stroke="#fef08a" stroke-width="1.6" stroke-dasharray="3 2"/><circle cx="50" cy="94" r="6" fill="#fef08a" opacity="0.85"/>`,
+      death: `<circle cx="50" cy="74" r="22" fill="none" stroke="#e2e8f0" stroke-width="1.4" opacity="0.8"/><path d="M50 56 C58 64 58 84 50 92 C42 84 42 64 50 56 Z" fill="#f43f5e" opacity="0.85"/><path d="M34 74 C42 66 58 66 66 74 C58 82 42 82 34 74 Z" fill="#fb7185" opacity="0.75"/><circle cx="50" cy="74" r="4" fill="#fef08a"/>`,
+      temperance: `<path d="M26 54 L42 54 L38 72 L30 72 Z M58 84 L74 84 L70 102 L62 102 Z" fill="#fde68a" opacity="0.9"/><path d="M36 72 C46 72 54 84 64 84" fill="none" stroke="#7dd3fc" stroke-width="2.6"/><circle cx="50" cy="44" r="8" fill="#fef08a" opacity="0.8"/>`,
+      devil: `<polygon points="50,104 30,52 74,84 26,84 70,52" fill="none" stroke="#fda4af" stroke-width="1.7"/><circle cx="50" cy="76" r="24" fill="none" stroke="#f5d98e" stroke-width="1.2" opacity="0.75"/><circle cx="50" cy="76" r="5" fill="#fb7185"/>`,
+      tower: `<rect x="36" y="56" width="28" height="54" fill="#1e1b2e" stroke="#fde68a" stroke-width="1.5"/><path d="M34 56 L42 46 L50 54 L58 46 L66 56" fill="none" stroke="#f5d98e" stroke-width="1.8"/><polyline points="78,36 56,56 66,62 42,84" fill="none" stroke="#fef08a" stroke-width="2.4"/>`,
+      star: `<polygon points="50,40 55,63 78,68 55,73 50,96 45,73 22,68 45,63" fill="#fef08a"/><circle cx="28" cy="48" r="2.2" fill="#e0f2fe"/><circle cx="72" cy="48" r="2.2" fill="#e0f2fe"/><path d="M20 106 Q35 98 50 106 T80 106" fill="none" stroke="#7dd3fc" stroke-width="1.8"/>`,
+      moon: `<path d="M58 44 A22 22 0 1 0 58 92 A17 17 0 1 1 58 44 Z" fill="#fef08a"/><rect x="20" y="88" width="12" height="24" fill="#1e1b4b" stroke="#fde68a" stroke-width="1"/><rect x="68" y="88" width="12" height="24" fill="#1e1b4b" stroke="#fde68a" stroke-width="1"/><path d="M32 110 Q50 100 68 110" fill="none" stroke="#93c5fd" stroke-width="1.5"/>`,
+      sun: `<circle cx="50" cy="74" r="16" fill="#fef08a" stroke="#f59e0b" stroke-width="1.5"/><g stroke="#fde68a" stroke-width="2"><line x1="50" y1="42" x2="50" y2="52"/><line x1="50" y1="96" x2="50" y2="106"/><line x1="18" y1="74" x2="28" y2="74"/><line x1="72" y1="74" x2="82" y2="74"/><line x1="27" y1="51" x2="34" y2="58"/><line x1="66" y1="90" x2="73" y2="97"/><line x1="73" y1="51" x2="66" y2="58"/><line x1="34" y1="90" x2="27" y2="97"/></g>`,
+      judgement: `<path d="M22 64 Q38 48 50 64 Q62 48 78 64" fill="none" stroke="#fef08a" stroke-width="2"/><polygon points="50,40 44,78 56,78" fill="#fde68a" opacity="0.88"/><circle cx="50" cy="94" r="11" fill="none" stroke="#c4b5fd" stroke-width="1.6"/>`,
+      world: `<ellipse cx="50" cy="76" rx="22" ry="30" fill="none" stroke="#86efac" stroke-width="2.4" stroke-dasharray="5 3"/><circle cx="50" cy="76" r="11" fill="#fde68a" opacity="0.85"/><circle cx="24" cy="46" r="2.5" fill="#fef08a"/><circle cx="76" cy="46" r="2.5" fill="#fef08a"/><circle cx="24" cy="106" r="2.5" fill="#fef08a"/><circle cx="76" cy="106" r="2.5" fill="#fef08a"/>`
+    };
+    return arts[motif] || arts.star;
+  }
+
+  function renderTarotFrontSVG(card, compact = false) {
+    const uid = `tf_${card.num}_${compact ? 'c' : 'f'}`;
+    const artTransform = card.reversed ? 'transform="rotate(180 50 76)"' : '';
+    return `
+      <svg viewBox="0 0 100 170" class="w-full h-full block" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="${uid}" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${card.c1}"/>
+            <stop offset="100%" stop-color="${card.c2}"/>
+          </linearGradient>
+        </defs>
+        <rect width="100" height="170" rx="7" fill="#f4e6c4"/>
+        <rect x="3.5" y="3.5" width="93" height="163" rx="5" fill="none" stroke="#9c7328" stroke-width="1.3"/>
+        <rect x="7" y="21" width="86" height="114" rx="4" fill="url(#${uid})" stroke="#b88933" stroke-width="1"/>
+        <text x="50" y="16" text-anchor="middle" font-family="serif" font-size="10.5" font-weight="700" fill="#3b260b">${card.num}</text>
+        <g ${artTransform}>
+          ${getTarotMotifArt(card.motif)}
+        </g>
+        <rect x="7" y="138" width="86" height="25" rx="3" fill="#211535" stroke="#c89d47" stroke-width="0.9"/>
+        <text x="50" y="${compact ? '154' : '150'}" text-anchor="middle" font-family="sans-serif" font-size="${compact ? '9.5' : '9.8'}" font-weight="700" fill="#fde68a">${card.kr}</text>
+        ${compact ? '' : `<text x="50" y="160" text-anchor="middle" font-family="serif" font-size="5.6" letter-spacing="0.6" fill="#d8c59e">${card.en}</text>`}
+      </svg>`;
+  }
+
+  function dealTarotRiffle() {
+    tarotDealt = true;
+    tarotPickedIndices = [];
+    const shuffled = [...TAROT_CARDS].sort(() => Math.random() - 0.5);
+    state.tarotSpread = shuffled.map(c => ({ ...c, reversed: Math.random() < 0.25 }));
+
+    tarotDeckEl.classList.remove('hidden');
+    tarotPickCounter.textContent = '선택 0 / 3장';
+    playTarotRiffleSound(18);
+
+    const backSvg = renderTarotBackSVG();
+    const renderRow = (cards, offset) => {
+      const mid = (cards.length - 1) / 2;
+      const items = cards.map((card, j) => {
+        const idx = offset + j;
+        const d = j - mid;
+        const fanRot = (d * 2.8).toFixed(1);
+        const fanY = (Math.abs(d) * Math.abs(d) * 0.55).toFixed(1);
+        return `
+          <div class="tarot-card-wrap tarot-fan-card" data-card-idx="${idx}" style="--fan-rot:${fanRot}deg; --fan-y:${fanY}px; z-index:${idx + 1}; animation-delay:${idx * 28}ms;">
+            <div class="tarot-card-inner">
+              <div class="tarot-face">${backSvg}</div>
+              <div class="tarot-face tarot-front">${renderTarotFrontSVG(card, true)}</div>
+            </div>
+          </div>`;
+      }).join('');
+      return `<div class="tarot-arc-row">${items}</div>`;
+    };
+
+    tarotDeckEl.innerHTML = renderRow(state.tarotSpread.slice(0, 11), 0) + renderRow(state.tarotSpread.slice(11, 22), 11);
+
+    tarotResultEl.innerHTML = '22장의 메이저 아르카나 카드가 펼쳐졌습니다. 마음이 이끄는 카드 <strong>3장(과거 · 현재 · 미래)</strong>을 골라주세요.';
     tarotDeckEl.querySelectorAll('.tarot-card-wrap').forEach(el => {
       el.addEventListener('click', () => pickTarotCard(parseInt(el.dataset.cardIdx, 10)));
     });
   }
 
-  function pickTarotCard(idx) {
-    if (state.tarotPickedIdx !== -1) return;
-    state.tarotPickedIdx = idx;
+  async function pickTarotCard(idx) {
+    if (!tarotDealt || tarotPickedIndices.length >= 3 || tarotPickedIndices.includes(idx)) return;
+    tarotPickedIndices.push(idx);
+    const cardEl = tarotDeckEl.querySelector(`[data-card-idx="${idx}"]`);
+    if (cardEl) {
+      cardEl.classList.add('flipped', 'picked');
+    }
+    playSwipeSound();
+    const count = tarotPickedIndices.length;
+    const slots = ['과거', '현재', '미래'];
+    tarotPickCounter.textContent = `선택 ${count} / 3장`;
+
+    const renderShowcaseRow = () => {
+      const cols = [0, 1, 2].map(k => {
+        const ci = tarotPickedIndices[k];
+        if (ci === undefined) {
+          return `
+            <div class="rounded-xl border border-dashed border-amber-300/35 bg-black/25 flex flex-col items-center justify-center aspect-[100/170] p-1">
+              <span class="text-[10px] font-bold text-amber-300/80">${slots[k]}</span>
+              <span class="text-lg text-amber-200/35 my-1">✦</span>
+              <span class="text-[9px] text-purple-200/60">선택 대기</span>
+            </div>`;
+        }
+        const c = state.tarotSpread[ci];
+        return `
+          <div class="flex flex-col items-center">
+            <div class="text-[10px] font-bold text-amber-300 mb-1">${slots[k]} · ${c.reversed ? '역방향' : '정방향'}</div>
+            <div class="tarot-showcase-card w-full aspect-[100/170]">${renderTarotFrontSVG(c, false)}</div>
+          </div>`;
+      }).join('');
+      return `<div class="grid grid-cols-3 gap-2 mb-2.5">${cols}</div>`;
+    };
+
+    if (count < 3) {
+      tarotResultEl.innerHTML = `${renderShowcaseRow()}<div class="text-purple-100/90">남은 카드 <strong>${3 - count}장</strong>을 더 골라주세요.</div>`;
+      return;
+    }
+
+    // All 3 cards picked -> Reveal full reading via Gemini LLM!
     tarotDeckEl.querySelectorAll('.tarot-card-wrap').forEach((w, i) => {
-      if (i === idx) w.classList.add('flipped');
-      else w.style.opacity = '0.45';
+      if (!tarotPickedIndices.includes(i)) w.style.opacity = '0.26';
     });
-    const card = state.tarotSpread[idx];
-    const dirLabel = card.reversed ? '역방향 (조언)' : '정방향 (길조)';
-    const reading = card.reversed ? card.rev : card.up;
+    tarotPickCounter.textContent = '3장 선택 완료 ✦';
+    rigPhys.flinchElapsed = 0.0;
+    rigPhys.happyTimer = 1.1;
+    playChimeSound(580);
+
+    const pickedCards = tarotPickedIndices.map((ci, k) => ({ slot: slots[k], card: state.tarotSpread[ci] }));
     const topicNames = { today: '오늘의 운세', love: '연애·속마음', work: '재물·커리어', advice: '고민 해결' };
+    const question = (document.getElementById('tarot-question')?.value || '').trim();
+    const cardsSummary = pickedCards.map(p => `${p.slot}(${p.card.name} ${p.card.reversed ? '역방향' : '정방향'})`).join(', ');
+
     tarotResultEl.innerHTML = `
-      <div class="text-left">
-        <div class="flex items-center justify-between mb-1.5">
-          <span class="font-serif-kr font-bold text-sm text-amber-200">${card.icon} ${card.num}. ${card.name}</span>
-          <span class="text-[10px] px-2 py-0.5 rounded-full ${card.reversed ? 'bg-purple-500/30 text-purple-200' : 'bg-amber-400/25 text-amber-200'}">${dirLabel}</span>
-        </div>
-        <div class="text-[11px] text-amber-300/85 mb-1.5">[${topicNames[state.tarotTopic]}] 키워드: ${card.kw}</div>
-        <p class="text-xs text-purple-100/90 leading-relaxed">${reading}</p>
+      ${renderShowcaseRow()}
+      <div id="tarot-llm-text" class="text-left text-xs text-purple-100/90 leading-relaxed bg-black/25 rounded-xl p-2.5 border border-amber-300/25">
+        <span class="text-amber-200 animate-pulse">셀레네가 세 장의 타로 카드 흐름을 해석하고 있습니다…</span>
       </div>
     `;
-    playChimeSound(540);
-    rigPhys.bounceVel = 0.08;
-    rigPhys.happyTimer = 1.4;
-    speechBubble.innerHTML = `${card.name} 카드가 나왔군요. 지금 당신에게 꼭 필요한 메시지입니다.`;
+
+    const fallbackText = pickedCards.map(p => `[${p.slot} · ${p.card.kr}] ${p.card.reversed ? p.card.rev : p.card.up}`).join(' ');
+    const aiText = await askGeminiFortune('tarot', `타로(${topicNames[state.tarotTopic]})`, cardsSummary, question, fallbackText);
+    const outEl = document.getElementById('tarot-llm-text');
+    if (outEl) outEl.textContent = aiText;
+    speechBubble.innerHTML = '세 장의 운명 패가 모두 열렸군요. 지금 당신에게 꼭 필요한 메시지입니다.';
   }
 
   document.querySelectorAll('.tarot-topic-btn').forEach(btn => {
@@ -3000,14 +3405,10 @@
         const active = b.dataset.topic === state.tarotTopic;
         b.className = `tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold border ${active ? 'bg-amber-400/25 border-amber-300 text-amber-100' : 'bg-white/5 border-white/15 text-purple-200'}`;
       });
-      shuffleTarotSpread();
+      if (tarotDealt) dealTarotRiffle();
     });
   });
-  document.getElementById('btn-tarot-reset').addEventListener('click', () => {
-    shuffleTarotSpread();
-    playSwipeSound();
-    showToast('타로 카드를 새롭게 섞었습니다 🔮');
-  });
+  document.getElementById('btn-tarot-reset').addEventListener('click', dealTarotRiffle);
 
   const MBTI_PAIRS = [['E', 'I'], ['N', 'S'], ['F', 'T'], ['P', 'J']];
   function renderMbtiToggles() {
@@ -3052,14 +3453,44 @@
     `;
     if (withEffect) {
       playChimeSound(680);
-      rigPhys.bounceVel = 0.08;
-      rigPhys.happyTimer = 1.4;
+      rigPhys.flinchElapsed = 0.0;
+      rigPhys.happyTimer = 1.0;
       speechBubble.innerHTML = `${res.a}와 ${res.b}의 궁합은 ${res.score}점! 서로의 마음을 조금만 더 들여다보면 완벽해 ♡`;
+      const q = (document.getElementById('mbti-question')?.value || '').trim();
+      const box = document.getElementById('mbti-inline-result');
+      askGeminiFortune('mbti', 'MBTI 궁합', `${res.a}와 ${res.b} (${res.score}점, ${res.grade})`, q, res.summary).then(txt => {
+        const p = box.querySelector('p');
+        if (p) p.textContent = txt;
+      });
     }
   }
   document.getElementById('btn-run-mbti').addEventListener('click', () => renderMBTI(true));
 
   /* ==================== DB RECORDING + OLLAMA CHAT & VISION ENGINE ==================== */
+  async function askGeminiFortune(charId, category, details, question, fallbackText) {
+    if (state.liveApiEnabled && state.apiBaseUrl) {
+      try {
+        const resp = await fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/fortune`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            character_id: charId,
+            category,
+            user_name: state.userName || '방문자',
+            details,
+            question: question || ''
+          })
+        });
+        if (resp.ok) {
+          const d = await resp.json();
+          if (d.reading) return d.reading;
+        }
+      } catch (e) {}
+    }
+    saveFortuneRecord(category, details, fallbackText.slice(0, 120), null);
+    return fallbackText;
+  }
+
   function saveFortuneRecord(category, inputSummary, resultSummary, score) {
     const rec = {
       category,
@@ -3170,6 +3601,50 @@
     });
   });
 
+  state.spouseGender = 'M';
+  document.querySelectorAll('.spouse-gender-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.spouseGender = btn.dataset.spouse;
+      document.querySelectorAll('.spouse-gender-btn').forEach(b => {
+        const act = b.dataset.spouse === state.spouseGender;
+        b.className = `spouse-gender-btn px-2 py-0.5 ${act ? 'bg-[#1b5746] text-[#fae9c3] font-bold' : 'text-[#1e3d32] font-semibold'}`;
+      });
+    });
+  });
+
+  function renderFaceAndSpouseCard({ faceType, analysis, spouseDesc, spouseImg, badgeText, spouseBadge }) {
+    return `
+      <div class="text-left space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <span class="font-bold text-amber-200 text-xs">🪞 아린의 청동거울 관상 리딩</span>
+          <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/25 text-emerald-200 border border-emerald-400/35 shrink-0">${badgeText}</span>
+        </div>
+        <div class="rounded-xl bg-emerald-950/60 border border-amber-300/45 px-3 py-2 flex items-center justify-between">
+          <div>
+            <div class="text-[10px] text-amber-300/90 font-semibold">당신의 대표 관상</div>
+            <div class="font-serif-kr text-sm font-extrabold text-white mt-0.5">${faceType}</div>
+          </div>
+          <span class="text-xl">✨</span>
+        </div>
+        <p class="text-xs text-slate-100 leading-relaxed whitespace-pre-line">${analysis}</p>
+
+        <!-- AI 미래 배우자 얼굴 초상화 카드 -->
+        <div class="rounded-2xl overflow-hidden border border-amber-300/50 bg-[#111722] shadow-lg">
+          <div class="px-3 py-2 bg-gradient-to-r from-emerald-900/70 to-amber-900/40 flex items-center justify-between border-b border-amber-300/25">
+            <span class="font-serif-kr text-xs font-bold text-[#fff1cc]">💍 AI가 그린 미래의 배우자 얼굴</span>
+            <span class="text-[9.5px] px-2 py-0.5 rounded-full bg-amber-400/20 text-amber-200 border border-amber-300/40">${spouseBadge}</span>
+          </div>
+          <div class="relative aspect-[4/4.6] w-full bg-black/50 overflow-hidden">
+            <img id="spouse-portrait-img" src="${spouseImg}" alt="AI 미래 배우자 초상화" class="w-full h-full object-cover" />
+            <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#0d121b] to-transparent"></div>
+          </div>
+          <div class="p-3 bg-white/5">
+            <p class="text-[11.5px] text-amber-50/90 leading-relaxed">${spouseDesc}</p>
+          </div>
+        </div>
+      </div>`;
+  }
+
   async function runVisionReading(target) {
     const isFace = target === 'face';
     const imgData = isFace ? state.faceImgBase64 : state.palmImgBase64;
@@ -3185,10 +3660,17 @@
     rigPhys.happyTimer = 1.1;
     playChimeSound(isFace ? 640 : 720);
 
+    const spGender = state.spouseGender || 'M';
+    const fallbackSpouseImg = SPOUSE_FALLBACK_ART[spGender] || SPOUSE_FALLBACK_ART.M;
+    const defaultSpouseDesc = spGender === 'M'
+      ? '온화한 눈매와 단정한 이목구비를 지닌 다정한 인상의 남성입니다. 곁에 있으면 마음이 편안해지고, 서로의 꿈을 든든히 응원해 주는 따뜻한 인연으로 이어질 관상 궁합입니다.'
+      : '맑은 눈빛과 부드러운 미소가 매력적인 우아한 인상의 여성입니다. 섬세한 배려와 밝은 에너지로 일상에 활력을 불어넣어 주는 복된 인연으로 이어질 관상 궁합입니다.';
+
     if (state.liveApiEnabled && state.apiBaseUrl) {
-      resultEl.innerHTML = `<div class="py-2 text-amber-200 animate-pulse">Ollama Vision (${state.visionModel})이 사진을 정밀 분석하는 중...</div>`;
+      resultEl.innerHTML = `<div class="py-3 text-amber-200 animate-pulse">${isFace ? 'Gemini AI가 관상을 분석하고 미래 배우자 얼굴을 그리는 중…' : 'Gemini AI가 손금을 정밀 분석하는 중…'}</div>`;
       try {
-        const resp = await fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/vision`, {
+        const base = state.apiBaseUrl.replace(/\/$/, '');
+        const resp = await fetch(`${base}/api/vision`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -3196,15 +3678,46 @@
             image_base64: imgData,
             user_name: state.userName || '방문자',
             question,
-            model: state.visionModel
+            spouse_gender: spGender
           })
         });
         if (!resp.ok) throw new Error('API Error');
         const data = await resp.json();
+
+        if (isFace) {
+          let spouseImg = fallbackSpouseImg;
+          let spouseBadge = 'AI 관상 매칭 초상화';
+          if (data.spouse_prompt) {
+            try {
+              const pResp = await fetch(`${base}/api/spouse-portrait`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: data.spouse_prompt, spouse_gender: spGender })
+              });
+              if (pResp.ok) {
+                const pData = await pResp.json();
+                if (pData.generated && pData.image_base64) {
+                  spouseImg = pData.image_base64;
+                  spouseBadge = 'Gemini AI 실시간 생성';
+                }
+              }
+            } catch (_) {}
+          }
+          resultEl.innerHTML = renderFaceAndSpouseCard({
+            faceType: data.face_type || '귀인을 부르는 맑은 봉황상',
+            analysis: data.analysis,
+            spouseDesc: data.spouse_desc || defaultSpouseDesc,
+            spouseImg,
+            badgeText: data.model || 'Gemini AI',
+            spouseBadge
+          });
+          return;
+        }
+
         resultEl.innerHTML = `
           <div class="text-left space-y-1.5">
             <div class="flex items-center justify-between">
-              <span class="font-bold text-amber-200">${isFace ? '🪞 아린의 Ollama Vision 관상 풀이' : '✋ 서연의 Ollama Vision 손금 풀이'}</span>
+              <span class="font-bold text-amber-200">✋ 서연의 Gemini AI 손금 풀이</span>
               <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/25 text-emerald-200">${data.model}</span>
             </div>
             <p class="text-xs text-slate-100 leading-relaxed whitespace-pre-line">${data.analysis}</p>
@@ -3212,25 +3725,25 @@
         `;
         return;
       } catch (err) {
-        showToast('로컬 서버 응답 실패 — 데모 분석으로 보여드립니다');
+        showToast('서버 응답 대기 — 관상 프리뷰로 먼저 보여드립니다');
       }
     }
 
-    // Smart Preview Analysis when local server is not yet connected
+    // Rich Preview Analysis when offline or inside Canvas preview
     const name = state.userName || '방문자';
     if (isFace) {
+      const faceTypes = ['귀인을 부르는 맑은 사슴상', '재물복이 쌓이는 우아한 봉황상', '신뢰와 인복이 깊은 온화한 학상'];
+      const pickedType = faceTypes[(imgData.length) % faceTypes.length];
       const txt = `${name}님의 이마(초년운)가 맑고 균형 잡혀 있어 배움과 귀인의 복이 뚜렷합니다. 눈매에 총기가 서려 대인운과 신뢰감이 높고, 코와 하관의 흐름이 안정적이라 중년 이후 재물과 성취가 차곡차곡 쌓이는 복된 상입니다.`;
-      resultEl.innerHTML = `
-        <div class="text-left space-y-1.5">
-          <div class="flex items-center justify-between">
-            <span class="font-bold text-emerald-200">🪞 아린의 관상 리딩 (미리보기)</span>
-            <span class="text-xs font-extrabold text-amber-300">귀인운 92점</span>
-          </div>
-          <p class="text-xs text-emerald-50/90 leading-relaxed">${txt}</p>
-          <div class="text-[10.5px] text-amber-200/80">⚙️ 우측 상단 설정에서 로컬 Ollama Vision 연결 시 사진 실물 AI 분석으로 자동 전환됩니다.</div>
-        </div>
-      `;
-      saveFortuneRecord('관상', question || '얼굴 사진 업로드', txt.slice(0, 70), 92);
+      resultEl.innerHTML = renderFaceAndSpouseCard({
+        faceType: pickedType,
+        analysis: txt,
+        spouseDesc: defaultSpouseDesc,
+        spouseImg: fallbackSpouseImg,
+        badgeText: '관상 프리뷰 · 귀인운 93점',
+        spouseBadge: 'AI 관상 매칭 프리뷰'
+      });
+      saveFortuneRecord('관상', question || '얼굴 사진 업로드', `${pickedType} · ${txt.slice(0, 60)}`, 93);
     } else {
       const txt = `${name}님의 ${state.palmHand} 손바닥에서 생명선이 깊고 완만하게 뻗어 활력이 탄탄합니다. 두뇌선과 감정선의 간격이 조화로워 현실 감각과 공감 능력이 균형을 이루며, 중앙으로 오르는 운명선 덕분에 노력한 일에서 귀한 결실을 맺을 흐름입니다.`;
       resultEl.innerHTML = `
@@ -3240,7 +3753,6 @@
             <span class="text-xs font-extrabold text-amber-300">운명선 94점</span>
           </div>
           <p class="text-xs text-teal-50/90 leading-relaxed">${txt}</p>
-          <div class="text-[10.5px] text-amber-200/80">⚙️ 우측 상단 설정에서 로컬 Ollama Vision 연결 시 손금 실물 AI 분석으로 자동 전환됩니다.</div>
         </div>
       `;
       saveFortuneRecord('손금', `${state.palmHand} ${question || '손바닥 사진'}`, txt.slice(0, 70), 94);
@@ -3262,8 +3774,8 @@
     const char = CHARACTERS[state.currentIdx];
     chatCharTitle.textContent = `${char.name} (${char.tabName} 마스터)와 대화`;
     chatModePill.textContent = (state.liveApiEnabled && state.apiBaseUrl)
-      ? `● 로컬 Ollama 연동됨 (${state.chatModel})`
-      : '● 데모 AI 모드 (⚙️ 설정에서 로컬 Ollama 연결 가능)';
+      ? `● Gemini AI 연동됨 (${state.chatModel})`
+      : '● 데모 AI 모드 (⚙️ 설정에서 Gemini AI 연결 가능)';
     const list = chatHistoryByChar[char.id] || [
       { role: 'assistant', text: formatSpeech(char.lines[0]) }
     ];
@@ -3298,7 +3810,7 @@
     renderChatMessages();
 
     if (state.liveApiEnabled && state.apiBaseUrl) {
-      list.push({ role: 'assistant', text: '…생각하는 중 (Ollama 응답 대기)' });
+      list.push({ role: 'assistant', text: '…생각하는 중 (Gemini AI 응답 대기)' });
       renderChatMessages();
       try {
         const resp = await fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/chat`, {
@@ -3319,7 +3831,7 @@
         return;
       } catch (err) {
         list.pop();
-        showToast('로컬 Ollama 서버에 연결되지 않아 데모 응답으로 전환했어요');
+        showToast('Gemini AI 서버에 연결되지 않아 데모 응답으로 전환했어요');
       }
     }
 
@@ -3339,19 +3851,22 @@
     }, 380);
   });
 
-  // ---- DB & OLLAMA SETTINGS DRAWER ----
+  // ---- CLEAN MVP SETTINGS DRAWER (GEMINI AI + MODEL MODE + GLB + DB HISTORY) ----
   const settingsDrawer = document.getElementById('settings-drawer');
   const btnToggleLiveApi = document.getElementById('btn-toggle-live-api');
-  const cfgApiUrl = document.getElementById('cfg-api-url');
-  const cfgChatModel = document.getElementById('cfg-chat-model');
-  const cfgVisionModel = document.getElementById('cfg-vision-model');
+  const geminiStatusSub = document.getElementById('gemini-status-sub');
   const dbHistoryBox = document.getElementById('db-history-box');
 
   function syncSettingsUI() {
-    btnToggleLiveApi.textContent = state.liveApiEnabled ? 'ON (연동)' : 'OFF';
+    btnToggleLiveApi.textContent = state.liveApiEnabled ? 'ON (연결됨)' : 'OFF (데모)';
     btnToggleLiveApi.className = `px-3 py-1.5 rounded-full text-xs font-bold border ${
       state.liveApiEnabled ? 'bg-emerald-500/30 text-emerald-100 border-emerald-400' : 'bg-slate-700 text-slate-200 border-white/15'
     }`;
+    if (geminiStatusSub) {
+      geminiStatusSub.textContent = state.liveApiEnabled && state.apiBaseUrl
+        ? `연결됨: ${state.apiBaseUrl}`
+        : '배포 서버 접속 시 자동 연결됩니다';
+    }
   }
 
   document.getElementById('btn-open-settings').addEventListener('click', () => {
@@ -3362,28 +3877,30 @@
   settingsDrawer.addEventListener('click', (e) => { if (e.target === settingsDrawer) settingsDrawer.classList.remove('open'); });
 
   btnToggleLiveApi.addEventListener('click', () => {
-    state.apiBaseUrl = cfgApiUrl.value.trim();
-    state.chatModel = cfgChatModel.value.trim() || 'qwen2.5:7b';
-    state.visionModel = cfgVisionModel.value.trim() || 'llama3.2-vision';
+    if (!state.apiBaseUrl && location.protocol.startsWith('http') && !location.hostname.includes('googleusercontent')) {
+      state.apiBaseUrl = location.origin;
+    }
     if (!state.liveApiEnabled && !state.apiBaseUrl) {
-      showToast('먼저 백엔드 서버 주소를 입력해 주세요 (예: http://127.0.0.1:8000)');
+      showToast('Render 배포 주소에서 접속하면 Gemini AI가 자동 연결됩니다');
       return;
     }
     state.liveApiEnabled = !state.liveApiEnabled;
     syncSettingsUI();
-    showToast(state.liveApiEnabled ? '로컬 DB + Ollama 연동이 켜졌습니다!' : '데모 모드로 전환되었습니다');
+    showToast(state.liveApiEnabled ? 'Gemini AI + DB 연동이 켜졌습니다 ✨' : '데모 모드로 전환되었습니다');
   });
 
   document.getElementById('btn-test-api').addEventListener('click', async () => {
-    const url = cfgApiUrl.value.trim().replace(/\/$/, '');
-    if (!url) { showToast('백엔드 서버 주소를 먼저 입력해 주세요'); return; }
+    const url = (state.apiBaseUrl || (location.protocol.startsWith('http') && !location.hostname.includes('googleusercontent') ? location.origin : '')).replace(/\/$/, '');
+    if (!url) { showToast('미리보기 환경입니다 (Render 주소에서 자동 연결됨)'); return; }
     state.apiBaseUrl = url;
     try {
       const r = await fetch(`${url}/api/health`);
       const d = await r.json();
-      showToast(`연결 성공! DB: ${d.db} · Ollama: ${d.ollama_connected ? '정상' : '미실행'}`);
+      state.liveApiEnabled = true;
+      syncSettingsUI();
+      showToast(`연결 정상! Gemini AI: ${d.gemini_ready ? '준비됨 ✓' : '키 필요'} · DB: ${d.db}`);
     } catch (err) {
-      showToast('서버에 연결할 수 없어요 (로컬 PC에서 server.py 실행 확인)');
+      showToast('서버 응답이 없습니다 (잠시 후 다시 시도해 주세요)');
     }
   });
 
@@ -3417,12 +3934,15 @@
   window.addEventListener('load', resizeThree);
   setTimeout(resizeThree, 250);
   loadVideoFromDB();
+  if (location.protocol.startsWith('http') && location.hostname && !location.hostname.includes('googleusercontent')) {
+    state.apiBaseUrl = location.origin;
+    state.liveApiEnabled = true;
+}
   initThreeScene();
   initOrb3D();
   goToCharacter(0, true);
   renderBloodResult(false);
   renderZodiacDaily(false);
-  shuffleTarotSpread();
   renderMbtiToggles();
   renderMBTI(false);
   requestAnimationFrame(animateThree);

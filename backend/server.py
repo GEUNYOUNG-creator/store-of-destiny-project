@@ -1,12 +1,8 @@
 """
-운명상점 (Fortune Shop) — FastAPI + SQLite DB + Free Gemini API (Default) / Local Ollama Backend
-Render 무료 호스팅 및 로컬 PC 모두 지원!
-환경변수:
-  - GEMINI_API_KEY : Google AI Studio 무료 API 키 (설정 시 Gemini API 우선 사용)
-  - GEMINI_MODEL   : 기본값 'gemini-3.5-flash-lite' (채팅 + 관상/손금 비전 모두 지원)
-  - OLLAMA_URL     : GEMINI_API_KEY가 없을 때 로컬 Ollama 폴백 주소 (기본 http://127.0.0.1:11434)
+운명상점 (Fortune Shop) MVP — FastAPI + SQLite DB + Google Gemini API (All 7 Fortunes + Chat + Vision + AI Spouse Portrait)
 """
 import os
+import json
 import sqlite3
 import datetime
 from typing import Optional
@@ -19,11 +15,9 @@ import httpx
 DB_PATH = os.path.join(os.path.dirname(__file__), "fortune_shop.db")
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
 DEFAULT_GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite")
-OLLAMA_BASE_URL = os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
-DEFAULT_OLLAMA_CHAT = os.environ.get("OLLAMA_CHAT_MODEL", "qwen2.5:7b")
-DEFAULT_OLLAMA_VISION = os.environ.get("OLLAMA_VISION_MODEL", "llama3.2-vision")
+GEMINI_IMAGE_MODEL = os.environ.get("GEMINI_IMAGE_MODEL", "gemini-2.5-flash-image")
 
-app = FastAPI(title="운명상점 Full-Stack API (Gemini API + SQLite)")
+app = FastAPI(title="운명상점 MVP API (Gemini + SQLite)")
 
 app.add_middleware(
     CORSMiddleware,
@@ -34,12 +28,12 @@ app.add_middleware(
 )
 
 CHARACTER_PROMPTS = {
-    "saju": "당신은 동양풍 '운명상점'의 주인 '연화'입니다. 사주 명리 전문가로서 고풍스럽고 다정한 존댓말로 사용자의 사주와 운명을 깊이 있게 상담해 주세요.",
-    "blood": "당신은 발랄하고 장난기 많은 혈액형 궁합 마스터 '루미'입니다. 친근한 반말과 귀여운 이모티콘(♥, ~)을 섞어 혈액형 성격과 연애 케미를 재밌게 알려주세요.",
+    "saju": "당신은 동양풍 '운명상점'의 주인 '연화'입니다. 사주 명리 마스터로서 고풍스럽고 다정한 존댓말로 사주팔자·오행·신살(도화살·역마살·화개살·천을귀인 등)을 깊이 있고 따뜻하게 풀이해 주세요.",
+    "blood": "당신은 발랄하고 장난기 많은 혈액형 궁합 마스터 '루미'입니다. 친근한 반말과 귀여운 이모티콘(♥, ~)을 섞어 두 사람의 혈액형 케미와 연애 꿀팁을 재밌게 알려주세요.",
     "zodiac": "당신은 반짝이는 별자리 천문 점성술사 '스텔라'입니다. 밝고 에너지 넘치는 말투로 별자리 운세와 성좌 궁합을 희망차게 들려주세요.",
-    "tarot": "당신은 신비로운 타로 리더 '셀레네'입니다. 차분하고 몽환적인 존댓말로 타로 카드의 상징과 내면의 조언을 전해 주세요.",
-    "mbti": "당신은 따뜻한 MBTI 심리상담사 '하린'입니다. 공감 어린 다정한 말투로 성격 유형별 관계 고민과 소통 팁을 위로하며 알려주세요.",
-    "face": "당신은 예리하고 우아한 젊은 관상가 '아린'입니다. 얼굴의 이마(초년운), 눈썹·눈(중년운·인복), 코(재물운), 입·하관(말년운)을 품격 있고 긍정적으로 풀이해 주세요.",
+    "tarot": "당신은 신비로운 타로 리더 '셀레네'입니다. 차분하고 몽환적인 존댓말로 선택된 3장의 타로 카드(과거·현재·미래)가 이어지는 운명의 서사를 깊이 있게 해석해 주세요.",
+    "mbti": "당신은 따뜻한 MBTI 심리상담사 '하린'입니다. 공감 어린 다정한 말투로 두 사람의 성격 유형 궁합, 감정 소통법, 고민 해결 조언을 따뜻하게 전해 주세요.",
+    "face": "당신은 예리하고 우아한 젊은 관상가 '아린'입니다. 얼굴을 보고 어떤 동물/귀인 관상인지 짚어주고, 이마(초년운), 눈썹·눈(중년운·인복), 코(재물운), 입·하관(말년운)과 잘 어울리는 미래 배우자의 인상을 품격 있고 긍정적으로 풀이해 주세요.",
     "palm": "당신은 신비로운 젊은 손금가 '서연'입니다. 손바닥의 생명선, 두뇌선, 감정선, 운명선을 다정하고 세밀하게 읽어 희망적인 조언을 건네주세요."
 }
 
@@ -80,29 +74,39 @@ class HistoryRecord(BaseModel):
     result_summary: str
     score: Optional[int] = None
 
+class FortuneRequest(BaseModel):
+    character_id: str
+    category: str
+    user_name: Optional[str] = "방문자"
+    details: str
+    question: Optional[str] = ""
+
 class ChatRequest(BaseModel):
     character_id: str
     message: str
     user_name: Optional[str] = "방문자"
-    model: Optional[str] = None
-    context: Optional[str] = ""
 
 class VisionRequest(BaseModel):
     character_id: str
     image_base64: str
     user_name: Optional[str] = "방문자"
     question: Optional[str] = ""
-    model: Optional[str] = None
+    spouse_gender: Optional[str] = "M"
 
-async def call_gemini(system_prompt: str, user_parts: list, model_name: str):
+class SpousePortraitRequest(BaseModel):
+    prompt: str
+    spouse_gender: Optional[str] = "M"
+
+async def call_gemini(system_prompt: str, user_parts: list, max_tokens: int = 750):
     api_key = os.environ.get("GEMINI_API_KEY", GEMINI_API_KEY).strip()
     if not api_key:
-        raise RuntimeError("GEMINI_API_KEY가 설정되지 않았습니다.")
+        raise HTTPException(status_code=503, detail="서버에 GEMINI_API_KEY가 설정되지 않았습니다.")
+    model_name = os.environ.get("GEMINI_MODEL", DEFAULT_GEMINI_MODEL).strip()
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
     payload = {
         "systemInstruction": {"parts": [{"text": system_prompt}]},
         "contents": [{"role": "user", "parts": user_parts}],
-        "generationConfig": {"temperature": 0.8, "maxOutputTokens": 600}
+        "generationConfig": {"temperature": 0.85, "maxOutputTokens": max_tokens}
     }
     async with httpx.AsyncClient(timeout=45.0) as client:
         r = await client.post(url, json=payload)
@@ -110,22 +114,150 @@ async def call_gemini(system_prompt: str, user_parts: list, model_name: str):
         data = r.json()
         candidates = data.get("candidates", [])
         if not candidates:
-            return "운명의 기운을 읽는 중 잠시 흐려졌습니다. 다시 한 번 질문해 주실래요?"
+            return "운명의 기운을 읽는 중 잠시 흐려졌습니다. 다시 한 번 시도해 주세요.", model_name
         parts = candidates[0].get("content", {}).get("parts", [])
-        return "".join(p.get("text", "") for p in parts).strip()
+        return "".join(p.get("text", "") for p in parts).strip(), model_name
 
 @app.get("/api/health")
 async def health():
     api_key = os.environ.get("GEMINI_API_KEY", GEMINI_API_KEY).strip()
-    provider = "gemini" if api_key else "ollama"
     return {
         "status": "ok",
         "db": "sqlite",
-        "provider": provider,
         "gemini_ready": bool(api_key),
-        "ollama_connected": bool(api_key),
-        "default_model": DEFAULT_GEMINI_MODEL if api_key else DEFAULT_OLLAMA_CHAT
+        "model": os.environ.get("GEMINI_MODEL", DEFAULT_GEMINI_MODEL)
     }
+
+@app.post("/api/fortune")
+async def generate_fortune(req: FortuneRequest):
+    sys_prompt = CHARACTER_PROMPTS.get(req.character_id, CHARACTER_PROMPTS["saju"])
+    sys_prompt += "\n답변은 모바일 화면에서 읽기 좋게 마크다운 기호 없이 깔끔한 문단으로 4~6문장 이내로 구체적이고 생생하게 한국어로 작성하세요."
+    prompt = f"사용자 이름: {req.user_name}\n분야: {req.category}\n입력 정보: {req.details}"
+    if req.question:
+        prompt += f"\n사용자의 고민/질문: {req.question}"
+    prompt += "\n위 정보를 바탕으로 캐릭터의 개성을 살려 맞춤형 운세/궁합 풀이와 실질적인 행운 조언을 들려주세요."
+
+    reading, model_name = await call_gemini(sys_prompt, [{"text": prompt}], max_tokens=750)
+
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO fortune_history (category, user_name, input_summary, result_summary, score, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+        (req.category, req.user_name, req.details[:100], reading[:180], None, datetime.datetime.now().isoformat(timespec="seconds"))
+    )
+    conn.commit()
+    conn.close()
+    return {"reading": reading, "model": model_name}
+
+@app.post("/api/chat")
+async def chat_with_character(req: ChatRequest):
+    sys_prompt = CHARACTER_PROMPTS.get(req.character_id, CHARACTER_PROMPTS["saju"])
+    sys_prompt += "\n답변은 모바일 대화창에 어울리게 2~4문장으로 자연스럽고 따뜻하게 한국어로 작성하세요."
+
+    conn = get_db()
+    now = datetime.datetime.now().isoformat(timespec="seconds")
+    conn.execute("INSERT INTO chat_logs (character_id, role, content, created_at) VALUES (?, 'user', ?, ?)", (req.character_id, req.message, now))
+    recent = conn.execute("SELECT role, content FROM chat_logs WHERE character_id = ? ORDER BY id DESC LIMIT 6", (req.character_id,)).fetchall()
+    conn.commit()
+
+    history_text = "\n".join(f"{'사용자' if r['role']=='user' else '상담사'}: {r['content']}" for r in reversed(recent))
+    reply, model_name = await call_gemini(sys_prompt, [{"text": f"사용자 이름: {req.user_name}\n\n[최근 대화]\n{history_text}"}], max_tokens=450)
+
+    conn.execute("INSERT INTO chat_logs (character_id, role, content, created_at) VALUES (?, 'assistant', ?, ?)", (req.character_id, reply, datetime.datetime.now().isoformat(timespec="seconds")))
+    conn.commit()
+    conn.close()
+    return {"reply": reply, "model": model_name}
+
+@app.post("/api/vision")
+async def analyze_vision(req: VisionRequest):
+    is_face = req.character_id == "face"
+    sys_prompt = CHARACTER_PROMPTS["face" if is_face else "palm"]
+    spouse_label = "남성" if (req.spouse_gender or "M").upper() == "M" else "여성"
+
+    if is_face:
+        prompt = (
+            f"사용자 이름: {req.user_name}. 희망 미래 배우자 성별: {spouse_label}. "
+            "이 얼굴 사진을 정밀하게 보고 아래 JSON 형식으로만 응답하세요(코드블록 없이 순수 JSON): "
+            '{"face_type": "예: 귀인을 부르는 맑은 사슴상 (또는 봉황상/여우상/호랑이상/학상 등)", '
+            '"analysis": "이마·눈매·코·하관 기반 초년·중년·말년 관상 풀이 (마크다운 없이 4~5문장)", '
+            '"spouse_desc": "이 관상과 가장 잘 어우러지는 미래 ' + spouse_label + ' 배우자의 이목구비 인상, 성격, 만나는 인연 포인트 (2~3문장)", '
+            '"spouse_prompt": "Photorealistic warm candid portrait photograph of a charming Korean ' + ("man" if spouse_label == "남성" else "woman") + ' in their late 20s matching the complementary physiognomy traits above, soft golden hour cafe lighting, natural gentle smile, 85mm lens"}'
+        )
+    else:
+        prompt = (
+            f"사용자 이름: {req.user_name}. "
+            "이 손바닥 사진을 보고 손금(생명선·두뇌선·감정선·운명선과 앞으로의 재물·연애·건강 흐름)을 마크다운 없이 4~5문장으로 상세하고 희망적으로 풀이해 주세요."
+        )
+    if req.question:
+        prompt += f" 추가 질문: {req.question}"
+
+    mime = "image/jpeg"
+    if req.image_base64.startswith("data:") and ";" in req.image_base64:
+        mime = req.image_base64.split(";")[0].replace("data:", "")
+    img_clean = req.image_base64.split(",")[-1]
+
+    raw_text, model_name = await call_gemini(
+        sys_prompt,
+        [{"text": prompt}, {"inlineData": {"mimeType": mime, "data": img_clean}}],
+        max_tokens=850
+    )
+
+    face_type = ""
+    analysis = raw_text
+    spouse_desc = ""
+    spouse_prompt = ""
+    if is_face:
+        try:
+            cleaned = raw_text.strip()
+            if "{" in cleaned and "}" in cleaned:
+                cleaned = cleaned[cleaned.find("{"):cleaned.rfind("}") + 1]
+            parsed = json.loads(cleaned)
+            face_type = parsed.get("face_type", "귀인을 부르는 복상")
+            analysis = parsed.get("analysis", raw_text)
+            spouse_desc = parsed.get("spouse_desc", "")
+            spouse_prompt = parsed.get("spouse_prompt", "")
+        except Exception:
+            face_type = "맑고 복된 귀인상"
+
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO fortune_history (category, user_name, input_summary, result_summary, score, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+        ("관상" if is_face else "손금", req.user_name, req.question or "사진 업로드 분석", analysis[:180], 93, datetime.datetime.now().isoformat(timespec="seconds"))
+    )
+    conn.commit()
+    conn.close()
+    return {
+        "analysis": analysis,
+        "face_type": face_type,
+        "spouse_desc": spouse_desc,
+        "spouse_prompt": spouse_prompt,
+        "model": model_name
+    }
+
+@app.post("/api/spouse-portrait")
+async def generate_spouse_portrait(req: SpousePortraitRequest):
+    api_key = os.environ.get("GEMINI_API_KEY", GEMINI_API_KEY).strip()
+    if not api_key:
+        return {"generated": False, "reason": "no_api_key"}
+    img_model = os.environ.get("GEMINI_IMAGE_MODEL", GEMINI_IMAGE_MODEL).strip()
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{img_model}:generateContent?key={api_key}"
+    payload = {
+        "contents": [{"role": "user", "parts": [{"text": req.prompt}]}],
+        "generationConfig": {"responseModalities": ["IMAGE", "TEXT"]}
+    }
+    try:
+        async with httpx.AsyncClient(timeout=45.0) as client:
+            r = await client.post(url, json=payload)
+            if r.status_code == 200:
+                data = r.json()
+                parts = data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
+                for part in parts:
+                    inline = part.get("inlineData") or part.get("inline_data")
+                    if inline and inline.get("data"):
+                        mime = inline.get("mimeType") or inline.get("mime_type") or "image/png"
+                        return {"generated": True, "image_base64": f"data:{mime};base64,{inline['data']}", "model": img_model}
+    except Exception:
+        pass
+    return {"generated": False, "reason": "image_model_unavailable"}
 
 @app.post("/api/history")
 def save_history(rec: HistoryRecord):
@@ -149,97 +281,9 @@ def list_history(limit: int = 20):
     conn.close()
     return {"items": [dict(r) for r in rows]}
 
-@app.post("/api/chat")
-async def chat_with_character(req: ChatRequest):
-    sys_prompt = CHARACTER_PROMPTS.get(req.character_id, CHARACTER_PROMPTS["saju"])
-    sys_prompt += "\n답변은 모바일 앱 대화창에 어울리게 2~4문장으로 자연스럽고 따뜻하게 한국어로 작성하세요."
-
-    conn = get_db()
-    now = datetime.datetime.now().isoformat(timespec="seconds")
-    conn.execute("INSERT INTO chat_logs (character_id, role, content, created_at) VALUES (?, 'user', ?, ?)", (req.character_id, req.message, now))
-    recent = conn.execute("SELECT role, content FROM chat_logs WHERE character_id = ? ORDER BY id DESC LIMIT 6", (req.character_id,)).fetchall()
-    conn.commit()
-
-    api_key = os.environ.get("GEMINI_API_KEY", GEMINI_API_KEY).strip()
-    if api_key:
-        model_name = req.model if (req.model and req.model.startswith("gemini")) else DEFAULT_GEMINI_MODEL
-        history_text = "\n".join(f"{'사용자' if r['role']=='user' else '상담사'}: {r['content']}" for r in reversed(recent))
-        try:
-            reply = await call_gemini(sys_prompt, [{"text": f"사용자 이름: {req.user_name}\n\n[최근 대화]\n{history_text}"}], model_name)
-        except Exception as e:
-            conn.close()
-            raise HTTPException(status_code=503, detail=f"Gemini API 오류: {str(e)}")
-    else:
-        model_name = req.model or DEFAULT_OLLAMA_CHAT
-        messages = [{"role": "system", "content": sys_prompt}] + [{"role": r["role"], "content": r["content"]} for r in reversed(recent)]
-        try:
-            async with httpx.AsyncClient(timeout=60.0) as client:
-                resp = await client.post(f"{OLLAMA_BASE_URL}/api/chat", json={"model": model_name, "messages": messages, "stream": False})
-                resp.raise_for_status()
-                reply = resp.json().get("message", {}).get("content", "").strip()
-        except Exception as e:
-            conn.close()
-            raise HTTPException(status_code=503, detail=f"Ollama 연결 실패: {str(e)}")
-
-    conn.execute("INSERT INTO chat_logs (character_id, role, content, created_at) VALUES (?, 'assistant', ?, ?)", (req.character_id, reply, datetime.datetime.now().isoformat(timespec="seconds")))
-    conn.commit()
-    conn.close()
-    return {"reply": reply, "model": model_name}
-
-@app.post("/api/vision")
-async def analyze_vision(req: VisionRequest):
-    is_face = req.character_id == "face"
-    sys_prompt = CHARACTER_PROMPTS["face" if is_face else "palm"]
-    prompt = (
-        f"사용자 이름: {req.user_name}. "
-        + ("이 얼굴 사진을 보고 관상(이마·눈썹과 눈·코·입과 하관, 전체 인상과 운세 흐름)을 한국어로 4~5문장으로 품격 있고 긍정적으로 풀이해 주세요."
-           if is_face else
-           "이 손바닥 사진을 보고 손금(생명선·두뇌선·감정선·운명선과 앞으로의 재물·연애·건강 흐름)을 한국어로 4~5문장으로 상세하고 희망적으로 풀이해 주세요.")
-    )
-    if req.question:
-        prompt += f" 추가 질문: {req.question}"
-
-    mime = "image/jpeg"
-    if req.image_base64.startswith("data:") and ";" in req.image_base64:
-        mime = req.image_base64.split(";")[0].replace("data:", "")
-    img_clean = req.image_base64.split(",")[-1]
-
-    api_key = os.environ.get("GEMINI_API_KEY", GEMINI_API_KEY).strip()
-    if api_key:
-        model_name = req.model if (req.model and req.model.startswith("gemini")) else DEFAULT_GEMINI_MODEL
-        try:
-            analysis = await call_gemini(
-                sys_prompt,
-                [{"text": prompt}, {"inlineData": {"mimeType": mime, "data": img_clean}}],
-                model_name
-            )
-        except Exception as e:
-            raise HTTPException(status_code=503, detail=f"Gemini Vision API 오류: {str(e)}")
-    else:
-        model_name = req.model or DEFAULT_OLLAMA_VISION
-        try:
-            async with httpx.AsyncClient(timeout=90.0) as client:
-                resp = await client.post(
-                    f"{OLLAMA_BASE_URL}/api/chat",
-                    json={"model": model_name, "messages": [{"role": "system", "content": sys_prompt}, {"role": "user", "content": prompt, "images": [img_clean]}], "stream": False}
-                )
-                resp.raise_for_status()
-                analysis = resp.json().get("message", {}).get("content", "").strip()
-        except Exception as e:
-            raise HTTPException(status_code=503, detail=f"Ollama Vision 실패: {str(e)}")
-
-    conn = get_db()
-    conn.execute(
-        "INSERT INTO fortune_history (category, user_name, input_summary, result_summary, score, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-        ("관상" if is_face else "손금", req.user_name, req.question or "사진 업로드 분석", analysis[:160], 92, datetime.datetime.now().isoformat(timespec="seconds"))
-    )
-    conn.commit()
-    conn.close()
-    return {"analysis": analysis, "model": model_name}
-
 @app.get("/")
 def serve_index():
     index_path = os.path.join(os.path.dirname(__file__), "..", "index.html")
     if os.path.exists(index_path):
         return FileResponse(index_path)
-    return {"message": "운명상점 API 서버가 실행 중입니다."}
+    return {"message": "운명상점 MVP API 서버가 실행 중입니다."}
