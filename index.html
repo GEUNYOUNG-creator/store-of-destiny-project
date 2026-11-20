@@ -1770,58 +1770,21 @@
         이마와 눈썹과 귀가 보이게 찍어주세요
       </div>
 
-      <!-- 실시간 카메라 + 가이드라인 오버레이 뷰파인더 -->
+      <!-- 실시간 카메라 + 반응형 AR 얼굴/손금 자동 추적 오버레이 -->
       <div class="relative rounded-2xl overflow-hidden bg-[#070b14] h-[350px] border-2 border-[#e6c67c]/65 shadow-xl">
         <video id="webcam-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
         <canvas id="webcam-canvas" class="hidden"></canvas>
+        <canvas id="camera-ar-canvas" width="320" height="400" class="pointer-events-none absolute inset-0 w-full h-full"></canvas>
 
-        <!-- 관상 전용 얼굴·이마·눈썹·귀 가이드라인 SVG -->
-        <svg id="camera-face-guide" viewBox="0 0 280 350" class="hidden pointer-events-none absolute inset-0 w-full h-full">
-          <defs>
-            <mask id="faceHoleMask">
-              <rect width="280" height="350" fill="white"/>
-              <ellipse cx="140" cy="176" rx="84" ry="114" fill="black"/>
-            </mask>
-          </defs>
-          <rect width="280" height="350" fill="rgba(5, 9, 18, 0.48)" mask="url(#faceHoleMask)"/>
-          <!-- 얼굴 외곽 타원 -->
-          <ellipse cx="140" cy="176" rx="84" ry="114" fill="none" stroke="#fde68a" stroke-width="2.2" stroke-dasharray="7 5"/>
-          <!-- 왼쪽·오른쪽 귀 가이드 -->
-          <path d="M 56 154 C 41 154 40 198 56 202" fill="none" stroke="#fde68a" stroke-width="2" stroke-dasharray="4 3"/>
-          <path d="M 224 154 C 239 154 240 198 224 202" fill="none" stroke="#fde68a" stroke-width="2" stroke-dasharray="4 3"/>
-          <!-- 이마 라인 가이드 -->
-          <path d="M 86 102 Q 140 88 194 102" fill="none" stroke="#34d399" stroke-width="1.6" stroke-dasharray="4 3"/>
-          <!-- 양쪽 눈썹 가이드 -->
-          <path d="M 84 146 Q 108 136 128 144" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
-          <path d="M 152 144 Q 172 136 196 146" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
-          <!-- 중앙 수직 정렬선 -->
-          <line x1="140" y1="68" x2="140" y2="286" stroke="rgba(253,230,138,0.28)" stroke-width="1" stroke-dasharray="3 4"/>
-          <!-- 부위 라벨 -->
-          <text x="140" y="84" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="700">이마</text>
-          <text x="140" y="133" text-anchor="middle" fill="#7dd3fc" font-size="11" font-weight="700">눈썹</text>
-          <text x="34" y="182" text-anchor="middle" fill="#fde68a" font-size="11" font-weight="700">귀</text>
-          <text x="246" y="182" text-anchor="middle" fill="#fde68a" font-size="11" font-weight="700">귀</text>
-        </svg>
-
-        <!-- 손금 전용 손바닥 윤곽 + 주요 선 가이드라인 SVG -->
-        <svg id="camera-palm-guide" viewBox="0 0 280 350" class="hidden pointer-events-none absolute inset-0 w-full h-full">
-          <g id="camera-palm-svg-group">
-            <!-- 손바닥·다섯 손가락 윤곽 실루엣 -->
-            <path d="M 88 318 C 72 284 62 246 60 202 C 58 176 42 152 38 132 C 35 118 48 112 58 124 L 82 156 L 86 76 C 87 58 106 58 108 76 L 112 142 L 126 52 C 128 34 148 34 150 52 L 152 140 L 170 64 C 173 46 192 50 190 68 L 184 148 L 204 94 C 210 78 228 84 222 102 L 206 184 C 214 232 204 282 182 318 Z"
-                  fill="rgba(20, 184, 166, 0.08)" stroke="#5eead4" stroke-width="2.4" stroke-dasharray="8 5" stroke-linejoin="round"/>
-            <!-- 손바닥 안쪽 주요 4대 선 위치 가이드 -->
-            <path d="M 192 178 Q 146 184 96 168" fill="none" stroke="rgba(251,113,133,0.75)" stroke-width="1.8" stroke-dasharray="4 3"/>
-            <path d="M 86 194 Q 142 206 188 224" fill="none" stroke="rgba(56,189,248,0.75)" stroke-width="1.8" stroke-dasharray="4 3"/>
-            <path d="M 88 198 Q 118 242 110 302" fill="none" stroke="rgba(52,211,153,0.8)" stroke-width="1.8" stroke-dasharray="4 3"/>
-            <path d="M 142 308 Q 140 240 144 164" fill="none" stroke="rgba(251,191,36,0.75)" stroke-width="1.6" stroke-dasharray="4 3"/>
-          </g>
-          <text x="140" y="338" text-anchor="middle" fill="#99f6e4" font-size="11" font-weight="700">손바닥을 점선 윤곽 안에 맞춰주세요</text>
-        </svg>
+        <!-- 실시간 인식 상태 배지 -->
+        <div id="camera-detect-pill" class="pointer-events-none absolute bottom-2.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/75 border border-amber-300/50 text-[11px] font-bold text-amber-200 whitespace-nowrap shadow">
+          🔍 카메라에 편하게 비춰주세요…
+        </div>
 
         <!-- 카메라 미지원/권한 거절 시 안내 오버레이 -->
-        <div id="camera-fallback-notice" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-black/55 px-5 text-center space-y-2">
-          <div class="text-xs font-bold text-amber-200">카메라 연결 대기 중 (또는 권한 필요)</div>
-          <p class="text-[11px] text-slate-200 leading-relaxed">위 가이드라인에 맞춰 촬영하려면 브라우저 카메라 권한을 허용하거나 아래 버튼으로 기본 카메라/앨범을 열어주세요.</p>
+        <div id="camera-fallback-notice" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-black/60 px-5 text-center space-y-2">
+          <div class="text-xs font-bold text-amber-200">실시간 카메라 권한 필요</div>
+          <p class="text-[11px] text-slate-200 leading-relaxed">브라우저 카메라 권한을 허용하면 얼굴·손금을 자동 인식해 실시간 반응형 가이드라인이 표시됩니다.</p>
         </div>
       </div>
 
@@ -2869,7 +2832,8 @@
   function calculateSaju(y, m, d, timeVal) {
     const yStemIdx = ((y - 4) % 10 + 10) % 10;
     const yBranchIdx = ((y - 4) % 12 + 12) % 12;
-    const mBranchIdx = (m + 1) % 12;
+    const adjM = (d < 5) ? (m === 1 ? 12 : m - 1) : m;
+    const mBranchIdx = adjM % 12;
     const mStemIdx = ((yStemIdx % 5) * 2 + 2 + (m - 1)) % 10;
     const refDate = Date.UTC(1900, 0, 31);
     const curDate = Date.UTC(y, m - 1, d);
@@ -2899,12 +2863,24 @@
     const lacking = Object.entries(counts).sort((a, b) => a[1] - b[1])[0][0];
     const seed = (y * 13 + m * 31 + d * 7 + 20261119) % 100;
 
-    // 전통 신살(神殺) 분석: 도화살 · 역마살 · 화개살 · 천을귀인
+    // 전통 사주 명리 삼합(三合) 기준 정통 12신살 분석 (년지·일지 기준)
     const allBranches = [yBranchIdx, mBranchIdx, dBranchIdx];
     if (hBranchIdx !== null) allBranches.push(hBranchIdx);
-    const dohwaSet = new Set([0, 3, 6, 9]);    // 자·묘·오·유
-    const yeokmaSet = new Set([2, 5, 8, 11]);  // 인·사·신·해
-    const hwagaeSet = new Set([1, 4, 7, 10]);  // 축·진·미·술
+
+    // 삼합(인오술/사유축/신자진/해묘미)별 정확한 도화살·역마살·화개살 지지 매핑
+    function getSamhapTargets(baseBranch) {
+      if ([2, 6, 10].includes(baseBranch)) return { dohwa: 3, yeokma: 8, hwagae: 10 };   // 인오술 -> 묘/신/술
+      if ([5, 9, 1].includes(baseBranch))  return { dohwa: 6, yeokma: 11, hwagae: 1 };   // 사유축 -> 오/해/축
+      if ([8, 0, 4].includes(baseBranch))  return { dohwa: 9, yeokma: 2, hwagae: 4 };    // 신자진 -> 유/인/진
+      return { dohwa: 0, yeokma: 5, hwagae: 7 };                                          // 해묘미 -> 자/사/미
+    }
+    const tYear = getSamhapTargets(yBranchIdx);
+    const tDay  = getSamhapTargets(dBranchIdx);
+
+    const dohwaCnt = allBranches.filter((b, i) => (i !== 0 && b === tYear.dohwa) || (i !== 2 && b === tDay.dohwa)).length;
+    const yeokmaCnt = allBranches.filter((b, i) => (i !== 0 && b === tYear.yeokma) || (i !== 2 && b === tDay.yeokma)).length;
+    const hwagaeCnt = allBranches.filter((b, i) => (i !== 0 && b === tYear.hwagae) || (i !== 2 && b === tDay.hwagae)).length;
+
     const gwiinMap = {
       0: [1, 7], 4: [1, 7], 6: [1, 7],
       1: [0, 8], 5: [0, 8],
@@ -2912,9 +2888,6 @@
       7: [6, 2],
       8: [3, 5], 9: [3, 5]
     };
-    const dohwaCnt = allBranches.filter(b => dohwaSet.has(b)).length;
-    const yeokmaCnt = allBranches.filter(b => yeokmaSet.has(b)).length;
-    const hwagaeCnt = allBranches.filter(b => hwagaeSet.has(b)).length;
     const hasGwiin = allBranches.some(b => (gwiinMap[dStemIdx] || []).includes(b));
 
     const sinsalTags = [];
@@ -2922,15 +2895,20 @@
     if (yeokmaCnt > 0) sinsalTags.push({ key: 'yeokma', label: '🐎 역마살(驛馬殺)', desc: '한곳에 머무르기보다 넓은 세상을 누비며 이동·여행·글로벌 무대에서 대성하는 기운' });
     if (hwagaeCnt > 0) sinsalTags.push({ key: 'hwagae', label: '🎨 화개살(華蓋殺)', desc: '남다른 예술적 감각, 깊은 통찰력과 전문성으로 빛나는 지혜의 기운' });
     if (hasGwiin) sinsalTags.push({ key: 'gwiin', label: '✨ 천을귀인(天乙貴人)', desc: '결정적인 순간마다 뜻밖의 귀인이 나타나 길을 열어주는 최고의 길신' });
-    if (!sinsalTags.length) sinsalTags.push({ key: 'hwagae', label: '✨ 천을귀인(天乙貴人)', desc: '고요한 지혜와 품격으로 귀한 인연을 부르는 기운' });
+    if (!sinsalTags.length) {
+      sinsalTags.push({ key: 'hwagae', label: '📜 문창귀인(文昌貴人)', desc: '맑은 총기와 지혜, 단단한 내면의 힘으로 안정적인 복을 쌓아가는 길신' });
+    }
 
-    // 일지(Day Branch) > 월지 > 년지 가중치로 대표 신살을 공정하게 결정
-    const scoresBySal = {
-      dohwa: dohwaCnt * 10 + (dohwaSet.has(dBranchIdx) ? 6 : 0) + (dohwaSet.has(mBranchIdx) ? 3 : 0) + (dohwaSet.has(yBranchIdx) ? 2 : 0),
-      yeokma: yeokmaCnt * 10 + (yeokmaSet.has(dBranchIdx) ? 6 : 0) + (yeokmaSet.has(mBranchIdx) ? 3 : 0) + (yeokmaSet.has(yBranchIdx) ? 2 : 0),
-      hwagae: hwagaeCnt * 10 + (hwagaeSet.has(dBranchIdx) ? 6 : 0) + (hwagaeSet.has(mBranchIdx) ? 3 : 0) + (hwagaeSet.has(yBranchIdx) ? 2 : 0) + (hasGwiin ? 4 : 0)
-    };
-    const primarySinsal = Object.entries(scoresBySal).sort((a, b) => b[1] - a[1])[0][0];
+    // 실제 보유한 신살 중에서만 대표 신살 선정 (없으면 화개/귀인 계열로 표시)
+    let primarySinsal = 'hwagae';
+    if (dohwaCnt > 0 || yeokmaCnt > 0 || hwagaeCnt > 0) {
+      const ranked = [
+        { k: 'dohwa', s: dohwaCnt * 10 + (allBranches[2] === tYear.dohwa ? 4 : 0) },
+        { k: 'yeokma', s: yeokmaCnt * 10 + (allBranches[2] === tYear.yeokma ? 4 : 0) },
+        { k: 'hwagae', s: hwagaeCnt * 10 + (hasGwiin ? 3 : 0) }
+      ].sort((a, b) => b.s - a.s);
+      primarySinsal = ranked[0].k;
+    }
 
     return {
       pillars, counts, totalEl, dominant, lacking,
@@ -5523,21 +5501,345 @@
   }
 
   let activeFacingMode = 'user';
+  let arRafId = null;
+  let arSmoothBox = null;
+  let arDetected = false;
+  const arWorkCanvas = document.createElement('canvas');
+  arWorkCanvas.width = 120;
+  arWorkCanvas.height = 150;
+  const arWorkCtx = arWorkCanvas.getContext('2d', { willReadFrequently: true });
+  const arCanvas = document.getElementById('camera-ar-canvas');
+  const arCtx = arCanvas ? arCanvas.getContext('2d') : null;
+  const detectPill = document.getElementById('camera-detect-pill');
+  const nativeFaceDetector = (typeof window !== 'undefined' && 'FaceDetector' in window)
+    ? (() => { try { return new window.FaceDetector({ fastMode: true, maxDetectedFaces: 1 }); } catch (_) { return null; } })()
+    : null;
+  let nativeFaceBox = null;
+  let nativeDetectBusy = false;
+
+  function stopArTracking() {
+    if (arRafId) { cancelAnimationFrame(arRafId); arRafId = null; }
+    arSmoothBox = null;
+    arDetected = false;
+    nativeFaceBox = null;
+    if (arCtx && arCanvas) arCtx.clearRect(0, 0, arCanvas.width, arCanvas.height);
+  }
+
+  // Stop AR tracking whenever webcam stops
+  const _origStopWebcam = stopWebcam;
+  stopWebcam = function() {
+    stopArTracking();
+    _origStopWebcam();
+  };
+
+  function drawArPillLabel(ctx, text, x, y, bg, border, fg) {
+    ctx.save();
+    ctx.font = '700 11px sans-serif';
+    const tw = ctx.measureText(text).width;
+    const pw = tw + 12, ph = 18;
+    const rx = Math.max(4, Math.min(ctx.canvas.width - pw - 4, x - pw / 2));
+    const ry = Math.max(4, Math.min(ctx.canvas.height - ph - 4, y - ph / 2));
+    ctx.fillStyle = bg;
+    ctx.strokeStyle = border;
+    ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    ctx.roundRect(rx, ry, pw, ph, 9);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = fg;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, rx + pw / 2, ry + ph / 2 + 0.5);
+    ctx.restore();
+  }
+
+  function detectSkinRegion(mirrorX) {
+    const W = arWorkCanvas.width, H = arWorkCanvas.height;
+    arWorkCtx.save();
+    if (mirrorX) { arWorkCtx.translate(W, 0); arWorkCtx.scale(-1, 1); }
+    arWorkCtx.drawImage(webcamVideo, 0, 0, W, H);
+    arWorkCtx.restore();
+    const img = arWorkCtx.getImageData(0, 0, W, H);
+    const d = img.data;
+    let sumX = 0, sumY = 0, count = 0;
+    let sumX2 = 0, sumY2 = 0;
+    const skinMask = new Uint8Array(W * H);
+
+    // Focus inside central 84% region to ignore edge background clutter
+    const xStart = Math.floor(W * 0.08), xEnd = Math.floor(W * 0.92);
+    const yStart = Math.floor(H * 0.06), yEnd = Math.floor(H * 0.94);
+
+    for (let y = yStart; y < yEnd; y++) {
+      for (let x = xStart; x < xEnd; x++) {
+        const idx = (y * W + x) * 4;
+        const r = d[idx], g = d[idx + 1], b = d[idx + 2];
+        // YCbCr skin-tone detector (works reliably across diverse lighting & skin tones)
+        const cb = 128 - 0.168736 * r - 0.331264 * g + 0.5 * b;
+        const cr = 128 + 0.5 * r - 0.418688 * g - 0.081312 * b;
+        const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+        if (lum > 48 && cb >= 76 && cb <= 128 && cr >= 131 && cr <= 176) {
+          skinMask[y * W + x] = 1;
+          sumX += x; sumY += y;
+          sumX2 += x * x; sumY2 += y * y;
+          count++;
+        }
+      }
+    }
+
+    const ratio = count / ((xEnd - xStart) * (yEnd - yStart));
+    if (ratio < 0.065 || count < 500) return { found: false, skinMask, imgData: d };
+
+    const meanX = sumX / count;
+    const meanY = sumY / count;
+    const stdX = Math.sqrt(Math.max(1, sumX2 / count - meanX * meanX));
+    const stdY = Math.sqrt(Math.max(1, sumY2 / count - meanY * meanY));
+
+    const bw = Math.min(W * 0.85, Math.max(W * 0.26, stdX * 3.1));
+    const bh = Math.min(H * 0.86, Math.max(H * 0.30, stdY * 3.2));
+    return {
+      found: true,
+      cx: meanX / W,
+      cy: meanY / H,
+      w: bw / W,
+      h: bh / H,
+      skinMask,
+      imgData: d
+    };
+  }
+
+  function runArFrame() {
+    if (!activeStream || !arCtx || !arCanvas || !cameraModal.classList.contains('open')) {
+      arRafId = null;
+      return;
+    }
+    const CW = arCanvas.width, CH = arCanvas.height;
+    arCtx.clearRect(0, 0, CW, CH);
+
+    if (webcamVideo.readyState >= 2 && webcamVideo.videoWidth > 0) {
+      const isFace = activeCameraTarget === 'face';
+      const mirrorX = activeFacingMode === 'user';
+
+      // Optional async native FaceDetector on supported mobile Chrome
+      if (isFace && nativeFaceDetector && !nativeDetectBusy) {
+        nativeDetectBusy = true;
+        nativeFaceDetector.detect(webcamVideo).then(faces => {
+          if (faces && faces.length > 0) {
+            const b = faces[0].boundingBox;
+            const vw = webcamVideo.videoWidth || 1, vh = webcamVideo.videoHeight || 1;
+            const ncx = (b.x + b.width / 2) / vw;
+            nativeFaceBox = {
+              cx: mirrorX ? (1 - ncx) : ncx,
+              cy: (b.y + b.height / 2) / vh,
+              w: b.width / vw,
+              h: b.height / vh
+            };
+          } else {
+            nativeFaceBox = null;
+          }
+        }).catch(() => {}).finally(() => { nativeDetectBusy = false; });
+      }
+
+      const skin = detectSkinRegion(mirrorX);
+      let rawBox = null;
+      if (isFace && nativeFaceBox) {
+        rawBox = nativeFaceBox;
+      } else if (skin.found) {
+        rawBox = { cx: skin.cx, cy: skin.cy, w: skin.w, h: skin.h };
+      }
+
+      if (rawBox) {
+        arDetected = true;
+        if (!arSmoothBox) arSmoothBox = { ...rawBox };
+        else {
+          arSmoothBox.cx += (rawBox.cx - arSmoothBox.cx) * 0.24;
+          arSmoothBox.cy += (rawBox.cy - arSmoothBox.cy) * 0.24;
+          arSmoothBox.w += (rawBox.w - arSmoothBox.w) * 0.24;
+          arSmoothBox.h += (rawBox.h - arSmoothBox.h) * 0.24;
+        }
+
+        const cx = arSmoothBox.cx * CW;
+        const cy = arSmoothBox.cy * CH;
+        const fw = arSmoothBox.w * CW;
+        const fh = arSmoothBox.h * CH;
+
+        if (isFace) {
+          // ---- RESPONSIVE FACE LANDMARK GUIDE (tracks actual face!) ----
+          const rx = Math.max(46, Math.min(CW * 0.36, fw * 0.56));
+          const ry = Math.max(60, Math.min(CH * 0.40, fh * 0.58));
+
+          arCtx.save();
+          // Glowing detected face oval
+          arCtx.strokeStyle = 'rgba(110, 231, 183, 0.92)';
+          arCtx.lineWidth = 2.4;
+          arCtx.setLineDash([7, 4]);
+          arCtx.beginPath();
+          arCtx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+          arCtx.stroke();
+          arCtx.setLineDash([]);
+
+          // Forehead arc (이마)
+          const fhY = cy - ry * 0.56;
+          arCtx.strokeStyle = '#34d399';
+          arCtx.lineWidth = 2;
+          arCtx.beginPath();
+          arCtx.moveTo(cx - rx * 0.62, fhY + 6);
+          arCtx.quadraticCurveTo(cx, fhY - 8, cx + rx * 0.62, fhY + 6);
+          arCtx.stroke();
+
+          // Eyebrow arcs (눈썹)
+          const browY = cy - ry * 0.22;
+          arCtx.strokeStyle = '#38bdf8';
+          arCtx.lineWidth = 2.2;
+          arCtx.beginPath();
+          arCtx.moveTo(cx - rx * 0.62, browY + 3);
+          arCtx.quadraticCurveTo(cx - rx * 0.36, browY - 7, cx - rx * 0.14, browY + 1);
+          arCtx.moveTo(cx + rx * 0.14, browY + 1);
+          arCtx.quadraticCurveTo(cx + rx * 0.36, browY - 7, cx + rx * 0.62, browY + 3);
+          arCtx.stroke();
+
+          // Nose bridge & tip (코 · 재물)
+          arCtx.strokeStyle = 'rgba(253, 224, 71, 0.85)';
+          arCtx.lineWidth = 1.8;
+          arCtx.beginPath();
+          arCtx.moveTo(cx, browY + 6);
+          arCtx.lineTo(cx, cy + ry * 0.18);
+          arCtx.stroke();
+
+          // Left & Right Ear arcs (귀)
+          arCtx.strokeStyle = '#fde68a';
+          arCtx.lineWidth = 2.2;
+          arCtx.beginPath();
+          arCtx.arc(cx - rx - 3, cy - ry * 0.02, ry * 0.17, Math.PI * 0.55, Math.PI * 1.45);
+          arCtx.stroke();
+          arCtx.beginPath();
+          arCtx.arc(cx + rx + 3, cy - ry * 0.02, ry * 0.17, -Math.PI * 0.45, Math.PI * 0.45);
+          arCtx.stroke();
+
+          // Responsive Labels anchored right onto user's face!
+          drawArPillLabel(arCtx, '이마(초년)', cx, fhY - 14, 'rgba(6,78,59,0.85)', '#6ee7b7', '#ecfdf5');
+          drawArPillLabel(arCtx, '눈썹·눈', cx, browY - 14, 'rgba(12,74,110,0.85)', '#7dd3fc', '#f0f9ff');
+          drawArPillLabel(arCtx, '귀', cx - rx - 16, cy, 'rgba(120,53,15,0.85)', '#fde68a', '#fef3c7');
+          drawArPillLabel(arCtx, '귀', cx + rx + 16, cy, 'rgba(120,53,15,0.85)', '#fde68a', '#fef3c7');
+          arCtx.restore();
+
+          if (detectPill) {
+            detectPill.textContent = '✨ 얼굴 인식 완료! 지금 촬영하세요';
+            detectPill.className = 'pointer-events-none absolute bottom-2.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-emerald-900/90 border border-emerald-300 text-[11px] font-bold text-emerald-100 whitespace-nowrap shadow';
+          }
+        } else {
+          // ---- RESPONSIVE PALM CREASE + 4-LINE AR GUIDE (tracks actual hand!) ----
+          const pw = Math.max(76, Math.min(CW * 0.72, fw * 0.92));
+          const ph = Math.max(92, Math.min(CH * 0.68, fh * 0.84));
+          const isRight = state.palmHand === '오른손';
+          const dir = isRight ? -1 : 1; // mirror palm lines for left vs right hand
+
+          arCtx.save();
+          // Subtle live palm-crease illumination inside detected skin mask
+          const WW = arWorkCanvas.width, WH = arWorkCanvas.height;
+          const d = skin.imgData;
+          arCtx.fillStyle = 'rgba(253, 224, 71, 0.34)';
+          const bx0 = Math.max(2, Math.floor((arSmoothBox.cx - arSmoothBox.w * 0.34) * WW));
+          const bx1 = Math.min(WW - 2, Math.floor((arSmoothBox.cx + arSmoothBox.w * 0.34) * WW));
+          const by0 = Math.max(2, Math.floor((arSmoothBox.cy - arSmoothBox.h * 0.25) * WH));
+          const by1 = Math.min(WH - 2, Math.floor((arSmoothBox.cy + arSmoothBox.h * 0.35) * WH));
+          for (let y = by0; y < by1; y += 2) {
+            for (let x = bx0; x < bx1; x += 2) {
+              if (!skin.skinMask[y * WW + x]) continue;
+              const i0 = (y * WW + x) * 4;
+              const iUp = ((y - 2) * WW + x) * 4;
+              const iLt = (y * WW + (x - 2)) * 4;
+              const lum = d[i0] * 0.3 + d[i0 + 1] * 0.59 + d[i0 + 2] * 0.11;
+              const lumUp = d[iUp] * 0.3 + d[iUp + 1] * 0.59 + d[iUp + 2] * 0.11;
+              const lumLt = d[iLt] * 0.3 + d[iLt + 1] * 0.59 + d[iLt + 2] * 0.11;
+              // Dark crease valley detection
+              if ((lumUp - lum > 11) || (lumLt - lum > 11)) {
+                arCtx.fillRect((x / WW) * CW, (y / WH) * CH, 2.4, 2.4);
+              }
+            }
+          }
+
+          // Glowing detected palm tracking frame
+          arCtx.strokeStyle = 'rgba(94, 234, 212, 0.72)';
+          arCtx.lineWidth = 2;
+          arCtx.setLineDash([6, 4]);
+          arCtx.beginPath();
+          arCtx.roundRect(cx - pw * 0.46, cy - ph * 0.38, pw * 0.92, ph * 0.80, 26);
+          arCtx.stroke();
+          arCtx.setLineDash([]);
+
+          // 1. 감정선 (Heart Line - Rose)
+          const hStartX = cx + dir * pw * 0.34, hStartY = cy - ph * 0.08;
+          const hEndX = cx - dir * pw * 0.26, hEndY = cy - ph * 0.16;
+          arCtx.strokeStyle = '#fb7185';
+          arCtx.lineWidth = 2.6;
+          arCtx.beginPath();
+          arCtx.moveTo(hStartX, hStartY);
+          arCtx.quadraticCurveTo(cx, cy - ph * 0.05, hEndX, hEndY);
+          arCtx.stroke();
+
+          // 2. 두뇌선 (Head Line - Sky)
+          const dStartX = cx - dir * pw * 0.34, dStartY = cy + ph * 0.02;
+          const dEndX = cx + dir * pw * 0.28, dEndY = cy + ph * 0.12;
+          arCtx.strokeStyle = '#38bdf8';
+          arCtx.lineWidth = 2.6;
+          arCtx.beginPath();
+          arCtx.moveTo(dStartX, dStartY);
+          arCtx.quadraticCurveTo(cx, cy + ph * 0.05, dEndX, dEndY);
+          arCtx.stroke();
+
+          // 3. 생명선 (Life Line - Emerald)
+          const lStartX = cx - dir * pw * 0.34, lStartY = cy + ph * 0.03;
+          const lEndX = cx - dir * pw * 0.14, lEndY = cy + ph * 0.36;
+          arCtx.strokeStyle = '#34d399';
+          arCtx.lineWidth = 2.8;
+          arCtx.beginPath();
+          arCtx.moveTo(lStartX, lStartY);
+          arCtx.quadraticCurveTo(cx - dir * pw * 0.08, cy + ph * 0.18, lEndX, lEndY);
+          arCtx.stroke();
+
+          // 4. 운명선 (Fate Line - Gold)
+          arCtx.strokeStyle = '#fbbf24';
+          arCtx.lineWidth = 2.2;
+          arCtx.beginPath();
+          arCtx.moveTo(cx, cy + ph * 0.38);
+          arCtx.quadraticCurveTo(cx + dir * pw * 0.02, cy + ph * 0.06, cx, cy - ph * 0.20);
+          arCtx.stroke();
+
+          // Responsive Labels placed right on the user's detected palm lines!
+          drawArPillLabel(arCtx, '감정선', (hStartX + hEndX) / 2, hEndY - 12, 'rgba(136,19,55,0.88)', '#fda4af', '#fff1f2');
+          drawArPillLabel(arCtx, '두뇌선', dEndX, dEndY + 12, 'rgba(12,74,110,0.88)', '#7dd3fc', '#f0f9ff');
+          drawArPillLabel(arCtx, '생명선', lEndX - dir * 18, lEndY + 8, 'rgba(6,78,59,0.88)', '#6ee7b7', '#ecfdf5');
+          drawArPillLabel(arCtx, '운명선', cx + dir * 26, cy + ph * 0.32, 'rgba(120,53,15,0.88)', '#fde68a', '#fef3c7');
+          arCtx.restore();
+
+          if (detectPill) {
+            detectPill.textContent = `✨ ${state.palmHand} 손금 인식 완료! 지금 촬영하세요`;
+            detectPill.className = 'pointer-events-none absolute bottom-2.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-teal-900/90 border border-teal-300 text-[11px] font-bold text-teal-100 whitespace-nowrap shadow';
+          }
+        }
+      } else {
+        arDetected = false;
+        arSmoothBox = null;
+        if (detectPill) {
+          detectPill.textContent = isFace
+            ? '🔍 이마·눈썹·귀가 보이게 얼굴을 비춰주세요'
+            : `🔍 ${state.palmHand} 손바닥을 편하게 비춰주세요`;
+          detectPill.className = 'pointer-events-none absolute bottom-2.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/75 border border-amber-300/50 text-[11px] font-bold text-amber-200 whitespace-nowrap shadow';
+        }
+      }
+    }
+
+    arRafId = requestAnimationFrame(runArFrame);
+  }
 
   function updateCameraGuideUI(target) {
     const isFace = target === 'face';
     document.getElementById('camera-modal-title').textContent = isFace
-      ? '📷 아린 관상 · 가이드라인 촬영'
-      : `📷 서연 손금 (${state.palmHand}) · 가이드라인 촬영`;
+      ? '📷 아린 관상 · AI 자동 인식 촬영'
+      : `📷 서연 손금 (${state.palmHand}) · AI 자동 인식 촬영`;
     document.getElementById('camera-guide-banner').textContent = isFace
-      ? '이마와 눈썹과 귀가 보이게 찍어주세요'
-      : '손을 이 가이드라인에 맞춰서 찍어주세요';
-    document.getElementById('camera-face-guide').classList.toggle('hidden', !isFace);
-    document.getElementById('camera-palm-guide').classList.toggle('hidden', isFace);
-    const palmGroup = document.getElementById('camera-palm-svg-group');
-    if (palmGroup) {
-      palmGroup.setAttribute('transform', state.palmHand === '오른손' ? 'translate(280,0) scale(-1,1)' : '');
-    }
+      ? '이마와 눈썹과 귀가 보이게 비춰주시면 얼굴 선이 자동 표시됩니다'
+      : '손바닥을 편하게 비춰주시면 내 손금 위치에 주요 선이 자동 표시됩니다';
     webcamVideo.style.transform = activeFacingMode === 'user' ? 'scaleX(-1)' : 'none';
   }
 
@@ -5546,6 +5848,7 @@
       activeStream.getTracks().forEach(t => t.stop());
       activeStream = null;
     }
+    stopArTracking();
     const fallbackNotice = document.getElementById('camera-fallback-notice');
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       try {
@@ -5555,13 +5858,14 @@
         });
         webcamVideo.srcObject = activeStream;
         fallbackNotice?.classList.add('hidden');
+        arRafId = requestAnimationFrame(runArFrame);
         return true;
       } catch (err) {
-        // Fallback: try any available video device
         try {
           activeStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
           webcamVideo.srcObject = activeStream;
           fallbackNotice?.classList.add('hidden');
+          arRafId = requestAnimationFrame(runArFrame);
           return true;
         } catch (_) {}
       }
