@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>운명상점 — Full 3D 리깅 캐릭터 &amp; 맞춤 UI 프로토타입</title>
+  <title>운명상점 — AI 운세 &amp; 궁합 플랫폼</title>
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
@@ -358,21 +358,23 @@
     }
     .jade-orb-btn:active { transform: scale(0.95); }
 
-    /* 2. BLOOD TYPE: SPIRAL DIARY */
+    /* 2. BLOOD TYPE: ROSE VELVET SPIRAL DIARY */
     .blood-diary-card {
       position: relative;
-      background: linear-gradient(180deg, #fff5f8 0%, #fce6ee 100%);
+      background:
+        repeating-linear-gradient(180deg, transparent 0px, transparent 27px, rgba(217, 124, 163, 0.14) 27px, rgba(217, 124, 163, 0.14) 28px),
+        linear-gradient(180deg, #fff7fa 0%, #fce8f0 100%);
       color: #361826;
       border: 2px solid #d97ca3;
-      border-radius: 18px;
-      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45), inset 0 0 0 3px rgba(255, 255, 255, 0.7);
-      padding-top: 22px;
+      border-radius: 20px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45), inset 0 0 0 3px rgba(255, 255, 255, 0.78), inset 0 -4px 12px rgba(217, 124, 163, 0.15);
+      padding-top: 24px;
     }
     .spiral-rings {
       position: absolute;
       top: -9px;
-      left: 20px;
-      right: 20px;
+      left: 22px;
+      right: 22px;
       display: flex;
       justify-content: space-between;
       pointer-events: none;
@@ -380,25 +382,50 @@
     .spiral-ring {
       width: 10px;
       height: 18px;
-      border: 2.5px solid #3c2231;
+      border: 2px solid #59263e;
       border-radius: 9999px;
-      background: linear-gradient(180deg, #f7c7db, #a15274);
+      background: linear-gradient(180deg, #ffe0ec, #b85c84);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.28);
     }
 
-    /* 3. ZODIAC: STAR CHART */
+    /* 3. ZODIAC: MIDNIGHT SAPPHIRE CELESTIAL OBSERVATORY (Distinct Blue + Starlight Gold) */
     .zodiac-chart-card {
-      background: radial-gradient(circle at 85% 15%, rgba(167, 139, 250, 0.25) 0%, transparent 45%), linear-gradient(160deg, #1b1546 0%, #110d2e 100%);
-      border: 1.5px solid #c9a7ff;
+      position: relative;
+      background:
+        radial-gradient(circle at 86% 14%, rgba(56, 189, 248, 0.26) 0%, transparent 46%),
+        radial-gradient(circle at 12% 88%, rgba(253, 224, 71, 0.14) 0%, transparent 45%),
+        linear-gradient(160deg, #0b1e42 0%, #061229 100%);
+      border: 1.5px solid #5bc0f8;
       border-radius: 20px;
-      box-shadow: inset 0 0 24px rgba(139, 92, 246, 0.22), 0 10px 26px rgba(0,0,0,0.5);
+      box-shadow: inset 0 0 0 3px rgba(56, 189, 248, 0.14), inset 0 0 26px rgba(14, 165, 233, 0.18), 0 12px 28px rgba(0,0,0,0.55);
+    }
+    .zodiac-chart-card::after {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border: 1px dashed rgba(125, 211, 252, 0.26);
+      border-radius: 14px;
+      pointer-events: none;
     }
 
-    /* 4. TAROT: VELVET ALTAR */
+    /* 4. TAROT: ROYAL BURGUNDY VELVET ALTAR (Distinct Wine-Crimson + Antique Gold Foil) */
     .tarot-altar-card {
-      background: radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.25) 0%, transparent 60%), linear-gradient(180deg, #1d1136 0%, #0e071e 100%);
-      border: 2px solid #d5b268;
+      position: relative;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(190, 24, 93, 0.30) 0%, transparent 58%),
+        radial-gradient(circle at 50% 100%, rgba(217, 164, 65, 0.12) 0%, transparent 50%),
+        linear-gradient(180deg, #2b0d21 0%, #140510 100%);
+      border: 2px solid #d9b162;
       border-radius: 20px;
-      box-shadow: inset 0 0 0 3px rgba(213, 178, 104, 0.18), 0 10px 28px rgba(0,0,0,0.55);
+      box-shadow: inset 0 0 0 4px rgba(217, 177, 98, 0.16), 0 12px 30px rgba(0,0,0,0.6);
+    }
+    .tarot-altar-card::after {
+      content: '';
+      position: absolute;
+      inset: 6px;
+      border: 1px solid rgba(244, 208, 134, 0.28);
+      border-radius: 14px;
+      pointer-events: none;
     }
     .tarot-card-wrap { perspective: 800px; cursor: pointer; }
     .tarot-card-inner {
@@ -412,27 +439,29 @@
     .tarot-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 12px; overflow: hidden; }
     .tarot-front { transform: rotateY(180deg); }
 
-    /* 5. MBTI: CLIPBOARD */
+    /* 5. MBTI: PASTEL SKY COUNSELING CLIPBOARD */
     .mbti-clipboard-card {
       position: relative;
-      background: linear-gradient(180deg, #fdfaf4 0%, #f3efe6 100%);
-      color: #242b3d;
-      border: 2px solid #8ea6cb;
-      border-radius: 18px;
-      box-shadow: 0 10px 26px rgba(0,0,0,0.45);
-      padding-top: 22px;
+      background:
+        linear-gradient(180deg, rgba(219, 234, 254, 0.65) 0px, rgba(219, 234, 254, 0.65) 54px, transparent 54px),
+        linear-gradient(180deg, #ffffff 0%, #f1f5fb 100%);
+      color: #1e293b;
+      border: 2px solid #7aa2d8;
+      border-radius: 20px;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.45), inset 0 0 0 2px rgba(255,255,255,0.85);
+      padding-top: 24px;
     }
     .clipboard-clip {
       position: absolute;
       top: -10px;
       left: 50%;
       transform: translateX(-50%);
-      width: 78px;
-      height: 18px;
-      background: linear-gradient(180deg, #b8c6de 0%, #6e81a3 100%);
-      border: 1.5px solid #3c4a66;
-      border-radius: 6px;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+      width: 82px;
+      height: 19px;
+      background: linear-gradient(180deg, #d7e3f5 0%, #7c93b8 100%);
+      border: 1.5px solid #415575;
+      border-radius: 7px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.32);
     }
 
     /* BOTTOM DIAL */
@@ -713,13 +742,87 @@
     .char-q-input {
       width: 100%;
       border-radius: 12px;
-      padding: 7px 11px;
-      font-size: 11.5px;
+      padding: 8px 12px;
+      font-size: 12px;
+      line-height: 1.35;
       outline: none;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.18);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
     }
     .char-q-input:focus {
       box-shadow: 0 0 0 2px rgba(230, 198, 124, 0.35);
+    }
+
+  
+    /* Cinematic Bespoke Opening Sequence */
+    #opening-particles-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 12;
+      pointer-events: none;
+    }
+    #opening-seam-glow {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      width: 4px;
+      height: 36%;
+      transform: translate(-50%, -20%) scaleX(1);
+      background: linear-gradient(180deg, transparent, #a7f3d0 25%, #fef08a 50%, #a7f3d0 75%, transparent);
+      filter: blur(8px);
+      opacity: 0.45;
+      z-index: 14;
+      pointer-events: none;
+      transition: transform 1.2s cubic-bezier(0.22, 1, 0.36, 1), opacity 1.1s ease, filter 1.1s ease;
+    }
+    #opening-seam-glow.open-portal {
+      transform: translate(-50%, -20%) scaleX(95);
+      opacity: 0.96;
+      filter: blur(26px);
+    }
+    #opening-ripple {
+      position: absolute;
+      top: 52%;
+      left: 50%;
+      width: 34px;
+      height: 34px;
+      border-radius: 9999px;
+      border: 2px solid rgba(254, 240, 138, 0.85);
+      transform: translate(-50%, -50%) scale(0.4);
+      opacity: 0;
+      z-index: 19;
+      pointer-events: none;
+    }
+    #opening-ripple.pulse {
+      animation: knockShockwave 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes knockShockwave {
+      0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0.95; }
+      100% { transform: translate(-50%, -50%) scale(9.5); opacity: 0; }
+    }
+    #opening-whisper {
+      position: absolute;
+      inset-x: 24px;
+      top: 47%;
+      transform: translateY(-50%);
+      z-index: 25;
+      text-align: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.85s ease, transform 1s ease;
+    }
+    #opening-whisper.show {
+      opacity: 1;
+      transform: translateY(-56%);
+    }
+    @keyframes subtleLanternBreath {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.07); }
+    }
+    #opening-poster {
+      animation: subtleLanternBreath 4.5s ease-in-out infinite;
     }
 
   </style>
@@ -730,49 +833,56 @@
   <div id="theme-backdrop"></div>
   <div id="toast"></div>
 
-  <input id="input-opening-video" type="file" accept="video/mp4,video/webm,video/quicktime,video/*" class="hidden" />
-  <input id="input-glb-model" type="file" accept=".glb,.gltf,.vrm" class="hidden" />
 
-  <!-- ==================== VIDEO OPENING SEQUENCE OVERLAY ==================== -->
+  <!-- ==================== BESPOKE CINEMATIC OPENING SEQUENCE ==================== -->
   <div id="opening-overlay">
-    <!-- Standby Dragon Door Poster (shown cleanly before video is loaded or played) -->
-    <div id="opening-poster" class="absolute inset-0 z-[4] bg-cover bg-center transition-transform duration-1000" style="background-image: url('artifacts/file_generation/ttl=63d/intermediate/assets/ue5_open_1_door.jpg');"></div>
-    <!-- Fullscreen Original Opening Video Player -->
+    <!-- Moonlit Hanok Fortune Shop Entrance -->
+    <div id="opening-poster" class="absolute inset-0 z-[4] bg-cover bg-center transition-transform duration-[2200ms] ease-out" style="background-image: url('artifacts/file_generation/ttl=63d/intermediate/assets/opening_gate.jpg');"></div>
+    <!-- Ambient Drifting Petals & Golden Fireflies Canvas -->
+    <canvas id="opening-particles-canvas"></canvas>
+    <!-- Glowing Jade-Gold Door Seam Portal -->
+    <div id="opening-seam-glow"></div>
+    <div id="opening-ripple"></div>
+    <!-- Optional Custom Opening Video Player -->
     <video id="opening-video" playsinline preload="auto"></video>
     <div id="door-light-beam"></div>
-    <div id="opening-vignette" class="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/60 via-black/15 to-black/80 z-[18] transition-opacity duration-500"></div>
+    <div id="opening-vignette" class="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/55 via-transparent to-black/80 z-[18] transition-opacity duration-700"></div>
 
-    <div class="absolute top-4 inset-x-4 z-30 flex items-center justify-between">
-      <button id="btn-load-mp4" type="button" class="px-3.5 py-1.5 rounded-full text-[11px] font-semibold bg-black/65 text-[#fae6b8] border border-[#e6c67c]/65 backdrop-blur-md hover:bg-black/85 transition flex items-center gap-1.5 shadow-lg">
-        <span>🎬</span>
-        <span id="mp4-btn-label">원본 오프닝 영상(.mp4) 선택</span>
-      </button>
-      <button id="btn-skip-opening" type="button" class="px-3.5 py-1.5 rounded-full text-[11px] font-medium bg-black/60 text-[#f3dfb1] border border-[#e6c67c]/45 backdrop-blur-md hover:bg-black/80 transition">
+    <div class="absolute top-4 inset-x-4 z-30 flex items-center justify-end">
+      <button id="btn-skip-opening" type="button" class="px-3.5 py-1.5 rounded-full text-[11px] font-medium bg-black/55 text-[#f3dfb1] border border-[#e6c67c]/45 backdrop-blur-md hover:bg-black/80 transition">
         건너뛰기 ▸
       </button>
     </div>
 
-    <div id="opening-header" class="relative z-20 text-center mt-16 mb-auto px-6 transition-opacity duration-500 pointer-events-none">
-      <div class="text-[10.5px] tracking-[0.35em] text-[#e6c67c]/90 mb-1">MOONLIGHT FORTUNE BOUTIQUE</div>
-      <h1 class="font-serif-kr text-3xl font-bold tracking-wider text-[#f8e6bd] drop-shadow-[0_2px_14px_rgba(230,198,124,0.6)]">운명 상점</h1>
+    <div id="opening-header" class="relative z-20 text-center mt-14 mb-auto px-6 transition-opacity duration-700 pointer-events-none">
+      <div class="text-[10px] tracking-[0.38em] text-[#f3d997]/90 mb-1 drop-shadow">STORE OF DESTINY</div>
+      <h1 class="font-serif-kr text-3xl font-bold tracking-widest text-[#fff3d1] drop-shadow-[0_2px_18px_rgba(230,198,124,0.75)]">운명 상점</h1>
+      <p class="text-[11.5px] text-amber-100/85 font-serif-kr mt-1.5 drop-shadow">달빛이 머무는 밤, 당신의 운명이 깨어납니다</p>
     </div>
 
-    <div id="opening-knock-area" class="relative z-20 flex flex-col items-center mb-14 transition-all duration-400">
+    <div id="opening-whisper">
+      <div class="text-[11px] tracking-[0.28em] text-[#a7f3d0] mb-1.5 drop-shadow">✦ FORTUNE SHOP ✦</div>
+      <p id="opening-whisper-line" class="font-serif-kr text-lg font-bold text-[#fff8e1] leading-relaxed drop-shadow-[0_2px_16px_rgba(0,0,0,0.85)]">
+        어서 오세요… 기다리고 있었답니다.
+      </p>
+    </div>
+
+    <div id="opening-knock-area" class="relative z-20 flex flex-col items-center mb-12 transition-all duration-500">
       <button id="btn-knock-door" type="button" class="knock-ring">
         <span class="font-serif-kr text-lg font-bold text-[#fff4d4]">똑똑…</span>
         <span id="knock-sub-label" class="text-[11px] text-[#f3dfb1]/95 mt-0.5">문 두드리기</span>
       </button>
-      <p id="opening-caption" class="mt-4 text-xs text-[#f3e6ca]/95 font-serif-kr tracking-wide text-center px-6 leading-relaxed drop-shadow">
-        상단에서 <strong>원본 오프닝 영상(.mp4)</strong>을 연결한 뒤<br>버튼을 누르면 영상 재생 후 사주 화면으로 입장합니다
+      <p id="opening-caption" class="mt-3.5 text-xs text-[#f3e6ca]/95 font-serif-kr tracking-wide text-center px-6 leading-relaxed drop-shadow">
+        달빛 아래 굳게 닫힌 <strong>운명상점의 문</strong>을 두드려 주세요
       </p>
     </div>
   </div>
 
   <!-- ==================== TOP APP HEADER ==================== -->
   <header class="relative z-30 flex items-center justify-between px-3.5 pt-3 pb-2 bg-gradient-to-b from-black/75 via-black/40 to-transparent">
-    <button id="btn-replay-opening" type="button" title="오프닝 다시보기" class="flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/50 border border-[#e6c67c]/40 text-[11px] text-[#f3dfb1] hover:bg-black/70 transition">
-      <span>🏮</span>
-      <span>오프닝</span>
+    <button id="btn-open-auth" type="button" title="로그인 및 내 운세 기록" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/55 border border-[#e6c67c]/55 text-[11px] font-semibold text-[#f7e5be] hover:bg-black/75 transition">
+      <span id="auth-btn-icon">👤</span>
+      <span id="auth-btn-label">로그인</span>
     </button>
 
     <div class="text-center">
@@ -780,13 +890,13 @@
     </div>
 
     <div class="flex items-center gap-1">
-      <button id="btn-open-chat" type="button" title="Gemini AI 캐릭터 대화" class="px-2.5 py-1 rounded-full bg-emerald-500/25 border border-emerald-300/60 text-[11px] font-semibold text-emerald-100 hover:bg-emerald-500/35 transition">
+      <button id="btn-open-chat" type="button" title="AI 캐릭터 대화" class="px-2.5 py-1 rounded-full bg-emerald-500/25 border border-emerald-300/60 text-[11px] font-semibold text-emerald-100 hover:bg-emerald-500/35 transition">
         💬 대화
       </button>
-      <button id="btn-open-settings" type="button" title="앱 설정 및 3D 모델 관리" class="w-7 h-7 rounded-full bg-black/55 border border-[#e6c67c]/50 flex items-center justify-center text-xs text-[#f3dfb1]">
+      <button id="btn-open-settings" type="button" title="환경 설정" class="w-7 h-7 rounded-full bg-black/55 border border-[#e6c67c]/50 flex items-center justify-center text-xs text-[#f3dfb1]">
         ⚙️
       </button>
-      <button id="btn-toggle-sound" type="button" title="효과음 켜기/끄기" class="w-7 h-7 rounded-full bg-black/50 border border-[#e6c67c]/40 flex items-center justify-center text-xs text-[#f3dfb1]">
+      <button id="btn-toggle-sound" type="button" title="배경음·효과음 켜기/끄기" class="w-7 h-7 rounded-full bg-black/50 border border-[#e6c67c]/40 flex items-center justify-center text-xs text-[#f3dfb1]">
         🔊
       </button>
     </div>
@@ -826,7 +936,7 @@
 
     <div id="char-badge">
       <div id="badge-role" class="text-[10px] font-semibold tracking-wider text-[#e6c67c]">운명상점 주인 · 사주 명리</div>
-      <div id="badge-name" class="font-serif-kr text-sm font-bold text-white leading-tight">연화 (3D)</div>
+      <div id="badge-name" class="font-serif-kr text-sm font-bold text-white leading-tight">연화</div>
     </div>
 
     <div id="speech-bubble" title="터치하면 표정과 대사가 바뀝니다">
@@ -870,15 +980,15 @@
 
         <div class="grid grid-cols-12 gap-x-2 gap-y-2 items-end pr-12 pb-1">
           <div class="col-span-5 flex items-end gap-1">
-            <input id="saju-year" type="number" min="1920" max="2026" value="1997" class="saju-underline-input w-full text-[15px]" aria-label="출생 연도" />
+            <input id="saju-year" type="number" min="1920" max="2026" value="" placeholder="1997" class="saju-underline-input w-full text-[15px]" aria-label="출생 연도" />
             <span class="font-serif-kr text-xs font-bold text-[#24302a] pb-0.5 shrink-0">년</span>
           </div>
           <div class="col-span-3 flex items-end gap-1">
-            <input id="saju-month" type="number" min="1" max="12" value="5" class="saju-underline-input w-full text-[15px]" aria-label="출생 월" />
+            <input id="saju-month" type="number" min="1" max="12" value="" placeholder="5" class="saju-underline-input w-full text-[15px]" aria-label="출생 월" />
             <span class="font-serif-kr text-xs font-bold text-[#24302a] pb-0.5 shrink-0">월</span>
           </div>
           <div class="col-span-4 flex items-end gap-1">
-            <input id="saju-day" type="number" min="1" max="31" value="14" class="saju-underline-input w-full text-[15px]" aria-label="출생 일" />
+            <input id="saju-day" type="number" min="1" max="31" value="" placeholder="14" class="saju-underline-input w-full text-[15px]" aria-label="출생 일" />
             <span class="font-serif-kr text-xs font-bold text-[#24302a] pb-0.5 shrink-0">일</span>
           </div>
           <div class="col-span-12 flex items-center gap-2 pt-0.5">
@@ -914,10 +1024,67 @@
         </div>
       </div>
 
-      <div class="flex items-center gap-2.5 pt-1">
-        <button id="btn-run-saju" type="button" class="jade-orb-btn flex-1 py-2.5 px-4 rounded-full font-serif-kr text-[14.5px] font-extrabold tracking-wide flex items-center justify-center gap-2">
+      <div class="grid grid-cols-2 gap-2 pt-1">
+        <button id="btn-run-saju" type="button" class="jade-orb-btn py-2.5 px-3 rounded-full font-serif-kr text-[13px] font-extrabold tracking-wide flex items-center justify-center gap-1.5">
           <span>🔮</span>
-          <span>옥구슬로 사주 풀이</span>
+          <span>내 사주 풀이</span>
+        </button>
+        <button id="btn-toggle-saju-compat" type="button" class="py-2.5 px-3 rounded-full font-serif-kr text-[13px] font-extrabold tracking-wide flex items-center justify-center gap-1.5 bg-gradient-to-r from-[#5a1e3c] to-[#872e58] text-[#fff1d6] border border-[#f2c97d]/70 shadow-md active:scale-95 transition">
+          <span>💞</span>
+          <span>상대방과의 궁합보기</span>
+        </button>
+      </div>
+
+      <!-- 상대방 사주 궁합 입력 카드 (토글) -->
+      <div id="saju-partner-box" class="hidden jade-tablet-frame px-4 pt-4 pb-3.5 border-rose-300/50">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-serif-kr text-[15px] font-extrabold text-[#1a221d]">💞 상대방 생년월일시 입력</h3>
+          <button id="btn-close-saju-compat" type="button" class="text-[11px] font-bold text-[#3a5246] hover:text-black px-1.5">닫기 ✕</button>
+        </div>
+        <div class="flex items-center justify-between gap-2 mb-2.5 px-1">
+          <div class="flex items-center gap-1.5 flex-1">
+            <span class="font-serif-kr text-xs font-bold text-[#2b3a32] shrink-0">상대</span>
+            <input id="saju-partner-name" type="text" placeholder="상대방 이름" value="" class="saju-underline-input flex-1 text-sm" />
+          </div>
+          <div class="flex rounded-lg overflow-hidden border border-[#4b6357]/60 bg-white/45 shrink-0">
+            <button type="button" data-pgender="F" class="saju-pgender-btn px-2 py-1 text-[11px] font-bold text-[#2b3a32]">여</button>
+            <button type="button" data-pgender="M" class="saju-pgender-btn px-2 py-1 text-[11px] font-bold bg-[#154d48] text-[#f7e9c7]">남</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-12 gap-x-2 gap-y-2 items-end pb-2.5">
+          <div class="col-span-5 flex items-end gap-1">
+            <input id="saju-partner-year" type="number" min="1920" max="2026" value="" placeholder="1996" class="saju-underline-input w-full text-[15px]" aria-label="상대 출생 연도" />
+            <span class="font-serif-kr text-xs font-bold text-[#24302a] pb-0.5 shrink-0">년</span>
+          </div>
+          <div class="col-span-3 flex items-end gap-1">
+            <input id="saju-partner-month" type="number" min="1" max="12" value="" placeholder="9" class="saju-underline-input w-full text-[15px]" aria-label="상대 출생 월" />
+            <span class="font-serif-kr text-xs font-bold text-[#24302a] pb-0.5 shrink-0">월</span>
+          </div>
+          <div class="col-span-4 flex items-end gap-1">
+            <input id="saju-partner-day" type="number" min="1" max="31" value="" placeholder="21" class="saju-underline-input w-full text-[15px]" aria-label="상대 출생 일" />
+            <span class="font-serif-kr text-xs font-bold text-[#24302a] pb-0.5 shrink-0">일</span>
+          </div>
+          <div class="col-span-12 flex items-center gap-2 pt-0.5">
+            <span class="font-serif-kr text-xs font-bold text-[#24302a] shrink-0">출생시간</span>
+            <select id="saju-partner-time" class="saju-underline-input flex-1 text-[12.5px] font-semibold cursor-pointer text-left pl-1" aria-label="상대 태어난 시간">
+              <option value="unknown" selected>모름 (시간 미상)</option>
+              <option value="0">자시 (23:30 ~ 01:29)</option>
+              <option value="1">축시 (01:30 ~ 03:29)</option>
+              <option value="2">인시 (03:30 ~ 05:29)</option>
+              <option value="3">묘시 (05:30 ~ 07:29)</option>
+              <option value="4">진시 (07:30 ~ 09:29)</option>
+              <option value="5">사시 (09:30 ~ 11:29)</option>
+              <option value="6">오시 (11:30 ~ 13:29)</option>
+              <option value="7">미시 (13:30 ~ 15:29)</option>
+              <option value="8">신시 (15:30 ~ 17:29)</option>
+              <option value="9">유시 (17:30 ~ 19:29)</option>
+              <option value="10">술시 (19:30 ~ 21:29)</option>
+              <option value="11">해시 (21:30 ~ 23:29)</option>
+            </select>
+          </div>
+        </div>
+        <button id="btn-run-saju-compat" type="button" class="w-full py-2.5 rounded-xl font-serif-kr text-sm font-extrabold bg-gradient-to-r from-[#5a1e3c] via-[#7c2952] to-[#5a1e3c] text-[#fff2d6] border border-[#f2c97d]/70 shadow-md active:scale-95 transition">
+          💞 두 사람 사주 궁합 풀이 보기
         </button>
       </div>
 
@@ -1026,34 +1193,34 @@
       <div class="px-0.5">
         <input id="zodiac-question" type="text" placeholder="✨ 스텔라에게 별빛으로 묻고 싶은 질문 (선택)" class="char-q-input bg-black/35 border border-amber-300/35 text-violet-100 placeholder-violet-300/60" />
       </div>
-      <div id="zodiac-inline-result" class="rounded-2xl p-3.5 bg-white/5 border border-violet-300/30"></div>
+      <div id="zodiac-inline-result" class="rounded-2xl p-3.5 bg-[#0a1d3d]/65 border border-sky-300/35"></div>
     </div>
 
     <!-- PANEL 3: TAROT (RIFFLE FAN-OUT + 3-CARD SELECTION) -->
     <div id="panel-3" class="char-panel hidden space-y-3 pt-1">
       <div class="tarot-altar-card p-3.5">
         <div class="flex items-center justify-between mb-1.5">
-          <h2 class="font-serif-kr text-base font-bold text-amber-200">🔮 셀레네의 타로 제단</h2>
+          <h2 class="font-serif-kr text-base font-bold text-[#f7dca0]">🔮 셀레네의 벨벳 타로 제단</h2>
           <span id="tarot-pick-counter" class="text-[10.5px] font-bold px-2.5 py-0.5 rounded-full bg-amber-400/20 text-amber-200 border border-amber-300/45">카드 뽑기 대기</span>
         </div>
 
         <div class="grid grid-cols-4 gap-1.5 mb-2.5" id="tarot-topic-group">
-          <button type="button" data-topic="today" class="tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold bg-amber-400/25 border border-amber-300 text-amber-100">오늘운</button>
-          <button type="button" data-topic="love" class="tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold bg-white/5 border border-white/15 text-purple-200">연애·속마음</button>
-          <button type="button" data-topic="work" class="tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold bg-white/5 border border-white/15 text-purple-200">재물·일</button>
-          <button type="button" data-topic="advice" class="tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold bg-white/5 border border-white/15 text-purple-200">고민조언</button>
+          <button type="button" data-topic="today" class="tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold bg-rose-500/30 border border-[#e6c373] text-amber-100">오늘운</button>
+          <button type="button" data-topic="love" class="tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold bg-black/25 border border-rose-200/20 text-rose-200/80">연애·속마음</button>
+          <button type="button" data-topic="work" class="tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold bg-black/25 border border-rose-200/20 text-rose-200/80">재물·일</button>
+          <button type="button" data-topic="advice" class="tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold bg-black/25 border border-rose-200/20 text-rose-200/80">고민조언</button>
         </div>
 
-        <input id="tarot-question" type="text" placeholder="🕯️ 수정구슬에 속삭일 질문을 적어보세요 (선택)" class="char-q-input mb-2.5 bg-black/40 border border-amber-300/35 text-amber-50 placeholder-purple-300/60" />
+        <input id="tarot-question" type="text" placeholder="🕯️ 수정구슬에 속삭일 질문을 적어보세요 (선택)" class="char-q-input mb-2.5 bg-[#160510]/85 border border-[#e6c373]/45 text-amber-50 placeholder-rose-200/55" />
 
-        <button id="btn-tarot-reset" type="button" class="w-full py-2.5 mb-2 rounded-xl font-serif-kr font-bold text-sm bg-gradient-to-r from-[#3a1f6e] via-[#5d2f9e] to-[#3a1f6e] text-amber-100 border border-amber-300/70 shadow-lg active:scale-95 transition">
+        <button id="btn-tarot-reset" type="button" class="w-full py-2.5 mb-2 rounded-xl font-serif-kr font-bold text-sm bg-gradient-to-r from-[#5e1738] via-[#83214d] to-[#5e1738] text-amber-100 border border-amber-300/70 shadow-lg active:scale-95 transition">
           ✨ 타로카드 펼치기 (메이저 아르카나 22장)
         </button>
 
         <div id="tarot-deck" class="hidden pt-1 pb-1 select-none"></div>
       </div>
 
-      <div id="tarot-inline-result" class="rounded-2xl p-3.5 bg-white/5 border border-amber-300/30 text-center text-xs text-purple-200/85">
+      <div id="tarot-inline-result" class="rounded-2xl p-3.5 bg-[#240a1a]/75 border border-[#e6c373]/40 text-center text-xs text-rose-100/90">
         <strong>타로카드 펼치기</strong>를 누르면 22장의 메이저 아르카나 덱이 펼쳐집니다. 마음이 이끄는 카드 <strong>3장(과거·현재·미래)</strong>을 골라주세요.
       </div>
     </div>
@@ -1225,7 +1392,7 @@
       <div class="w-10 h-1 bg-white/25 rounded-full mx-auto mb-2.5"></div>
       <div class="flex items-center justify-between pb-2.5 border-b border-white/10">
         <div>
-          <div id="chat-mode-pill" class="text-[10px] font-semibold text-emerald-300">● 데모 AI 모드 (설정에서 Gemini AI 연결 가능)</div>
+          <div id="chat-mode-pill" class="text-[10px] font-semibold text-emerald-300">● 데모 모드 (설정에서 AI 서버 연결 가능)</div>
           <h3 id="chat-char-title" class="font-serif-kr text-base font-bold text-white">연화 마스터와 대화</h3>
         </div>
         <button id="btn-close-chat" type="button" class="w-8 h-8 rounded-full bg-white/10 text-white/80 flex items-center justify-center">✕</button>
@@ -1238,59 +1405,98 @@
     </div>
   </div>
 
-  <!-- ==================== CLEAN MVP SETTINGS DRAWER (MODEL MODE + GLB + GEMINI AI STATUS) ==================== -->
+  <!-- ==================== CONSUMER SETTINGS DRAWER (3D/2D + BGM + SFX) ==================== -->
   <div id="settings-drawer" class="drawer-backdrop" role="dialog" aria-modal="true">
     <div class="drawer-sheet space-y-3 overflow-y-auto">
       <div class="w-10 h-1 bg-white/25 rounded-full mx-auto"></div>
       <div class="flex items-center justify-between">
-        <h3 class="font-serif-kr text-base font-bold text-[#fae6b8]">⚙️ 운명상점 설정</h3>
+        <h3 class="font-serif-kr text-base font-bold text-[#fae6b8]">⚙️ 환경 설정</h3>
         <button id="btn-close-settings" type="button" class="w-8 h-8 rounded-full bg-white/10 text-white/80 flex items-center justify-center">✕</button>
       </div>
 
-      <!-- Moved from Stage Top-Right for Clean Sightline -->
-      <div class="space-y-2">
-        <div class="flex items-center justify-between bg-white/5 border border-[#e6c67c]/25 rounded-xl p-3">
+      <div class="space-y-2.5 pb-1">
+        <div class="flex items-center justify-between bg-white/5 border border-[#e6c67c]/25 rounded-xl p-3.5">
           <div>
-            <div class="text-xs font-bold text-white">✦ 캐릭터 모델 모드</div>
-            <div class="text-[10.5px] text-slate-400">운명플러스 3D ↔ 무료 미니 펫 전환</div>
+            <div class="text-xs font-bold text-white">🎭 캐릭터 표시 모드</div>
+            <div class="text-[10.5px] text-slate-400">입체 모션(3D) 또는 깔끔한 정지(2D) 전환</div>
           </div>
-          <button id="model-mode-pill" type="button" class="px-3 py-1.5 rounded-full text-xs font-bold bg-[#154d48] text-[#fae8bf] border border-[#e6c67c]/60">
-            <span id="model-mode-text">운명플러스 3D</span> ⇅
+          <button id="btn-toggle-25d" type="button" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#154d48] text-[#fae8bf] border border-[#e6c67c]/60 min-w-[72px]">3D 모드</button>
+        </div>
+
+        <div class="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl p-3.5">
+          <div>
+            <div class="text-xs font-bold text-white">🎵 배경음 (BGM)</div>
+            <div class="text-[10.5px] text-slate-400">운명상점 몽환 배경음악 켜기 · 끄기</div>
+          </div>
+          <button id="btn-toggle-bgm" type="button" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-700 text-slate-200 border border-white/15 min-w-[72px]">꺼짐</button>
+        </div>
+
+        <div class="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl p-3.5">
+          <div>
+            <div class="text-xs font-bold text-white">🔔 효과음 (SFX)</div>
+            <div class="text-[10.5px] text-slate-400">구슬·카드·터치 효과음 켜기 · 끄기</div>
+          </div>
+          <button id="btn-toggle-sfx" type="button" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/30 text-emerald-100 border border-emerald-400/60 min-w-[72px]">켜짐</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SOCIAL LOGIN & MY FORTUNE HISTORY DRAWER ==================== -->
+  <div id="auth-drawer" class="drawer-backdrop" role="dialog" aria-modal="true">
+    <div class="drawer-sheet space-y-3.5 overflow-y-auto max-h-[82vh]">
+      <div class="w-10 h-1 bg-white/25 rounded-full mx-auto"></div>
+      <div class="flex items-center justify-between">
+        <h3 id="auth-drawer-title" class="font-serif-kr text-base font-bold text-[#fae6b8]">👤 운명상점 로그인</h3>
+        <button id="btn-close-auth" type="button" class="w-8 h-8 rounded-full bg-white/10 text-white/80 flex items-center justify-center">✕</button>
+      </div>
+
+      <!-- Logged-out View -->
+      <div id="auth-logged-out" class="space-y-3">
+        <div class="rounded-xl bg-white/5 border border-[#e6c67c]/30 p-3 text-xs text-slate-200 leading-relaxed">
+          소셜 계정으로 로그인하면 내가 본 <strong>사주·타로·관상·손금·궁합 기록</strong>이 DB에 저장되어 언제든 다시 열어볼 수 있어요.
+        </div>
+
+        <div>
+          <label for="auth-demo-name" class="block text-[11px] text-slate-400 mb-1">표시할 닉네임 (간편 체험 로그인 시 사용 · 선택)</label>
+          <input id="auth-demo-name" type="text" placeholder="예: 근영" class="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/15 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#e6c67c]" />
+        </div>
+
+        <div class="space-y-2">
+          <button id="btn-login-google" type="button" class="w-full py-2.5 px-4 rounded-xl bg-white text-[#1f1f1f] font-bold text-xs flex items-center justify-center gap-2.5 shadow active:scale-[0.98] transition">
+            <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.7-2.4 3.6v3h3.9c2.3-2.1 3.5-5.2 3.5-8.8z"/><path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-2.9l-3.9-3c-1.1.7-2.5 1.2-4.1 1.2-3.1 0-5.8-2.1-6.8-5H1.2v3.1C3.2 21.3 7.3 24 12 24z"/><path fill="#FBBC05" d="M5.2 14.3c-.2-.7-.4-1.5-.4-2.3s.1-1.6.4-2.3V6.6H1.2C.4 8.2 0 10 0 12s.4 3.8 1.2 5.4l4-3.1z"/><path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4C17.9 1.2 15.2 0 12 0 7.3 0 3.2 2.7 1.2 6.6l4 3.1c1-2.9 3.7-4.9 6.8-4.9z"/></svg>
+            <span>Google로 계속하기</span>
           </button>
-        </div>
 
-        <div class="flex items-center justify-between bg-white/5 border border-[#e6c67c]/25 rounded-xl p-3">
-          <div>
-            <div class="text-xs font-bold text-white">📦 커스텀 3D 모델 (.glb)</div>
-            <div class="text-[10.5px] text-slate-400">현재 캐릭터 자리에 외부 3D 모델 불러오기</div>
-          </div>
-          <button id="btn-load-glb" type="button" class="px-3 py-1.5 rounded-full text-xs font-bold bg-white/10 text-white border border-white/25 hover:bg-white/20">
-            파일 선택
+          <button id="btn-login-kakao" type="button" class="w-full py-2.5 px-4 rounded-xl bg-[#FEE500] text-[#191919] font-bold text-xs flex items-center justify-center gap-2 shadow active:scale-[0.98] transition">
+            <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#191919" d="M12 3C6.5 3 2 6.5 2 10.8c0 2.8 1.8 5.2 4.6 6.6l-1.1 4.1c-.1.4.3.7.7.5l4.8-3.2c.3 0 .7.1 1 .1 5.5 0 10-3.5 10-7.8S17.5 3 12 3z"/></svg>
+            <span>카카오톡으로 계속하기</span>
           </button>
-        </div>
-
-        <div class="flex items-center justify-between bg-white/5 border border-white/10 rounded-xl p-3">
-          <div>
-            <div class="text-xs font-bold text-white">✨ 3D 모션 (호흡 · 터치 모핑)</div>
-            <div class="text-[10.5px] text-slate-400">캐릭터 눈 깜빡임 및 바디 모핑 효과</div>
-          </div>
-          <button id="btn-toggle-25d" type="button" class="px-3 py-1.5 rounded-full text-xs font-bold bg-[#e6c67c]/25 text-[#fae8bf] border border-[#e6c67c]/60">3D ON</button>
-        </div>
-
-        <div class="flex items-center justify-between bg-white/5 border border-emerald-400/25 rounded-xl p-3">
-          <div>
-            <div class="text-xs font-bold text-emerald-200">🤖 Gemini AI &amp; DB 서버 연동</div>
-            <div id="gemini-status-sub" class="text-[10.5px] text-slate-400">배포 서버 접속 시 자동 연결됩니다</div>
-          </div>
-          <button id="btn-toggle-live-api" type="button" class="px-3 py-1.5 rounded-full text-xs font-bold bg-slate-700 text-slate-200 border border-white/15">OFF</button>
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-2">
-        <button id="btn-test-api" type="button" class="py-2 rounded-xl bg-[#154d48] border border-[#e6c67c]/60 text-xs font-bold text-[#fae8bf]">Gemini 서버 확인</button>
-        <button id="btn-view-db-history" type="button" class="py-2 rounded-xl bg-white/10 border border-white/20 text-xs font-bold text-white">📜 DB 운세 기록</button>
+      <!-- Logged-in View & Saved DB History -->
+      <div id="auth-logged-in" class="hidden space-y-3">
+        <div class="flex items-center justify-between bg-white/5 border border-[#e6c67c]/35 rounded-xl p-3">
+          <div class="flex items-center gap-2.5">
+            <div id="auth-user-avatar" class="w-9 h-9 rounded-full bg-[#154d48] border border-[#e6c67c]/60 flex items-center justify-center text-sm font-bold text-[#fae8bf]">👤</div>
+            <div>
+              <div id="auth-user-name" class="text-sm font-bold text-white">사용자</div>
+              <div id="auth-user-provider" class="text-[10.5px] text-amber-200/85">로그인됨</div>
+            </div>
+          </div>
+          <button id="btn-logout" type="button" class="px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-[11px] font-semibold text-slate-200 hover:bg-white/20">로그아웃</button>
+        </div>
+
+        <div class="flex items-center justify-between">
+          <div class="text-xs font-bold text-[#fae6b8]">📜 내가 본 운세 기록 (DB 저장)</div>
+          <button id="btn-refresh-my-history" type="button" class="text-[10.5px] text-amber-200/80 hover:text-amber-100">새로고침 ↻</button>
+        </div>
+
+        <div id="user-history-list" class="space-y-2 max-h-60 overflow-y-auto pr-0.5">
+          <div class="text-center text-xs text-slate-400 py-5">기록을 불러오는 중…</div>
+        </div>
       </div>
-      <div id="db-history-box" class="hidden max-h-40 overflow-y-auto space-y-1.5 text-[11px] bg-black/35 rounded-xl p-2.5 border border-white/10"></div>
     </div>
   </div>
 
@@ -1419,7 +1625,7 @@
         ]
       },
       backdrop: 'linear-gradient(180deg, #1b1644 0%, #0d0b24 100%)',
-      sheetBg: 'linear-gradient(180deg, #19143a 0%, #0d0a21 100%)',
+      sheetBg: 'linear-gradient(180deg, #0a1833 0%, #050c1c 100%)',
       particleColor: 0xffe89e,
       uvOffsetY: 0.09,
       lines: [
@@ -1451,7 +1657,7 @@
         ]
       },
       backdrop: 'linear-gradient(180deg, #1e1236 0%, #0e081d 100%)',
-      sheetBg: 'linear-gradient(180deg, #1a102e 0%, #0c0719 100%)',
+      sheetBg: 'linear-gradient(180deg, #210919 0%, #0f040b 100%)',
       particleColor: 0xc084fc,
       uvOffsetY: 0.06,
       lines: [
@@ -1510,7 +1716,7 @@
         lines: [
           '부엉~ 청동거울로 네 복스러운 관상을 살펴줄게!',
           '동글동글한 날개를 톡 터치하면 행운의 눈웃음을 지어줄래!',
-          '카메라로 얼굴을 찍어주면 Gemini AI로 관상을 풀어줘!',
+          '카메라로 얼굴을 찍어주면 AI가 관상을 풀어줘!',
           '옥구슬을 위로 올리면 아린 마스터가 돌아와!'
         ]
       },
@@ -1521,7 +1727,7 @@
       lines: [
         '어서 오세요. 얼굴 사진을 보여주시면 초년·중년·말년 관상을 짚어드릴게요.',
         '이마의 빛과 눈매에 좋은 귀인운이 서려 있으시네요.',
-        '카메라로 바로 찍거나 사진을 올려 Gemini AI 관상 분석을 받아보세요.',
+        '카메라로 바로 찍거나 사진을 올려 AI 관상 분석을 받아보세요.',
         '상단 💬 대화 버튼으로 관상 고민도 편하게 물어보실 수 있어요.'
       ]
     },
@@ -1638,7 +1844,233 @@
     });
   }
 
+
+  /* ==================== AMBIENT CHARACTER BGM ENGINE (OPENING + 7 BESPOKE TRACKS) ==================== */
+  const BGM_TRACKS = {
+    opening: {
+      name: '달빛 오프닝',
+      drone: [146.83, 220.0], // D3, A3
+      notes: [293.66, 349.23, 440.0, 523.25, 587.33, 659.25], // D minor pentatonic
+      tempoMs: 1450,
+      wave: 'sine',
+      padWave: 'sine',
+      filterHz: 1100,
+      vol: 0.14
+    },
+    0: { // 연화 (사주 · 동양 누각 가야금/대금)
+      name: '연화 · 동양 누각',
+      drone: [146.83, 220.0], // D3, A3
+      notes: [293.66, 329.63, 369.99, 440.0, 493.88, 587.33, 659.25], // D major pentatonic
+      tempoMs: 1250,
+      wave: 'triangle',
+      padWave: 'sine',
+      filterHz: 950,
+      vol: 0.13
+    },
+    1: { // 루미 (혈액형 · 발랄한 오르골 다이어리)
+      name: '루미 · 오르골 왈츠',
+      drone: [261.63, 329.63], // C4, E4
+      notes: [523.25, 659.25, 783.99, 987.77, 880.0, 698.46, 587.33], // C maj7 music box
+      tempoMs: 780,
+      wave: 'sine',
+      padWave: 'triangle',
+      filterHz: 1850,
+      vol: 0.11
+    },
+    2: { // 스텔라 (별자리 · 천문대 별빛 차임)
+      name: '스텔라 · 천문 성좌',
+      drone: [174.61, 261.63], // F3, C4
+      notes: [349.23, 440.0, 493.88, 523.25, 659.25, 783.99, 880.0], // F Lydian dreamy
+      tempoMs: 1050,
+      wave: 'sine',
+      padWave: 'sine',
+      filterHz: 1650,
+      vol: 0.12
+    },
+    3: { // 셀레네 (타로 · 신비로운 보랏빛 싱잉볼)
+      name: '셀레네 · 신비의 제단',
+      drone: [110.0, 164.81], // A2, E3
+      notes: [220.0, 261.63, 329.63, 349.23, 415.30, 440.0, 493.88], // A mystical minor
+      tempoMs: 1550,
+      wave: 'sine',
+      padWave: 'triangle',
+      filterHz: 820,
+      vol: 0.14
+    },
+    4: { // 하린 (MBTI · 따뜻한 파스텔 로파이 피아노)
+      name: '하린 · 파스텔 상담실',
+      drone: [174.61, 220.0], // F3, A3
+      notes: [349.23, 440.0, 523.25, 659.25, 587.33, 493.88, 392.0], // Cozy Fmaj7 lo-fi
+      tempoMs: 920,
+      wave: 'triangle',
+      padWave: 'sine',
+      filterHz: 1200,
+      vol: 0.12
+    },
+    5: { // 아린 (관상 · 청동거울 고풍 서재)
+      name: '아린 · 청동거울 서재',
+      drone: [164.81, 246.94], // E3, B3
+      notes: [329.63, 392.0, 440.0, 493.88, 587.33, 659.25], // E minor pentatonic zen
+      tempoMs: 1380,
+      wave: 'triangle',
+      padWave: 'sine',
+      filterHz: 900,
+      vol: 0.13
+    },
+    6: { // 서연 (손금 · 황금 돋보기 글래스 하프)
+      name: '서연 · 황금 아틀리에',
+      drone: [196.0, 293.66], // G3, D4
+      notes: [392.0, 493.88, 587.33, 739.99, 880.0, 987.77], // G maj9 glass harp
+      tempoMs: 1120,
+      wave: 'sine',
+      padWave: 'sine',
+      filterHz: 1700,
+      vol: 0.12
+    }
+  };
+
+  const bgmEngine = (() => {
+    let masterGain = null;
+    let padOscs = [];
+    let padGain = null;
+    let timer = null;
+    let currentKey = null;
+    let stepIdx = 0;
+    let started = false;
+
+    function ensureMaster() {
+      const ctx = ensureAudio();
+      if (!ctx) return null;
+      if (!masterGain) {
+        masterGain = ctx.createGain();
+        masterGain.gain.setValueAtTime(state.soundOn ? 0.85 : 0.0001, ctx.currentTime);
+        masterGain.connect(ctx.destination);
+      }
+      return ctx;
+    }
+
+    function stopPad() {
+      const ctx = audioCtx;
+      if (padGain && ctx) {
+        try {
+          padGain.gain.cancelScheduledValues(ctx.currentTime);
+          padGain.gain.setValueAtTime(Math.max(0.0001, padGain.gain.value), ctx.currentTime);
+          padGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.8);
+        } catch (_) {}
+      }
+      const oldOscs = padOscs;
+      padOscs = [];
+      setTimeout(() => {
+        oldOscs.forEach(o => { try { o.stop(); o.disconnect(); } catch (_) {} });
+      }, 900);
+    }
+
+    function playPluck(track) {
+      if (!state.soundOn || !audioCtx || audioCtx.state !== 'running') return;
+      const ctx = audioCtx;
+      const now = ctx.currentTime;
+      const pattern = [0, 2, 4, 3, 5, 2, 1, 4];
+      const noteIdx = (pattern[stepIdx % pattern.length] + Math.floor(stepIdx / 8)) % track.notes.length;
+      stepIdx++;
+      const freq = track.notes[noteIdx];
+
+      const osc = ctx.createOscillator();
+      const overtone = ctx.createOscillator();
+      const filter = ctx.createBiquadFilter();
+      const env = ctx.createGain();
+
+      osc.type = track.wave;
+      osc.frequency.setValueAtTime(freq, now);
+      overtone.type = 'sine';
+      overtone.frequency.setValueAtTime(freq * 2, now);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(track.filterHz, now);
+      filter.frequency.exponentialRampToValueAtTime(Math.max(320, track.filterHz * 0.45), now + 2.2);
+
+      const ovGain = ctx.createGain();
+      ovGain.gain.setValueAtTime(0.16, now);
+
+      env.gain.setValueAtTime(0.0001, now);
+      env.gain.linearRampToValueAtTime(track.vol * 0.55, now + 0.06);
+      env.gain.exponentialRampToValueAtTime(0.0001, now + 2.4);
+
+      osc.connect(filter);
+      overtone.connect(ovGain);
+      ovGain.connect(filter);
+      filter.connect(env);
+      env.connect(masterGain);
+
+      osc.start(now);
+      overtone.start(now);
+      osc.stop(now + 2.5);
+      overtone.stop(now + 2.5);
+    }
+
+    function setTrack(key) {
+      const targetKey = BGM_TRACKS[key] ? key : 'opening';
+      if (currentKey === targetKey && started) return;
+      currentKey = targetKey;
+      const ctx = ensureMaster();
+      if (!ctx) return;
+      started = true;
+
+      stopPad();
+      if (timer) { clearInterval(timer); timer = null; }
+
+      const track = BGM_TRACKS[targetKey];
+      const now = ctx.currentTime;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(Math.min(720, track.filterHz * 0.7), now);
+
+      padGain = ctx.createGain();
+      padGain.gain.setValueAtTime(0.0001, now);
+      padGain.gain.linearRampToValueAtTime(track.vol * 0.32, now + 1.4);
+
+      filter.connect(padGain);
+      padGain.connect(masterGain);
+
+      padOscs = track.drone.map((f, i) => {
+        const o = ctx.createOscillator();
+        o.type = track.padWave;
+        o.frequency.setValueAtTime(f, now);
+        o.detune.setValueAtTime(i === 0 ? -4 : 5, now);
+        o.connect(filter);
+        o.start(now);
+        return o;
+      });
+
+      stepIdx = 0;
+      setTimeout(() => playPluck(track), 280);
+      timer = setInterval(() => playPluck(track), track.tempoMs);
+    }
+
+    function syncMute() {
+      if (!masterGain || !audioCtx) return;
+      const now = audioCtx.currentTime;
+      masterGain.gain.cancelScheduledValues(now);
+      masterGain.gain.setTargetAtTime(state.soundOn ? 0.85 : 0.0001, now, 0.15);
+    }
+
+    return { setTrack, syncMute, isStarted: () => started };
+  })();
+
+  // Start gentle opening BGM on first user gesture anywhere
+  function unlockBgmOnce() {
+    if (!bgmEngine.isStarted()) {
+      const inOpening = !document.getElementById('opening-overlay').classList.contains('hidden-seq');
+      bgmEngine.setTrack(inOpening ? 'opening' : state.activeChar);
+    }
+    window.removeEventListener('pointerdown', unlockBgmOnce);
+    window.removeEventListener('keydown', unlockBgmOnce);
+  }
+  window.addEventListener('pointerdown', unlockBgmOnce, { passive: true });
+  window.addEventListener('keydown', unlockBgmOnce, { passive: true });
+
   function playSwipeSound() {
+    if (!state.sfxEnabled) return;
     const ctx = ensureAudio();
     if (!ctx) return;
     const now = ctx.currentTime;
@@ -1656,6 +2088,7 @@
 
   // Crisp realistic "Chwa-ra-ra-rak!" Tarot Card Riffle Sound via Web Audio noise bursts
   function playTarotRiffleSound(count = 7) {
+    if (!state.sfxEnabled) return;
     const ctx = ensureAudio();
     if (!ctx) return;
     for (let i = 0; i < count; i++) {
@@ -1954,35 +2387,7 @@
   }
 
   // External GLB/VRM Loader Support
-  const inputGlb = document.getElementById('input-glb-model');
-  document.getElementById('btn-load-glb').addEventListener('click', () => inputGlb.click());
-  inputGlb.addEventListener('change', (e) => {
-    const file = e.target.files && e.target.files[0];
-    if (!file || typeof THREE.GLTFLoader === 'undefined') return;
-    const url = URL.createObjectURL(file);
-    const loader = new THREE.GLTFLoader();
-    showToast('외부 3D 모델(.glb)을 불러오는 중...');
-    loader.load(url, (gltf) => {
-      const idx = state.currentIdx;
-      if (customGlbModels[idx]) scene.remove(customGlbModels[idx]);
-      const model = gltf.scene;
-      const box = new THREE.Box3().setFromObject(model);
-      const size = box.getSize(new THREE.Vector3());
-      const maxDim = Math.max(size.x, size.y, size.z) || 1;
-      const scale = 1.65 / maxDim;
-      model.scale.setScalar(scale);
-      const center = box.getCenter(new THREE.Vector3());
-      model.position.set(-center.x * scale, -center.y * scale, -center.z * scale);
-      customGlbModels[idx] = model;
-      if (charMesh) charMesh.visible = false;
-      scene.add(model);
-      URL.revokeObjectURL(url);
-      showToast(`${CHARACTERS[idx].name} 자리에 3D 모델(${file.name})을 적용했어요 ✨`);
-    }, undefined, () => {
-      URL.revokeObjectURL(url);
-      showToast('지원되지 않는 3D 파일 형식입니다 (.glb 권장)');
-    });
-  });
+  // Custom GLB loader removed from consumer UI
 
   let lastAnimTs = performance.now();
   function animateThree(now) {
@@ -2351,8 +2756,6 @@
   const openingPoster = document.getElementById('opening-poster');
   const openingVignette = document.getElementById('opening-vignette');
   const openingVideo = document.getElementById('opening-video');
-  const inputOpeningVideo = document.getElementById('input-opening-video');
-  const mp4BtnLabel = document.getElementById('mp4-btn-label');
   const knockSubLabel = document.getElementById('knock-sub-label');
   const openingCaption = document.getElementById('opening-caption');
   const doorLightBeam = document.getElementById('door-light-beam');
@@ -2399,7 +2802,6 @@
     openingVideo.currentTime = 0;
     openingVideo.classList.add('playing');
     openingVideo.pause();
-    mp4BtnLabel.textContent = '원본 영상 연결됨 ✓';
     knockSubLabel.textContent = '영상 시작하기';
     openingCaption.innerHTML = `<strong>${filename}</strong> 준비 완료!<br>버튼을 누르면 오프닝 영상 후 사주 화면으로 이동합니다`;
     if (showMsg) showToast('오프닝 영상이 연결되었습니다! 버튼을 눌러 시작하세요 🎬');
@@ -2422,16 +2824,81 @@
     setTimeout(finishOpening, 420);
   });
 
-  document.getElementById('btn-load-mp4').addEventListener('click', () => {
-    inputOpeningVideo.click();
-  });
 
-  inputOpeningVideo.addEventListener('change', (e) => {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
-    attachOpeningVideo(file, file.name, true);
-    saveVideoToDB(file, file.name);
-  });
+  // Ambient Opening Petals & Golden Fireflies Canvas
+  const openCanvas = document.getElementById('opening-particles-canvas');
+  const openCtx = openCanvas ? openCanvas.getContext('2d') : null;
+  const openParticles = Array.from({ length: 34 }, (_, i) => ({
+    x: Math.random(),
+    y: Math.random(),
+    r: i < 16 ? (2.8 + Math.random() * 3.4) : (1.2 + Math.random() * 2.2),
+    vx: (Math.random() - 0.35) * 0.0012,
+    vy: i < 16 ? (0.0007 + Math.random() * 0.0011) : (-0.0005 - Math.random() * 0.0007),
+    rot: Math.random() * Math.PI * 2,
+    vrot: (Math.random() - 0.5) * 0.03,
+    isPetal: i < 16,
+    phase: Math.random() * Math.PI * 2
+  }));
+
+  function animateOpeningParticles(ts) {
+    if (openCtx && openingOverlay && !openingOverlay.classList.contains('hidden-seq')) {
+      const w = openCanvas.width = openCanvas.clientWidth || 390;
+      const h = openCanvas.height = openCanvas.clientHeight || 720;
+      openCtx.clearRect(0, 0, w, h);
+      const t = (ts || 0) * 0.001;
+      for (const p of openParticles) {
+        p.x = (p.x + p.vx + Math.sin(t + p.phase) * 0.0004 + 1) % 1;
+        p.y = (p.y + p.vy + 1) % 1;
+        p.rot += p.vrot;
+        const px = p.x * w, py = p.y * h;
+        if (p.isPetal) {
+          openCtx.save();
+          openCtx.translate(px, py);
+          openCtx.rotate(p.rot);
+          openCtx.fillStyle = 'rgba(255, 198, 218, 0.72)';
+          openCtx.beginPath();
+          openCtx.ellipse(0, 0, p.r * 1.45, p.r * 0.75, 0, 0, Math.PI * 2);
+          openCtx.fill();
+          openCtx.restore();
+        } else {
+          const glow = 0.4 + 0.55 * Math.sin(t * 2.4 + p.phase);
+          openCtx.fillStyle = `rgba(254, 240, 168, ${glow.toFixed(2)})`;
+          openCtx.beginPath();
+          openCtx.arc(px, py, p.r, 0, Math.PI * 2);
+          openCtx.fill();
+        }
+      }
+    }
+    requestAnimationFrame(animateOpeningParticles);
+  }
+  requestAnimationFrame(animateOpeningParticles);
+
+  function playOpeningHarp() {
+    if (!soundEnabled) return;
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      const ctx = new AC();
+      const notes = [392.0, 440.0, 523.25, 587.33, 659.25, 783.99, 1046.5];
+      notes.forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.11);
+        gain.gain.setValueAtTime(0.001, ctx.currentTime + i * 0.11);
+        gain.gain.exponentialRampToValueAtTime(0.075, ctx.currentTime + i * 0.11 + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.0008, ctx.currentTime + i * 0.11 + 1.15);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + i * 0.11);
+        osc.stop(ctx.currentTime + i * 0.11 + 1.2);
+      });
+    } catch (_) {}
+  }
+
+  const openingSeamGlow = document.getElementById('opening-seam-glow');
+  const openingRipple = document.getElementById('opening-ripple');
+  const openingWhisper = document.getElementById('opening-whisper');
 
   function startOpeningSequence() {
     if (openingPlaying) return;
@@ -2456,19 +2923,40 @@
       return;
     }
 
+    // Bespoke Cinematic Interactive Opening Sequence
     openingPlaying = true;
     playKnockSound();
+    if (openingRipple) {
+      openingRipple.classList.remove('pulse');
+      void openingRipple.offsetWidth;
+      openingRipple.classList.add('pulse');
+    }
     knockArea.style.opacity = '0';
     knockArea.style.pointerEvents = 'none';
-    openingPoster.style.transform = 'scale(1.12)';
-    doorLightBeam.classList.add('flash');
-    showToast('상단에서 원본 .mp4 영상을 연결하면 오프닝 영상이 재생됩니다');
-    setTimeout(finishOpening, 950);
+    openingHeader.style.opacity = '0';
+
+    setTimeout(() => {
+      playOpeningHarp();
+      openingPoster.style.transform = 'scale(1.22)';
+      if (openingSeamGlow) openingSeamGlow.classList.add('open-portal');
+      if (openingWhisper) openingWhisper.classList.add('show');
+    }, 450);
+
+    setTimeout(() => {
+      doorLightBeam.classList.add('flash');
+    }, 1850);
+
+    setTimeout(() => {
+      finishOpening();
+    }, 2450);
   }
 
   function replayOpening() {
     openingPlaying = false;
     doorLightBeam.classList.remove('flash');
+    if (openingSeamGlow) openingSeamGlow.classList.remove('open-portal');
+    if (openingRipple) openingRipple.classList.remove('pulse');
+    if (openingWhisper) openingWhisper.classList.remove('show');
     openingPoster.style.transform = 'scale(1)';
     openingVignette.style.opacity = '1';
     knockArea.style.opacity = '1';
@@ -2485,7 +2973,7 @@
 
   document.getElementById('btn-knock-door').addEventListener('click', startOpeningSequence);
   document.getElementById('btn-skip-opening').addEventListener('click', finishOpening);
-  document.getElementById('btn-replay-opening').addEventListener('click', replayOpening);
+  // Opening replay button replaced by Social Login
 
   /* ==================== CHARACTER NAVIGATION & GESTURES ==================== */
   const themeBackdrop = document.getElementById('theme-backdrop');
@@ -2493,7 +2981,7 @@
   const badgeRole = document.getElementById('badge-role');
   const badgeName = document.getElementById('badge-name');
   const speechBubble = document.getElementById('speech-bubble');
-  const modelModeText = document.getElementById('model-mode-text');
+  const modelModeText = null;
   const panels = Array.from(document.querySelectorAll('.char-panel'));
   const orbDots = Array.from(document.querySelectorAll('.orb-dot'));
   const magicOrb = document.getElementById('magic-orb');
@@ -2516,7 +3004,7 @@
 
     if (isMini && hasPet) {
       badgeRole.textContent = char.pet.role;
-      badgeName.textContent = `${char.pet.name} (3D 펫)`;
+      badgeName.textContent = char.pet.name;
       speechBubble.style.display = 'block';
       speechBubble.innerHTML = formatSpeech(char.pet.lines[state.speechIdx[idx] % char.pet.lines.length]);
       orbStatusLabel.textContent = `${char.tabName} · ${char.pet.name} (무료 펫)`;
@@ -2527,7 +3015,7 @@
       orbStatusLabel.textContent = `${char.tabName} · 미니 캐릭터 공사중 🚧`;
     } else {
       badgeRole.textContent = char.role;
-      badgeName.textContent = `${char.name} (3D)`;
+      badgeName.textContent = char.name;
       speechBubble.style.display = 'block';
       speechBubble.innerHTML = formatSpeech(char.lines[state.speechIdx[idx] % char.lines.length]);
       orbStatusLabel.textContent = `${char.tabName} · ${char.name} (운명플러스)`;
@@ -2537,7 +3025,7 @@
     orbCenterMode.textContent = isMini ? '무료 미니펫' : '운명플러스';
     magicOrb.classList.toggle('mini-active', isMini);
     updateOrb3DTheme(isMini);
-    modelModeText.textContent = isMini ? '무료 미니 펫' : '운명플러스 3D';
+    if (modelModeText) modelModeText.textContent = isMini ? '무료 미니 펫' : '마스터';
   }
 
   function setModelMode(mode) {
@@ -2558,9 +3046,10 @@
   function toggleModelMode() {
     setModelMode(state.modelMode === 'plus' ? 'mini' : 'plus');
   }
-  document.getElementById('model-mode-pill').addEventListener('click', toggleModelMode);
+
 
   function goToCharacter(idx, silent = false) {
+    if (typeof bgmEngine !== 'undefined') bgmEngine.setTrack(idx);
     const total = CHARACTERS.length;
     const wrapped = ((idx % total) + total) % total;
     state.currentIdx = wrapped;
@@ -2854,8 +3343,8 @@
   const btn25d = document.getElementById('btn-toggle-25d');
   btn25d.addEventListener('click', () => {
     state.motionEnabled = !state.motionEnabled;
-    btn25d.textContent = state.motionEnabled ? '3D ON' : '3D OFF';
-    showToast(state.motionEnabled ? '3D 캐릭터 애니메이션 ON ✨' : '3D 애니메이션 일시 정지');
+    syncSettingsUI();
+    showToast(state.motionEnabled ? '캐릭터 3D 모드로 전환했어요 ✨' : '캐릭터 2D 모드로 전환했어요');
   });
 
   const btnSound = document.getElementById('btn-toggle-sound');
@@ -2941,7 +3430,67 @@
     F: 'artifacts/file_generation/ttl=63d/intermediate/assets/spouse_f.jpg'
   };
 
+  function validateBirthInputs(yId, mId, dId, whoLabel) {
+    const yEl = document.getElementById(yId);
+    const mEl = document.getElementById(mId);
+    const dEl = document.getElementById(dId);
+    const yRaw = (yEl?.value || '').trim();
+    const mRaw = (mEl?.value || '').trim();
+    const dRaw = (dEl?.value || '').trim();
+    if (!yRaw || !mRaw || !dRaw) {
+      return {
+        ok: false,
+        focusEl: !yRaw ? yEl : (!mRaw ? mEl : dEl),
+        msg: `${whoLabel}의 생년월일(년·월·일)이 모두 입력되지 않았습니다.`
+      };
+    }
+    const y = parseInt(yRaw, 10);
+    const m = parseInt(mRaw, 10);
+    const d = parseInt(dRaw, 10);
+    if (isNaN(y) || y < 1920 || y > 2026 || isNaN(m) || m < 1 || m > 12) {
+      return {
+        ok: false,
+        focusEl: (isNaN(y) || y < 1920 || y > 2026) ? yEl : mEl,
+        msg: `${whoLabel}의 출생 연도(1920~2026) 또는 월(1~12)을 정확히 입력해 주세요.`
+      };
+    }
+    const maxDay = new Date(y, m, 0).getDate();
+    if (isNaN(d) || d < 1 || d > maxDay) {
+      return {
+        ok: false,
+        focusEl: dEl,
+        msg: `${whoLabel}의 출생 일(${y}년 ${m}월은 1~${maxDay}일)을 정확히 입력해 주세요.`
+      };
+    }
+    return { ok: true, y, m, d };
+  }
+
+  function showBirthValidationModal(messages, focusEl) {
+    const listHtml = messages.map(m => `<li class="flex items-start gap-1.5"><span class="text-rose-400">•</span><span>${m}</span></li>`).join('');
+    openModal('입력 확인 필요', '생년월일을 정확히 입력해 주세요', `
+      <div class="rounded-2xl bg-rose-950/40 border border-rose-400/45 p-4 space-y-2.5">
+        <div class="text-sm font-bold text-rose-200 flex items-center gap-1.5">
+          <span>⚠️</span><span>생년월일 정보가 누락되었거나 올바르지 않습니다</span>
+        </div>
+        <ul class="text-xs text-slate-100 space-y-1.5 leading-relaxed">${listHtml}</ul>
+        <p class="text-[11px] text-amber-200/85 pt-1">정확한 사주와 궁합 풀이를 위해 출생 연·월·일을 모두 입력하신 뒤 다시 시도해 주세요.</p>
+      </div>
+      <button id="btn-validation-confirm" type="button" class="w-full py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#154d48] to-[#23756c] text-[#fff1d6] border border-[#e6c67c]/60 shadow-md active:scale-95 transition">
+        확인하고 입력하기
+      </button>
+    `);
+    const confirmBtn = document.getElementById('btn-validation-confirm');
+    if (confirmBtn) {
+      confirmBtn.addEventListener('click', () => {
+        closeModal();
+        if (focusEl) setTimeout(() => focusEl.focus(), 120);
+      });
+    }
+  }
+
   document.getElementById('btn-run-saju').addEventListener('click', () => {
+    const myCheck = validateBirthInputs('saju-year', 'saju-month', 'saju-day', '본인');
+    if (!myCheck.ok) { showBirthValidationModal([myCheck.msg], myCheck.focusEl); return; }
     const { y, m, d, timeVal, name } = getSajuParams();
     const gKey = (state.userGender === 'M') ? 'M' : 'F';
     const genderLabel = gKey === 'M' ? '남성' : '여성';
@@ -3020,8 +3569,8 @@
         ${ohaengHtml}
       </div>
       <div class="bg-white/5 border border-[#e6c67c]/35 rounded-xl p-3.5">
-        <div class="text-xs font-bold text-[#e6c67c] mb-1">✨ 연화의 Gemini AI 심층 사주 · 신살 풀이</div>
-        <p id="saju-llm-box" class="text-xs text-slate-100 leading-relaxed whitespace-pre-line">연화가 사주 원국과 신살의 흐름을 깊이 살펴보는 중…</p>
+        <div class="text-xs font-bold text-[#e6c67c] mb-1">✨ 연화의 AI 심층 사주 · 신살 풀이</div>
+        <p id="saju-llm-box" class="text-xs text-slate-100 leading-relaxed whitespace-pre-line">AI가 사주 원국과 신살의 흐름을 깊이 분석하는 중입니다…</p>
       </div>
       <div class="flex items-center justify-between bg-amber-500/10 border border-amber-300/30 rounded-xl px-3.5 py-2.5 text-xs">
         <span class="text-amber-200 font-semibold">🍀 행운 키워드</span>
@@ -3033,6 +3582,124 @@
     const details = `${name}(${genderLabel}), ${y}년 ${m}월 ${d}일 (${data.animal}띠), 일간: ${data.ilgan.title}, 보유 신살: ${sinsalNames}, 오행 강함:${data.dominant}/보완:${data.lacking}`;
     askGeminiFortune('saju', '사주 명리·신살', details, q, `${data.ilgan.desc} 특히 ${artGroup.title}의 기운이 강하게 자리 잡아 ${artItem.caption}`).then(txt => {
       const el = document.getElementById('saju-llm-box');
+      if (el) el.textContent = txt;
+    });
+  });
+
+
+  // ---- SAJU PARTNER COMPATIBILITY LOGIC ----
+  state.partnerGender = 'M';
+  const sajuPartnerBox = document.getElementById('saju-partner-box');
+  document.getElementById('btn-toggle-saju-compat').addEventListener('click', () => {
+    sajuPartnerBox.classList.toggle('hidden');
+    if (!sajuPartnerBox.classList.contains('hidden')) {
+      sajuPartnerBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  });
+  document.getElementById('btn-close-saju-compat').addEventListener('click', () => {
+    sajuPartnerBox.classList.add('hidden');
+  });
+  document.querySelectorAll('.saju-pgender-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.partnerGender = btn.dataset.pgender;
+      document.querySelectorAll('.saju-pgender-btn').forEach(b => {
+        const act = b.dataset.pgender === state.partnerGender;
+        b.className = `saju-pgender-btn px-2 py-1 text-[11px] font-bold ${act ? 'bg-[#154d48] text-[#f7e9c7]' : 'text-[#2b3a32]'}`;
+      });
+    });
+  });
+
+  document.getElementById('btn-run-saju-compat').addEventListener('click', () => {
+    const myCheck = validateBirthInputs('saju-year', 'saju-month', 'saju-day', '나(본인)');
+    const partnerCheck = validateBirthInputs('saju-partner-year', 'saju-partner-month', 'saju-partner-day', '상대방');
+    const errs = [];
+    if (!myCheck.ok) errs.push(myCheck.msg);
+    if (!partnerCheck.ok) errs.push(partnerCheck.msg);
+    if (errs.length > 0) {
+      showBirthValidationModal(errs, !myCheck.ok ? myCheck.focusEl : partnerCheck.focusEl);
+      return;
+    }
+    const me = getSajuParams();
+    const myGender = state.userGender === 'M' ? '남성' : '여성';
+    const pName = (document.getElementById('saju-partner-name').value || '').trim() || '상대방';
+    const pYear = partnerCheck.y;
+    const pMonth = partnerCheck.m;
+    const pDay = partnerCheck.d;
+    const pTime = document.getElementById('saju-partner-time').value;
+    const pGender = state.partnerGender === 'M' ? '남성' : '여성';
+
+    const myData = calculateSaju(me.y, me.m, me.d, me.timeVal);
+    const pData = calculateSaju(pYear, pMonth, pDay, pTime);
+
+    // 오행 상생·보완 점수 계산
+    const sangsaeng = { 목: '화', 화: '토', 토: '금', 금: '수', 수: '목' };
+    let score = 78;
+    const notes = [];
+    if (sangsaeng[myData.dominant] === pData.dominant || sangsaeng[pData.dominant] === myData.dominant) {
+      score += 11;
+      notes.push(`두 사람의 주력 오행(${myData.dominant} · ${pData.dominant})이 서로를 살려주는 상생(相生) 흐름입니다.`);
+    }
+    if (myData.lacking === pData.dominant || pData.lacking === myData.dominant) {
+      score += 7;
+      notes.push(`서로 부족한 기운을 자연스럽게 채워주는 귀한 상호 보완 궁합이에요.`);
+    }
+    const samhapGroups = [['원숭이','쥐','용'], ['호랑이','말','개'], ['뱀','닭','소'], ['돼지','토끼','양']];
+    if (samhapGroups.some(g => g.includes(myData.animal) && g.includes(pData.animal))) {
+      score += 6;
+      notes.push(`${myData.animal}띠와 ${pData.animal}띠는 전통 명리에서 합이 뛰어난 삼합(三合) 인연입니다.`);
+    }
+    score = Math.min(98, score + ((me.d + pDay) % 5));
+    const grade = score >= 92 ? '천생연분 · 상생 황금 궁합 💎' : score >= 84 ? '서로를 빛내는 귀인 인연 🌸' : '알아갈수록 깊어지는 조화 궁합 🌙';
+    const harmonySummary = notes.length ? notes.join(' ') : `${me.name}님의 ${myData.dominant} 기운과 ${pName}님의 ${pData.dominant} 기운이 균형을 이루며 안정적인 관계를 만들어갑니다.`;
+
+    rigPhys.bounceVel = 0.08;
+    rigPhys.happyTimer = 1.4;
+    playChimeSound(620);
+
+    openModal('연화의 사주 궁합 풀이', `${me.name} ♥ ${pName}`, `
+      <div class="flex items-center justify-between bg-gradient-to-r from-[#4b1a34]/75 to-[#154d48]/70 border border-[#f2c97d]/50 rounded-2xl p-4">
+        <div>
+          <div class="text-[11px] text-amber-200 font-semibold">${grade}</div>
+          <div class="font-serif-kr text-base font-extrabold text-white mt-0.5">${me.name} ♥ ${pName}</div>
+        </div>
+        <div class="text-right">
+          <div class="text-[10px] text-amber-200/80">사주 궁합 지수</div>
+          <div class="font-serif-kr text-3xl font-extrabold text-[#fde68a]">${score}점</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div class="bg-white/5 border border-[#e6c67c]/30 rounded-xl p-3">
+          <div class="text-[10px] text-amber-300 font-bold mb-1">나의 사주 (${myGender})</div>
+          <div class="font-serif-kr font-bold text-white">${me.name} · ${myData.animal}띠</div>
+          <div class="text-[11px] text-slate-300 mt-1">일간: ${myData.ilgan.title.split('·')[0].trim()}</div>
+          <div class="text-[11px] text-slate-300">주력 오행: <strong class="text-[#fde68a]">${myData.dominant}</strong></div>
+          <div class="text-[10.5px] text-amber-200 mt-1">${myData.sinsalTags[0].label}</div>
+        </div>
+        <div class="bg-white/5 border border-rose-300/35 rounded-xl p-3">
+          <div class="text-[10px] text-rose-300 font-bold mb-1">상대방 사주 (${pGender})</div>
+          <div class="font-serif-kr font-bold text-white">${pName} · ${pData.animal}띠</div>
+          <div class="text-[11px] text-slate-300 mt-1">일간: ${pData.ilgan.title.split('·')[0].trim()}</div>
+          <div class="text-[11px] text-slate-300">주력 오행: <strong class="text-rose-200">${pData.dominant}</strong></div>
+          <div class="text-[10.5px] text-rose-200 mt-1">${pData.sinsalTags[0].label}</div>
+        </div>
+      </div>
+
+      <div class="bg-[#154d48]/30 border border-[#e6c67c]/35 rounded-xl p-3.5">
+        <div class="text-xs font-bold text-[#e6c67c] mb-1">☯ 오행 상생 · 합(合) 포인트</div>
+        <p class="text-xs text-slate-100 leading-relaxed">${harmonySummary}</p>
+      </div>
+
+      <div class="bg-white/5 border border-rose-300/35 rounded-xl p-3.5">
+        <div class="text-xs font-bold text-rose-200 mb-1">✨ 연화의 AI 심층 사주 궁합</div>
+        <p id="saju-compat-llm-box" class="text-xs text-slate-100 leading-relaxed whitespace-pre-line">연화가 두 사람의 사주 인연과 궁합을 풀이하고 있습니다…</p>
+      </div>
+    `);
+
+    const q = (document.getElementById('saju-question')?.value || '').trim();
+    const details = `[나] ${me.name}(${myGender}, ${me.y}.${me.m}.${me.d}, ${myData.animal}띠, 일간:${myData.ilgan.title}, 주력오행:${myData.dominant}, 신살:${myData.sinsalTags[0].label}) vs [상대] ${pName}(${pGender}, ${pYear}.${pMonth}.${pDay}, ${pData.animal}띠, 일간:${pData.ilgan.title}, 주력오행:${pData.dominant}, 신살:${pData.sinsalTags[0].label}), 궁합점수:${score}점`;
+    askGeminiFortune('saju', '사주 궁합', details, q || '두 사람의 연애·결혼 궁합과 오래 잘 지내는 비결이 궁금해요', harmonySummary).then(txt => {
+      const el = document.getElementById('saju-compat-llm-box');
       if (el) el.textContent = txt;
     });
   });
@@ -3387,7 +4054,7 @@
     tarotResultEl.innerHTML = `
       ${renderShowcaseRow()}
       <div id="tarot-llm-text" class="text-left text-xs text-purple-100/90 leading-relaxed bg-black/25 rounded-xl p-2.5 border border-amber-300/25">
-        <span class="text-amber-200 animate-pulse">셀레네가 세 장의 타로 카드 흐름을 해석하고 있습니다…</span>
+        <span class="text-amber-200 animate-pulse">AI가 세 장의 타로 카드 흐름을 해석하는 중입니다…</span>
       </div>
     `;
 
@@ -3403,7 +4070,7 @@
       state.tarotTopic = btn.dataset.topic;
       document.querySelectorAll('.tarot-topic-btn').forEach(b => {
         const active = b.dataset.topic === state.tarotTopic;
-        b.className = `tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold border ${active ? 'bg-amber-400/25 border-amber-300 text-amber-100' : 'bg-white/5 border-white/15 text-purple-200'}`;
+        b.className = `tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold border ${active ? 'bg-rose-500/30 border-[#e6c373] text-amber-100' : 'bg-black/25 border-rose-200/20 text-rose-200/80'}`;
       });
       if (tarotDealt) dealTarotRiffle();
     });
@@ -3468,46 +4135,69 @@
 
   /* ==================== DB RECORDING + OLLAMA CHAT & VISION ENGINE ==================== */
   async function askGeminiFortune(charId, category, details, question, fallbackText) {
+    const uid = state.currentUser ? state.currentUser.id : null;
+    const uname = (state.currentUser && state.currentUser.name) || state.userName || '방문자';
     if (state.liveApiEnabled && state.apiBaseUrl) {
       try {
         const resp = await fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/fortune`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            user_id: uid,
             character_id: charId,
             category,
-            user_name: state.userName || '방문자',
+            user_name: uname,
             details,
             question: question || ''
           })
         });
         if (resp.ok) {
           const d = await resp.json();
-          if (d.reading) return d.reading;
+          if (d.reading) {
+            saveLocalHistoryOnly(category, details, d.reading.slice(0, 140), d.reading, null);
+            return d.reading;
+          }
         }
       } catch (e) {}
     }
-    saveFortuneRecord(category, details, fallbackText.slice(0, 120), null);
+    saveFortuneRecord(category, details, fallbackText.slice(0, 140), null, fallbackText);
     return fallbackText;
   }
 
-  function saveFortuneRecord(category, inputSummary, resultSummary, score) {
+  function saveLocalHistoryOnly(category, inputSummary, resultSummary, fullContent, score) {
+    const uid = state.currentUser ? state.currentUser.id : 'guest';
+    const uname = (state.currentUser && state.currentUser.name) || state.userName || '방문자';
     const rec = {
+      user_id: uid,
       category,
-      user_name: state.userName || '방문자',
+      user_name: uname,
       input_summary: inputSummary,
       result_summary: resultSummary,
+      full_content: fullContent || resultSummary,
       score,
-      created_at: new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' })
+      created_at: new Date().toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
     };
     state.localHistory.unshift(rec);
-    try { localStorage.setItem('fortune_shop_history', JSON.stringify(state.localHistory.slice(0, 30))); } catch (e) {}
+    try { localStorage.setItem(`fortune_shop_history_${uid}`, JSON.stringify(state.localHistory.slice(0, 30))); } catch (e) {}
+  }
 
+  function saveFortuneRecord(category, inputSummary, resultSummary, score, fullContent = '') {
+    saveLocalHistoryOnly(category, inputSummary, resultSummary, fullContent || resultSummary, score);
     if (state.liveApiEnabled && state.apiBaseUrl) {
+      const uid = state.currentUser ? state.currentUser.id : null;
+      const uname = (state.currentUser && state.currentUser.name) || state.userName || '방문자';
       fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/history`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(rec)
+        body: JSON.stringify({
+          user_id: uid,
+          category,
+          user_name: uname,
+          input_summary: inputSummary,
+          result_summary: resultSummary,
+          full_content: fullContent || resultSummary,
+          score
+        })
       }).catch(() => {});
     }
   }
@@ -3667,13 +4357,14 @@
       : '맑은 눈빛과 부드러운 미소가 매력적인 우아한 인상의 여성입니다. 섬세한 배려와 밝은 에너지로 일상에 활력을 불어넣어 주는 복된 인연으로 이어질 관상 궁합입니다.';
 
     if (state.liveApiEnabled && state.apiBaseUrl) {
-      resultEl.innerHTML = `<div class="py-3 text-amber-200 animate-pulse">${isFace ? 'Gemini AI가 관상을 분석하고 미래 배우자 얼굴을 그리는 중…' : 'Gemini AI가 손금을 정밀 분석하는 중…'}</div>`;
+      resultEl.innerHTML = `<div class="py-3 text-amber-200 animate-pulse">${isFace ? 'AI가 관상을 분석하고 미래 배우자 얼굴을 그리는 중…' : 'AI가 손금을 정밀 분석하는 중…'}</div>`;
       try {
         const base = state.apiBaseUrl.replace(/\/$/, '');
         const resp = await fetch(`${base}/api/vision`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            user_id: state.currentUser ? state.currentUser.id : null,
             character_id: target,
             image_base64: imgData,
             user_name: state.userName || '방문자',
@@ -3698,7 +4389,7 @@
                 const pData = await pResp.json();
                 if (pData.generated && pData.image_base64) {
                   spouseImg = pData.image_base64;
-                  spouseBadge = 'Gemini AI 실시간 생성';
+                  spouseBadge = 'AI 실시간 생성';
                 }
               }
             } catch (_) {}
@@ -3708,7 +4399,7 @@
             analysis: data.analysis,
             spouseDesc: data.spouse_desc || defaultSpouseDesc,
             spouseImg,
-            badgeText: data.model || 'Gemini AI',
+            badgeText: 'AI 정밀 분석',
             spouseBadge
           });
           return;
@@ -3717,7 +4408,7 @@
         resultEl.innerHTML = `
           <div class="text-left space-y-1.5">
             <div class="flex items-center justify-between">
-              <span class="font-bold text-amber-200">✋ 서연의 Gemini AI 손금 풀이</span>
+              <span class="font-bold text-amber-200">✋ 서연의 AI 손금 풀이</span>
               <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/25 text-emerald-200">${data.model}</span>
             </div>
             <p class="text-xs text-slate-100 leading-relaxed whitespace-pre-line">${data.analysis}</p>
@@ -3774,8 +4465,8 @@
     const char = CHARACTERS[state.currentIdx];
     chatCharTitle.textContent = `${char.name} (${char.tabName} 마스터)와 대화`;
     chatModePill.textContent = (state.liveApiEnabled && state.apiBaseUrl)
-      ? `● Gemini AI 연동됨 (${state.chatModel})`
-      : '● 데모 AI 모드 (⚙️ 설정에서 Gemini AI 연결 가능)';
+      ? `● AI 서버 연동됨`
+      : '● 데모 모드 (⚙️ 설정에서 AI 서버 연결 가능)';
     const list = chatHistoryByChar[char.id] || [
       { role: 'assistant', text: formatSpeech(char.lines[0]) }
     ];
@@ -3810,13 +4501,14 @@
     renderChatMessages();
 
     if (state.liveApiEnabled && state.apiBaseUrl) {
-      list.push({ role: 'assistant', text: '…생각하는 중 (Gemini AI 응답 대기)' });
+      list.push({ role: 'assistant', text: 'AI가 답변을 준비하는 중입니다…' });
       renderChatMessages();
       try {
         const resp = await fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/chat`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            user_id: state.currentUser ? state.currentUser.id : null,
             character_id: char.id,
             message: msg,
             user_name: state.userName || '방문자',
@@ -3831,7 +4523,7 @@
         return;
       } catch (err) {
         list.pop();
-        showToast('Gemini AI 서버에 연결되지 않아 데모 응답으로 전환했어요');
+        showToast('AI 서버에 연결되지 않아 데모 응답으로 전환했어요');
       }
     }
 
@@ -3851,21 +4543,65 @@
     }, 380);
   });
 
-  // ---- CLEAN MVP SETTINGS DRAWER (GEMINI AI + MODEL MODE + GLB + DB HISTORY) ----
+  // ---- CONSUMER SETTINGS DRAWER (3D/2D + BGM + SFX) ----
   const settingsDrawer = document.getElementById('settings-drawer');
-  const btnToggleLiveApi = document.getElementById('btn-toggle-live-api');
-  const geminiStatusSub = document.getElementById('gemini-status-sub');
-  const dbHistoryBox = document.getElementById('db-history-box');
+  const btnToggleBgm = document.getElementById('btn-toggle-bgm');
+  const btnToggleSfx = document.getElementById('btn-toggle-sfx');
+  const btnHeaderSound = document.getElementById('btn-toggle-sound');
+
+  // Gentle Oriental Pentatonic Ambient BGM Synth (WebAudio)
+  let bgmTimer = null;
+  function startAmbientBGM() {
+    if (typeof bgmEngine !== 'undefined' && bgmEngine.setMuted) { bgmEngine.setMuted(false); return; }
+    if (bgmTimer) return;
+    const notes = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25];
+    const playSoftNote = () => {
+      if (!state.bgmEnabled) return;
+      try {
+        const ctx = getAudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = notes[Math.floor(Math.random() * notes.length)];
+        const now = ctx.currentTime;
+        gain.gain.setValueAtTime(0.0001, now);
+        gain.gain.linearRampToValueAtTime(0.025, now + 0.8);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.2);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 3.3);
+      } catch (e) {}
+    };
+    playSoftNote();
+    bgmTimer = setInterval(playSoftNote, 3200);
+  }
+  function stopAmbientBGM() {
+    if (typeof bgmEngine !== 'undefined' && bgmEngine.setMuted) { bgmEngine.setMuted(true); }
+    if (bgmTimer) { clearInterval(bgmTimer); bgmTimer = null; }
+  }
 
   function syncSettingsUI() {
-    btnToggleLiveApi.textContent = state.liveApiEnabled ? 'ON (연결됨)' : 'OFF (데모)';
-    btnToggleLiveApi.className = `px-3 py-1.5 rounded-full text-xs font-bold border ${
-      state.liveApiEnabled ? 'bg-emerald-500/30 text-emerald-100 border-emerald-400' : 'bg-slate-700 text-slate-200 border-white/15'
-    }`;
-    if (geminiStatusSub) {
-      geminiStatusSub.textContent = state.liveApiEnabled && state.apiBaseUrl
-        ? `연결됨: ${state.apiBaseUrl}`
-        : '배포 서버 접속 시 자동 연결됩니다';
+    if (btn25d) {
+      btn25d.textContent = state.motionEnabled ? '3D 모드' : '2D 모드';
+      btn25d.className = `px-3.5 py-1.5 rounded-full text-xs font-bold border min-w-[72px] ${
+        state.motionEnabled ? 'bg-[#154d48] text-[#fae8bf] border-[#e6c67c]/60' : 'bg-slate-700 text-slate-200 border-white/20'
+      }`;
+    }
+    if (btnToggleBgm) {
+      btnToggleBgm.textContent = state.bgmEnabled ? '켜짐' : '꺼짐';
+      btnToggleBgm.className = `px-3.5 py-1.5 rounded-full text-xs font-bold border min-w-[72px] ${
+        state.bgmEnabled ? 'bg-emerald-500/30 text-emerald-100 border-emerald-400/60' : 'bg-slate-700 text-slate-200 border-white/15'
+      }`;
+    }
+    if (btnToggleSfx) {
+      btnToggleSfx.textContent = state.sfxEnabled ? '켜짐' : '꺼짐';
+      btnToggleSfx.className = `px-3.5 py-1.5 rounded-full text-xs font-bold border min-w-[72px] ${
+        state.sfxEnabled ? 'bg-emerald-500/30 text-emerald-100 border-emerald-400/60' : 'bg-slate-700 text-slate-200 border-white/15'
+      }`;
+    }
+    if (btnHeaderSound) {
+      btnHeaderSound.textContent = (state.bgmEnabled || state.sfxEnabled) ? '🔊' : '🔇';
     }
   }
 
@@ -3876,58 +4612,185 @@
   document.getElementById('btn-close-settings').addEventListener('click', () => settingsDrawer.classList.remove('open'));
   settingsDrawer.addEventListener('click', (e) => { if (e.target === settingsDrawer) settingsDrawer.classList.remove('open'); });
 
-  btnToggleLiveApi.addEventListener('click', () => {
-    if (!state.apiBaseUrl && location.protocol.startsWith('http') && !location.hostname.includes('googleusercontent')) {
-      state.apiBaseUrl = location.origin;
-    }
-    if (!state.liveApiEnabled && !state.apiBaseUrl) {
-      showToast('Render 배포 주소에서 접속하면 Gemini AI가 자동 연결됩니다');
-      return;
-    }
-    state.liveApiEnabled = !state.liveApiEnabled;
+  btnToggleBgm.addEventListener('click', () => {
+    state.bgmEnabled = !state.bgmEnabled;
+    if (state.bgmEnabled) startAmbientBGM(); else stopAmbientBGM();
     syncSettingsUI();
-    showToast(state.liveApiEnabled ? 'Gemini AI + DB 연동이 켜졌습니다 ✨' : '데모 모드로 전환되었습니다');
+    showToast(state.bgmEnabled ? '배경음이 켜졌습니다 🎵' : '배경음이 꺼졌습니다');
   });
 
-  document.getElementById('btn-test-api').addEventListener('click', async () => {
-    const url = (state.apiBaseUrl || (location.protocol.startsWith('http') && !location.hostname.includes('googleusercontent') ? location.origin : '')).replace(/\/$/, '');
-    if (!url) { showToast('미리보기 환경입니다 (Render 주소에서 자동 연결됨)'); return; }
-    state.apiBaseUrl = url;
-    try {
-      const r = await fetch(`${url}/api/health`);
-      const d = await r.json();
-      state.liveApiEnabled = true;
-      syncSettingsUI();
-      showToast(`연결 정상! Gemini AI: ${d.gemini_ready ? '준비됨 ✓' : '키 필요'} · DB: ${d.db}`);
-    } catch (err) {
-      showToast('서버 응답이 없습니다 (잠시 후 다시 시도해 주세요)');
+  btnToggleSfx.addEventListener('click', () => {
+    state.sfxEnabled = !state.sfxEnabled;
+    state.soundEnabled = state.sfxEnabled;
+    syncSettingsUI();
+    if (state.sfxEnabled) playChimeSound(680);
+    showToast(state.sfxEnabled ? '효과음이 켜졌습니다 🔔' : '효과음이 꺼졌습니다');
+  });
+
+  // ---- SOCIAL LOGIN (GOOGLE / KAKAO) & MY DB FORTUNE HISTORY ----
+  const authDrawer = document.getElementById('auth-drawer');
+  const authBtnLabel = document.getElementById('auth-btn-label');
+  const authBtnIcon = document.getElementById('auth-btn-icon');
+  const authDrawerTitle = document.getElementById('auth-drawer-title');
+  const authLoggedOut = document.getElementById('auth-logged-out');
+  const authLoggedIn = document.getElementById('auth-logged-in');
+  const authUserName = document.getElementById('auth-user-name');
+  const authUserProvider = document.getElementById('auth-user-provider');
+  const authUserAvatar = document.getElementById('auth-user-avatar');
+  const userHistoryList = document.getElementById('user-history-list');
+
+  function applyLoggedInUser(user) {
+    state.currentUser = user;
+    if (user) {
+      state.userName = user.name;
+      try { localStorage.setItem('fortune_shop_user', JSON.stringify(user)); } catch (e) {}
+      try {
+        const cached = JSON.parse(localStorage.getItem(`fortune_shop_history_${user.id}`) || '[]');
+        if (Array.isArray(cached)) state.localHistory = cached;
+      } catch (e) {}
+      const sajuNameInp = document.getElementById('saju-name');
+      if (sajuNameInp && !sajuNameInp.value.trim()) sajuNameInp.value = user.name;
+      authBtnIcon.textContent = user.provider === 'kakao' ? '💛' : '🔵';
+      authBtnLabel.textContent = `${user.name.slice(0, 5)} · 기록`;
+      authDrawerTitle.textContent = '📜 내 계정 & 운세 기록';
+      authLoggedOut.classList.add('hidden');
+      authLoggedIn.classList.remove('hidden');
+      authUserName.textContent = user.name;
+      authUserProvider.textContent = user.provider === 'kakao' ? '카카오톡 계정 연동됨' : 'Google 계정 연동됨';
+      authUserAvatar.textContent = user.name.slice(0, 1);
+      loadMyFortuneHistory();
+    } else {
+      try { localStorage.removeItem('fortune_shop_user'); } catch (e) {}
+      authBtnIcon.textContent = '👤';
+      authBtnLabel.textContent = '로그인';
+      authDrawerTitle.textContent = '👤 운명상점 로그인';
+      authLoggedOut.classList.remove('hidden');
+      authLoggedIn.classList.add('hidden');
     }
-  });
+  }
 
-  document.getElementById('btn-view-db-history').addEventListener('click', async () => {
-    dbHistoryBox.classList.remove('hidden');
-    let items = state.localHistory;
+  async function loadMyFortuneHistory() {
+    if (!state.currentUser) return;
+    userHistoryList.innerHTML = '<div class="text-center text-xs text-slate-400 py-4">저장된 운세 기록을 불러오는 중…</div>';
+    let items = [...state.localHistory];
     if (state.liveApiEnabled && state.apiBaseUrl) {
       try {
-        const r = await fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/history`);
-        const d = await r.json();
-        if (d.items) items = d.items;
+        const r = await fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/history?user_id=${encodeURIComponent(state.currentUser.id)}`);
+        if (r.ok) {
+          const d = await r.json();
+          if (Array.isArray(d.items) && d.items.length) items = d.items;
+        }
       } catch (e) {}
     }
     if (!items.length) {
-      dbHistoryBox.innerHTML = '<div class="text-slate-400 text-center py-2">아직 저장된 운세 기록이 없습니다.</div>';
+      userHistoryList.innerHTML = '<div class="text-center text-xs text-slate-400 py-6 bg-white/5 rounded-xl border border-white/10">아직 저장된 운세 기록이 없어요.<br>사주·타로·관상을 보시면 여기에 자동 저장됩니다.</div>';
       return;
     }
-    dbHistoryBox.innerHTML = items.slice(0, 10).map(it => `
-      <div class="p-2 rounded-lg bg-white/5 border border-white/10">
-        <div class="flex justify-between text-amber-200 font-semibold">
-          <span>[${it.category}] ${it.user_name || '방문자'}</span>
-          <span class="text-slate-400 font-normal">${it.created_at || ''}</span>
+    userHistoryList.innerHTML = items.map((it, idx) => `
+      <button type="button" data-hist-idx="${idx}" class="hist-item-btn w-full text-left p-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#e6c67c]/45 transition">
+        <div class="flex items-center justify-between text-[11px] mb-1">
+          <span class="font-bold text-[#fae6b8]">[${it.category}] ${it.user_name || state.currentUser.name}</span>
+          <span class="text-[10px] text-slate-400">${(it.created_at || '').replace('T', ' ').slice(0, 16)}</span>
         </div>
-        <div class="text-slate-200 mt-0.5 truncate">${it.result_summary || it.input_summary}</div>
-      </div>
+        <div class="text-[11px] text-slate-300 truncate">${it.input_summary || ''}</div>
+        <div class="text-[11px] text-amber-100/80 line-clamp-2 mt-0.5">${it.result_summary || ''}</div>
+      </button>
     `).join('');
+
+    userHistoryList.querySelectorAll('.hist-item-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const rec = items[parseInt(btn.dataset.histIdx, 10)];
+        if (!rec) return;
+        authDrawer.classList.remove('open');
+        openModal(`저장된 운세 기록 · ${rec.category}`, `${rec.user_name || state.currentUser.name}님의 지난 풀이`, `
+          <div class="text-xs text-slate-400 bg-white/5 rounded-xl p-2.5 border border-white/10">
+            <div><strong class="text-amber-200">조회 일시:</strong> ${(rec.created_at || '').replace('T', ' ')}</div>
+            <div class="mt-0.5"><strong class="text-amber-200">입력 정보:</strong> ${rec.input_summary || '-'}</div>
+          </div>
+          <div class="bg-[#154d48]/25 border border-[#e6c67c]/35 rounded-xl p-3.5 text-xs text-slate-100 leading-relaxed whitespace-pre-line">
+            ${rec.full_content || rec.result_summary || ''}
+          </div>
+        `);
+      });
+    });
+  }
+
+  async function handleSocialLogin(provider) {
+    const customName = (document.getElementById('auth-demo-name')?.value || '').trim();
+    if (state.liveApiEnabled && state.apiBaseUrl) {
+      const base = state.apiBaseUrl.replace(/\/$/, '');
+      try {
+        const cfgR = await fetch(`${base}/api/auth/config`);
+        if (cfgR.ok) {
+          const cfg = await cfgR.json();
+          if ((provider === 'google' && cfg.google_ready) || (provider === 'kakao' && cfg.kakao_ready)) {
+            window.location.href = `${base}/api/auth/${provider}`;
+            return;
+          }
+        }
+        const demoR = await fetch(`${base}/api/auth/demo`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ provider, name: customName })
+        });
+        if (demoR.ok) {
+          const d = await demoR.json();
+          if (d.user) {
+            applyLoggedInUser(d.user);
+            showToast(`${d.user.name}님 환영해요! 운세 기록이 DB에 저장됩니다 ✨`);
+            return;
+          }
+        }
+      } catch (e) {}
+    }
+    // Instant preview login in Canvas or offline
+    const fallbackName = customName || (provider === 'kakao' ? '카카오 여행자' : '구글 여행자');
+    const localUser = {
+      id: `${provider}_${fallbackName}`,
+      provider,
+      name: fallbackName,
+      email: ''
+    };
+    applyLoggedInUser(localUser);
+    showToast(`${fallbackName}님으로 로그인되었어요 ✨`);
+  }
+
+  document.getElementById('btn-open-auth').addEventListener('click', () => {
+    if (state.currentUser) loadMyFortuneHistory();
+    authDrawer.classList.add('open');
   });
+  document.getElementById('btn-close-auth').addEventListener('click', () => authDrawer.classList.remove('open'));
+  authDrawer.addEventListener('click', (e) => { if (e.target === authDrawer) authDrawer.classList.remove('open'); });
+  document.getElementById('btn-login-google').addEventListener('click', () => handleSocialLogin('google'));
+  document.getElementById('btn-login-kakao').addEventListener('click', () => handleSocialLogin('kakao'));
+  document.getElementById('btn-logout').addEventListener('click', () => {
+    applyLoggedInUser(null);
+    showToast('로그아웃되었습니다');
+  });
+  document.getElementById('btn-refresh-my-history').addEventListener('click', loadMyFortuneHistory);
+
+  async function restoreSessionOnBoot() {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('auth_token');
+    if (token && state.apiBaseUrl) {
+      try {
+        const r = await fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/auth/me?token=${encodeURIComponent(token)}`);
+        if (r.ok) {
+          const d = await r.json();
+          if (d.user) {
+            applyLoggedInUser(d.user);
+            window.history.replaceState({}, document.title, window.location.pathname);
+            showToast(`${d.user.name}님 환영합니다 ✨`);
+            return;
+          }
+        }
+      } catch (e) {}
+    }
+    try {
+      const saved = JSON.parse(localStorage.getItem('fortune_shop_user') || 'null');
+      if (saved && saved.id) applyLoggedInUser(saved);
+    } catch (e) {}
+  }
 
   /* ==================== INIT ==================== */
   window.addEventListener('resize', resizeThree);
@@ -3938,6 +4801,8 @@
     state.apiBaseUrl = location.origin;
     state.liveApiEnabled = true;
 }
+  restoreSessionOnBoot();
+  syncSettingsUI();
   initThreeScene();
   initOrb3D();
   goToCharacter(0, true);

@@ -1,14 +1,16 @@
 """
-운명상점 (Fortune Shop) MVP — FastAPI + SQLite DB + Google Gemini API (All 7 Fortunes + Chat + Vision + AI Spouse Portrait)
+운명상점 (Fortune Shop) MVP — FastAPI + SQLite DB + Google/Kakao OAuth + Gemini AI
 """
 import os
 import json
+import uuid
+import urllib.parse
 import sqlite3
 import datetime
 from typing import Optional
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from pydantic import BaseModel
 import httpx
 
@@ -17,7 +19,13 @@ GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
 DEFAULT_GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite")
 GEMINI_IMAGE_MODEL = os.environ.get("GEMINI_IMAGE_MODEL", "gemini-2.5-flash-image")
 
-app = FastAPI(title="운명상점 MVP API (Gemini + SQLite)")
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "").strip()
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "").strip()
+KAKAO_REST_API_KEY = os.environ.get("KAKAO_REST_API_KEY", "").strip()
+KAKAO_CLIENT_SECRET = os.environ.get("KAKAO_CLIENT_SECRET", "").strip()
+APP_BASE_URL = os.environ.get("APP_BASE_URL", "").strip().rstrip("/")
+
+app = FastAPI(title="운명상점 MVP API (Gemini + SQLite + Social Auth)")
 
 app.add_middleware(
     CORSMiddleware,
@@ -45,36 +53,84 @@ def get_db():
 def init_db():
     conn = get_db()
     conn.executescript("""
+        CREATE TABLE IF NOT EXISTS users (
+            id TEXT PRIMARY KEY,
+            provider TEXT NOT NULL,
+            provider_id TEXT NOT NULL,
+            name TEXT NOT NULL,
+            email TEXT,
+            avatar_url TEXT,
+            session_token TEXT UNIQUE,
+            created_at TEXT NOT NULL,
+            UNIQUE(provider, provider_id)
+        );
         CREATE TABLE IF NOT EXISTS fortune_history (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT,
             category TEXT NOT NULL,
             user_name TEXT,
             input_summary TEXT,
             result_summary TEXT,
+            full_content TEXT,
             score INTEGER,
             created_at TEXT NOT NULL
         );
         CREATE TABLE IF NOT EXISTS chat_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT,
             character_id TEXT NOT NULL,
             role TEXT NOT NULL,
             content TEXT NOT NULL,
             created_at TEXT NOT NULL
         );
     """)
+    # Safe column migration for existing SQLite DBs
+    cols = [r["name"] for r in conn.execute("PRAGMA table_info(fortune_history)").fetchall()]
+    if "user_id" not in cols:
+        conn.execute("ALTER TABLE fortune_history ADD COLUMN user_id TEXT")
+    if "full_content" not in cols:
+        conn.execute("ALTER TABLE fortune_history ADD COLUMN full_content TEXT")
     conn.commit()
     conn.close()
 
 init_db()
 
+def upsert_user(provider: str, provider_id: str, name: str, email: str = "", avatar_url: str = ""):
+    conn = get_db()
+    row = conn.execute(
+        "SELECT * FROM users WHERE provider = ? AND provider_id = ?",
+        (provider, provider_id)
+    ).fetchone()
+    token = uuid.uuid4().hex
+    now = datetime.datetime.now().isoformat(timespec="seconds")
+    if row:
+        conn.execute(
+            "UPDATE users SET name = ?, email = ?, avatar_url = ?, session_token = ? WHERE id = ?",
+            (name, email, avatar_url, token, row["id"])
+        )
+        uid = row["id"]
+    else:
+        uid = f"{provider}_{uuid.uuid4().hex[:12]}"
+        conn.execute(
+            "INSERT INTO users (id, provider, provider_id, name, email, avatar_url, session_token, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (uid, provider, provider_id, name, email, avatar_url, token, now)
+        )
+    conn.commit()
+    user = dict(conn.execute("SELECT id, provider, name, email, avatar_url, session_token FROM users WHERE id = ?", (uid,)).fetchone())
+    conn.close()
+    return user
+
 class HistoryRecord(BaseModel):
+    user_id: Optional[str] = None
     category: str
     user_name: Optional[str] = "방문자"
     input_summary: str
     result_summary: str
+    full_content: Optional[str] = ""
     score: Optional[int] = None
 
 class FortuneRequest(BaseModel):
+    user_id: Optional[str] = None
     character_id: str
     category: str
     user_name: Optional[str] = "방문자"
@@ -82,11 +138,13 @@ class FortuneRequest(BaseModel):
     question: Optional[str] = ""
 
 class ChatRequest(BaseModel):
+    user_id: Optional[str] = None
     character_id: str
     message: str
     user_name: Optional[str] = "방문자"
 
 class VisionRequest(BaseModel):
+    user_id: Optional[str] = None
     character_id: str
     image_base64: str
     user_name: Optional[str] = "방문자"
@@ -96,6 +154,10 @@ class VisionRequest(BaseModel):
 class SpousePortraitRequest(BaseModel):
     prompt: str
     spouse_gender: Optional[str] = "M"
+
+class DemoAuthRequest(BaseModel):
+    provider: str
+    name: Optional[str] = ""
 
 async def call_gemini(system_prompt: str, user_parts: list, max_tokens: int = 750):
     api_key = os.environ.get("GEMINI_API_KEY", GEMINI_API_KEY).strip()
@@ -125,8 +187,104 @@ async def health():
         "status": "ok",
         "db": "sqlite",
         "gemini_ready": bool(api_key),
+        "google_oauth_ready": bool(os.environ.get("GOOGLE_CLIENT_ID", GOOGLE_CLIENT_ID) and os.environ.get("GOOGLE_CLIENT_SECRET", GOOGLE_CLIENT_SECRET)),
+        "kakao_oauth_ready": bool(os.environ.get("KAKAO_REST_API_KEY", KAKAO_REST_API_KEY)),
         "model": os.environ.get("GEMINI_MODEL", DEFAULT_GEMINI_MODEL)
     }
+
+@app.get("/api/auth/config")
+def auth_config():
+    return {
+        "google_ready": bool(os.environ.get("GOOGLE_CLIENT_ID", GOOGLE_CLIENT_ID) and os.environ.get("GOOGLE_CLIENT_SECRET", GOOGLE_CLIENT_SECRET)),
+        "kakao_ready": bool(os.environ.get("KAKAO_REST_API_KEY", KAKAO_REST_API_KEY)),
+    }
+
+@app.get("/api/auth/google")
+def auth_google_start():
+    cid = os.environ.get("GOOGLE_CLIENT_ID", GOOGLE_CLIENT_ID).strip()
+    base = os.environ.get("APP_BASE_URL", APP_BASE_URL).strip().rstrip("/") or "https://store-of-destiny-project.onrender.com"
+    if not cid:
+        raise HTTPException(status_code=503, detail="GOOGLE_CLIENT_ID 환경변수가 설정되지 않았습니다.")
+    redirect_uri = f"{base}/api/auth/google/callback"
+    params = urllib.parse.urlencode({
+        "client_id": cid,
+        "redirect_uri": redirect_uri,
+        "response_type": "code",
+        "scope": "openid email profile",
+        "access_type": "online",
+        "prompt": "select_account"
+    })
+    return RedirectResponse(f"https://accounts.google.com/o/oauth2/v2/auth?{params}")
+
+@app.get("/api/auth/google/callback")
+async def auth_google_callback(code: str = Query(...)):
+    cid = os.environ.get("GOOGLE_CLIENT_ID", GOOGLE_CLIENT_ID).strip()
+    csec = os.environ.get("GOOGLE_CLIENT_SECRET", GOOGLE_CLIENT_SECRET).strip()
+    base = os.environ.get("APP_BASE_URL", APP_BASE_URL).strip().rstrip("/") or "https://store-of-destiny-project.onrender.com"
+    redirect_uri = f"{base}/api/auth/google/callback"
+    async with httpx.AsyncClient(timeout=20.0) as client:
+        tok_r = await client.post("https://oauth2.googleapis.com/token", data={
+            "code": code, "client_id": cid, "client_secret": csec,
+            "redirect_uri": redirect_uri, "grant_type": "authorization_code"
+        })
+        tok_r.raise_for_status()
+        access_token = tok_r.json().get("access_token")
+        me_r = await client.get("https://www.googleapis.com/oauth2/v2/userinfo", headers={"Authorization": f"Bearer {access_token}"})
+        me_r.raise_for_status()
+        info = me_r.json()
+    user = upsert_user("google", str(info.get("id")), info.get("name") or "Google 사용자", info.get("email") or "", info.get("picture") or "")
+    return RedirectResponse(f"/?auth_token={user['session_token']}")
+
+@app.get("/api/auth/kakao")
+def auth_kakao_start():
+    key = os.environ.get("KAKAO_REST_API_KEY", KAKAO_REST_API_KEY).strip()
+    base = os.environ.get("APP_BASE_URL", APP_BASE_URL).strip().rstrip("/") or "https://store-of-destiny-project.onrender.com"
+    if not key:
+        raise HTTPException(status_code=503, detail="KAKAO_REST_API_KEY 환경변수가 설정되지 않았습니다.")
+    redirect_uri = f"{base}/api/auth/kakao/callback"
+    params = urllib.parse.urlencode({
+        "client_id": key,
+        "redirect_uri": redirect_uri,
+        "response_type": "code"
+    })
+    return RedirectResponse(f"https://kauth.kakao.com/oauth/authorize?{params}")
+
+@app.get("/api/auth/kakao/callback")
+async def auth_kakao_callback(code: str = Query(...)):
+    key = os.environ.get("KAKAO_REST_API_KEY", KAKAO_REST_API_KEY).strip()
+    sec = os.environ.get("KAKAO_CLIENT_SECRET", KAKAO_CLIENT_SECRET).strip()
+    base = os.environ.get("APP_BASE_URL", APP_BASE_URL).strip().rstrip("/") or "https://store-of-destiny-project.onrender.com"
+    redirect_uri = f"{base}/api/auth/kakao/callback"
+    data = {"grant_type": "authorization_code", "client_id": key, "redirect_uri": redirect_uri, "code": code}
+    if sec:
+        data["client_secret"] = sec
+    async with httpx.AsyncClient(timeout=20.0) as client:
+        tok_r = await client.post("https://kauth.kakao.com/oauth/token", data=data)
+        tok_r.raise_for_status()
+        access_token = tok_r.json().get("access_token")
+        me_r = await client.get("https://kapi.kakao.com/v2/user/me", headers={"Authorization": f"Bearer {access_token}"})
+        me_r.raise_for_status()
+        info = me_r.json()
+    acc = info.get("kakao_account") or {}
+    prof = acc.get("profile") or {}
+    user = upsert_user("kakao", str(info.get("id")), prof.get("nickname") or "카카오 사용자", acc.get("email") or "", prof.get("thumbnail_image_url") or "")
+    return RedirectResponse(f"/?auth_token={user['session_token']}")
+
+@app.post("/api/auth/demo")
+def auth_demo(req: DemoAuthRequest):
+    prov = "kakao" if req.provider == "kakao" else "google"
+    clean_name = (req.name or "").strip() or ("카카오 여행자" if prov == "kakao" else "구글 여행자")
+    user = upsert_user(prov, f"demo_{clean_name}", clean_name, "", "")
+    return {"user": user}
+
+@app.get("/api/auth/me")
+def auth_me(token: str = Query(...)):
+    conn = get_db()
+    row = conn.execute("SELECT id, provider, name, email, avatar_url, session_token FROM users WHERE session_token = ?", (token,)).fetchone()
+    conn.close()
+    if not row:
+        raise HTTPException(status_code=401, detail="유효하지 않은 로그인 세션입니다.")
+    return {"user": dict(row)}
 
 @app.post("/api/fortune")
 async def generate_fortune(req: FortuneRequest):
@@ -141,8 +299,8 @@ async def generate_fortune(req: FortuneRequest):
 
     conn = get_db()
     conn.execute(
-        "INSERT INTO fortune_history (category, user_name, input_summary, result_summary, score, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-        (req.category, req.user_name, req.details[:100], reading[:180], None, datetime.datetime.now().isoformat(timespec="seconds"))
+        "INSERT INTO fortune_history (user_id, category, user_name, input_summary, result_summary, full_content, score, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        (req.user_id, req.category, req.user_name, req.details[:120], reading[:180], reading, None, datetime.datetime.now().isoformat(timespec="seconds"))
     )
     conn.commit()
     conn.close()
@@ -155,14 +313,14 @@ async def chat_with_character(req: ChatRequest):
 
     conn = get_db()
     now = datetime.datetime.now().isoformat(timespec="seconds")
-    conn.execute("INSERT INTO chat_logs (character_id, role, content, created_at) VALUES (?, 'user', ?, ?)", (req.character_id, req.message, now))
+    conn.execute("INSERT INTO chat_logs (user_id, character_id, role, content, created_at) VALUES (?, ?, 'user', ?, ?)", (req.user_id, req.character_id, req.message, now))
     recent = conn.execute("SELECT role, content FROM chat_logs WHERE character_id = ? ORDER BY id DESC LIMIT 6", (req.character_id,)).fetchall()
     conn.commit()
 
     history_text = "\n".join(f"{'사용자' if r['role']=='user' else '상담사'}: {r['content']}" for r in reversed(recent))
     reply, model_name = await call_gemini(sys_prompt, [{"text": f"사용자 이름: {req.user_name}\n\n[최근 대화]\n{history_text}"}], max_tokens=450)
 
-    conn.execute("INSERT INTO chat_logs (character_id, role, content, created_at) VALUES (?, 'assistant', ?, ?)", (req.character_id, reply, datetime.datetime.now().isoformat(timespec="seconds")))
+    conn.execute("INSERT INTO chat_logs (user_id, character_id, role, content, created_at) VALUES (?, ?, 'assistant', ?, ?)", (req.user_id, req.character_id, reply, datetime.datetime.now().isoformat(timespec="seconds")))
     conn.commit()
     conn.close()
     return {"reply": reply, "model": model_name}
@@ -218,10 +376,11 @@ async def analyze_vision(req: VisionRequest):
         except Exception:
             face_type = "맑고 복된 귀인상"
 
+    full_txt = f"[{face_type}]\n{analysis}\n\n[미래 배우자 인상]\n{spouse_desc}" if is_face else analysis
     conn = get_db()
     conn.execute(
-        "INSERT INTO fortune_history (category, user_name, input_summary, result_summary, score, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-        ("관상" if is_face else "손금", req.user_name, req.question or "사진 업로드 분석", analysis[:180], 93, datetime.datetime.now().isoformat(timespec="seconds"))
+        "INSERT INTO fortune_history (user_id, category, user_name, input_summary, result_summary, full_content, score, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        (req.user_id, "관상" if is_face else "손금", req.user_name, req.question or "사진 업로드 분석", analysis[:180], full_txt, 93, datetime.datetime.now().isoformat(timespec="seconds"))
     )
     conn.commit()
     conn.close()
@@ -264,20 +423,26 @@ def save_history(rec: HistoryRecord):
     conn = get_db()
     now = datetime.datetime.now().isoformat(timespec="seconds")
     conn.execute(
-        "INSERT INTO fortune_history (category, user_name, input_summary, result_summary, score, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-        (rec.category, rec.user_name, rec.input_summary, rec.result_summary, rec.score, now)
+        "INSERT INTO fortune_history (user_id, category, user_name, input_summary, result_summary, full_content, score, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        (rec.user_id, rec.category, rec.user_name, rec.input_summary, rec.result_summary, rec.full_content or rec.result_summary, rec.score, now)
     )
     conn.commit()
     conn.close()
     return {"saved": True, "created_at": now}
 
 @app.get("/api/history")
-def list_history(limit: int = 20):
+def list_history(user_id: Optional[str] = None, limit: int = 30):
     conn = get_db()
-    rows = conn.execute(
-        "SELECT id, category, user_name, input_summary, result_summary, score, created_at FROM fortune_history ORDER BY id DESC LIMIT ?",
-        (limit,)
-    ).fetchall()
+    if user_id:
+        rows = conn.execute(
+            "SELECT id, user_id, category, user_name, input_summary, result_summary, full_content, score, created_at FROM fortune_history WHERE user_id = ? ORDER BY id DESC LIMIT ?",
+            (user_id, limit)
+        ).fetchall()
+    else:
+        rows = conn.execute(
+            "SELECT id, user_id, category, user_name, input_summary, result_summary, full_content, score, created_at FROM fortune_history ORDER BY id DESC LIMIT ?",
+            (limit,)
+        ).fetchall()
     conn.close()
     return {"items": [dict(r) for r in rows]}
 
