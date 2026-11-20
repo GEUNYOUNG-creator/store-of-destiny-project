@@ -854,6 +854,84 @@
       fill: none; stroke-width: 2.6; stroke-linecap: round;
       filter: drop-shadow(0 0 4px rgba(0,0,0,0.9));
     }
+  
+    /* Observatory Telescope Night Sky Viewport */
+    .telescope-lens {
+      position: relative;
+      width: 266px;
+      height: 266px;
+      margin: 0 auto;
+      border-radius: 50%;
+      overflow: hidden;
+      background: radial-gradient(circle at 45% 40%, #152554 0%, #09112b 62%, #030612 100%);
+      border: 4px solid #d4af5a;
+      box-shadow:
+        0 0 0 2px rgba(255, 232, 168, 0.35),
+        0 0 26px rgba(139, 92, 246, 0.45),
+        inset 0 0 38px rgba(0, 0, 0, 0.85);
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+    .telescope-lens:active { cursor: grabbing; }
+    .telescope-sky {
+      position: absolute;
+      width: 720px;
+      height: 460px;
+      left: 0;
+      top: 0;
+      will-change: transform;
+      transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .telescope-sky.dragging { transition: none; }
+    .telescope-reticle {
+      pointer-events: none;
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: radial-gradient(circle, transparent 58%, rgba(2, 4, 14, 0.65) 100%);
+    }
+    .telescope-reticle::before, .telescope-reticle::after {
+      content: '';
+      position: absolute;
+      background: rgba(246, 211, 128, 0.25);
+    }
+    .telescope-reticle::before { left: 50%; top: 10px; bottom: 10px; width: 1px; transform: translateX(-50%); }
+    .telescope-reticle::after { top: 50%; left: 10px; right: 10px; height: 1px; transform: translateY(-50%); }
+    .constellation-node {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4px 6px;
+      border-radius: 12px;
+      transition: transform 0.25s ease, filter 0.25s ease;
+    }
+    .constellation-node:hover { transform: translate(-50%, -50%) scale(1.1); }
+    .constellation-node.active {
+      transform: translate(-50%, -50%) scale(1.14);
+      filter: drop-shadow(0 0 10px rgba(253, 224, 71, 0.9));
+    }
+    .constellation-label {
+      margin-top: 2px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: rgba(10, 16, 40, 0.82);
+      border: 1px solid rgba(253, 224, 71, 0.45);
+      color: #fef3c7;
+      font-size: 9.5px;
+      font-weight: 700;
+      white-space: nowrap;
+      line-height: 1.25;
+    }
+    .constellation-node.active .constellation-label {
+      background: linear-gradient(90deg, rgba(139, 92, 246, 0.92), rgba(217, 119, 6, 0.92));
+      border-color: #fde68a;
+      color: #ffffff;
+    }
+
   </style>
 </head>
 <body>
@@ -1174,37 +1252,56 @@
           <span class="spiral-ring"></span><span class="spiral-ring"></span>
         </div>
 
-        <div class="flex items-center justify-between mb-1">
+        <div class="flex items-center justify-between mb-2">
           <h2 class="font-serif-kr text-[16px] font-extrabold text-[#47162c]">🦇 혈액형 비밀 다이어리</h2>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-700 border border-rose-400/40">Blood Type ♥</span>
-        </div>
-        <p class="text-[11px] text-[#7c435c] mb-2.5">두 사람의 혈액형 스탬프를 꾹 눌러 케미를 확인해 봐!</p>
-
-        <div class="grid grid-cols-2 gap-2.5 mb-3">
-          <div class="bg-white/75 rounded-xl p-2 border border-pink-300/70">
-            <div class="text-[10.5px] text-rose-700 mb-1.5 font-bold text-center">♥ 나의 혈액형</div>
-            <div class="grid grid-cols-2 gap-1.5" id="blood-me-group">
-              <button type="button" data-blood-me="A" class="blood-me-btn py-1.5 rounded-lg text-xs font-extrabold border-2 border-rose-500 bg-rose-500 text-white shadow-sm">A형</button>
-              <button type="button" data-blood-me="B" class="blood-me-btn py-1.5 rounded-lg text-xs font-bold border border-pink-300 bg-pink-50 text-rose-900">B형</button>
-              <button type="button" data-blood-me="O" class="blood-me-btn py-1.5 rounded-lg text-xs font-bold border border-pink-300 bg-pink-50 text-rose-900">O형</button>
-              <button type="button" data-blood-me="AB" class="blood-me-btn py-1.5 rounded-lg text-xs font-bold border border-pink-300 bg-pink-50 text-rose-900">AB형</button>
-            </div>
-          </div>
-          <div class="bg-white/75 rounded-xl p-2 border border-pink-300/70">
-            <div class="text-[10.5px] text-rose-700 mb-1.5 font-bold text-center">🦇 상대 혈액형</div>
-            <div class="grid grid-cols-2 gap-1.5" id="blood-you-group">
-              <button type="button" data-blood-you="A" class="blood-you-btn py-1.5 rounded-lg text-xs font-bold border border-pink-300 bg-pink-50 text-rose-900">A형</button>
-              <button type="button" data-blood-you="B" class="blood-you-btn py-1.5 rounded-lg text-xs font-bold border border-pink-300 bg-pink-50 text-rose-900">B형</button>
-              <button type="button" data-blood-you="O" class="blood-you-btn py-1.5 rounded-lg text-xs font-extrabold border-2 border-rose-500 bg-rose-500 text-white shadow-sm">O형</button>
-              <button type="button" data-blood-you="AB" class="blood-you-btn py-1.5 rounded-lg text-xs font-bold border border-pink-300 bg-pink-50 text-rose-900">AB형</button>
-            </div>
+          <div class="flex rounded-full overflow-hidden border border-rose-400/60 bg-white/80 text-[10.5px]">
+            <button type="button" data-blood-tab="compat" class="blood-tab-btn px-2.5 py-0.5 bg-rose-600 text-white font-bold">💕 궁합</button>
+            <button type="button" data-blood-tab="guide" class="blood-tab-btn px-2.5 py-0.5 text-rose-800 font-semibold">📖 성향 도감</button>
           </div>
         </div>
 
-        <input id="blood-question" type="text" placeholder="💌 루미의 비밀노트에 적을 연애 고민 (선택)" class="char-q-input mb-2.5 bg-white/85 border border-pink-300 text-rose-950 placeholder-rose-400/80" />
-        <button id="btn-run-blood" type="button" class="w-full py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#5a1736] via-[#a32255] to-[#e0427b] text-white shadow-md active:scale-95 transition">
-          비밀 노트 AI 궁합 펼쳐보기 ♥
-        </button>
+        <div id="blood-tab-compat">
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <input id="blood-me-name" type="text" placeholder="♥ 나의 이름 (예: 지민)" class="px-2.5 py-1.5 rounded-lg text-xs bg-white/90 border border-pink-300 text-rose-950 placeholder-rose-400/80 focus:outline-none focus:border-rose-500" />
+            <input id="blood-you-name" type="text" placeholder="🦇 상대 이름 (예: 민수)" class="px-2.5 py-1.5 rounded-lg text-xs bg-white/90 border border-pink-300 text-rose-950 placeholder-rose-400/80 focus:outline-none focus:border-rose-500" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5 mb-2.5">
+            <div class="bg-white/75 rounded-xl p-2 border border-pink-300/70">
+              <div class="text-[10.5px] text-rose-700 mb-1.5 font-bold text-center">♥ 나의 혈액형</div>
+              <div class="grid grid-cols-2 gap-1.5" id="blood-me-group">
+                <button type="button" data-blood-me="A" class="blood-me-btn py-1.5 rounded-lg text-xs font-extrabold border-2 border-rose-500 bg-rose-500 text-white shadow-sm">A형</button>
+                <button type="button" data-blood-me="B" class="blood-me-btn py-1.5 rounded-lg text-xs font-bold border border-pink-300 bg-pink-50 text-rose-900">B형</button>
+                <button type="button" data-blood-me="O" class="blood-me-btn py-1.5 rounded-lg text-xs font-bold border border-pink-300 bg-pink-50 text-rose-900">O형</button>
+                <button type="button" data-blood-me="AB" class="blood-me-btn py-1.5 rounded-lg text-xs font-bold border border-pink-300 bg-pink-50 text-rose-900">AB형</button>
+              </div>
+            </div>
+            <div class="bg-white/75 rounded-xl p-2 border border-pink-300/70">
+              <div class="text-[10.5px] text-rose-700 mb-1.5 font-bold text-center">🦇 상대 혈액형</div>
+              <div class="grid grid-cols-2 gap-1.5" id="blood-you-group">
+                <button type="button" data-blood-you="A" class="blood-you-btn py-1.5 rounded-lg text-xs font-bold border border-pink-300 bg-pink-50 text-rose-900">A형</button>
+                <button type="button" data-blood-you="B" class="blood-you-btn py-1.5 rounded-lg text-xs font-bold border border-pink-300 bg-pink-50 text-rose-900">B형</button>
+                <button type="button" data-blood-you="O" class="blood-you-btn py-1.5 rounded-lg text-xs font-extrabold border-2 border-rose-500 bg-rose-500 text-white shadow-sm">O형</button>
+                <button type="button" data-blood-you="AB" class="blood-you-btn py-1.5 rounded-lg text-xs font-bold border border-pink-300 bg-pink-50 text-rose-900">AB형</button>
+              </div>
+            </div>
+          </div>
+
+          <input id="blood-question" type="text" placeholder="💌 루미의 비밀노트에 적을 연애 고민 (선택)" class="char-q-input mb-2.5 bg-white/85 border border-pink-300 text-rose-950 placeholder-rose-400/80" />
+          <button id="btn-run-blood" type="button" class="w-full py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#5a1736] via-[#a32255] to-[#e0427b] text-white shadow-md active:scale-95 transition">
+            비밀 노트 AI 궁합 펼쳐보기 ♥
+          </button>
+        </div>
+
+        <div id="blood-tab-guide" class="hidden space-y-2.5">
+          <div class="grid grid-cols-4 gap-1.5" id="blood-guide-btns">
+            <button type="button" data-bguide="A" class="blood-guide-btn py-1.5 rounded-lg text-xs font-extrabold bg-rose-600 text-white shadow-sm">A형</button>
+            <button type="button" data-bguide="B" class="blood-guide-btn py-1.5 rounded-lg text-xs font-bold bg-white/80 text-rose-900 border border-pink-300">B형</button>
+            <button type="button" data-bguide="O" class="blood-guide-btn py-1.5 rounded-lg text-xs font-bold bg-white/80 text-rose-900 border border-pink-300">O형</button>
+            <button type="button" data-bguide="AB" class="blood-guide-btn py-1.5 rounded-lg text-xs font-bold bg-white/80 text-rose-900 border border-pink-300">AB형</button>
+          </div>
+          <div id="blood-guide-card" class="rounded-xl bg-white/90 border border-pink-300/80 p-3 text-[#3c1527] text-xs space-y-1.5"></div>
+        </div>
       </div>
 
       <div id="blood-inline-result" class="rounded-2xl p-3.5 bg-white/5 border border-pink-300/30"></div>
@@ -1218,9 +1315,10 @@
             <span class="text-base">🔭</span>
             <h2 class="font-serif-kr text-base font-bold text-amber-100">스텔라의 천문 성도</h2>
           </div>
-          <div class="flex rounded-full overflow-hidden border border-amber-300/50 text-[10.5px] bg-black/35">
-            <button type="button" id="zodiac-tab-daily" class="px-2.5 py-1 bg-violet-500/70 text-white font-semibold">오늘 성좌</button>
-            <button type="button" id="zodiac-tab-match" class="px-2.5 py-1 bg-transparent text-violet-200">성좌 궁합</button>
+          <div class="flex rounded-full overflow-hidden border border-amber-300/50 text-[10px] bg-black/35">
+            <button type="button" id="zodiac-tab-daily" class="px-2 py-1 bg-violet-500/70 text-white font-semibold">오늘 성좌</button>
+            <button type="button" id="zodiac-tab-match" class="px-2 py-1 bg-transparent text-violet-200">성좌 궁합</button>
+            <button type="button" id="zodiac-tab-scope" class="px-2 py-1 bg-transparent text-amber-200">🔭 망원경</button>
           </div>
         </div>
 
@@ -1247,6 +1345,18 @@
           </div>
           <button id="btn-run-zodiac-match" type="button" class="w-full py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-fuchsia-500 to-violet-500 text-white shadow-lg border border-amber-200/40 active:scale-95 transition">
             두 성좌의 공명 점쳐보기 ✦
+          </button>
+        </div>
+
+        <div id="zodiac-scope-box" class="hidden space-y-2.5">
+          <p class="text-[11px] text-amber-100/90 text-center">별자리 지구본 어디든 잡고 360° 돌려가며 내 별자리를 터치해 보세요 🌍✨</p>
+          <div id="telescope-lens" class="telescope-lens">
+            <canvas id="zodiac-globe-canvas" width="532" height="532" class="w-full h-full block"></canvas>
+            <div class="pointer-events-none absolute bottom-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-black/75 border border-amber-300/50 text-[9.5px] font-bold text-amber-200 whitespace-nowrap" id="telescope-focus-badge">♉ 황소자리 (4/20 ~ 5/20)</div>
+          </div>
+          <div id="telescope-quick-list" class="grid grid-cols-2 gap-1.5 max-h-32 overflow-y-auto pr-0.5"></div>
+          <button id="btn-scope-run-daily" type="button" class="w-full py-2 rounded-xl font-bold text-xs bg-gradient-to-r from-indigo-500 via-violet-500 to-amber-500 text-white shadow-md border border-amber-200/50 active:scale-95 transition">
+            ✨ 선택한 별자리로 오늘의 AI 운세 보기
           </button>
         </div>
       </div>
@@ -1290,33 +1400,47 @@
     <div id="panel-4" class="char-panel hidden space-y-3 pt-2">
       <div class="mbti-clipboard-card px-4 pb-3.5">
         <div class="clipboard-clip"></div>
-        <div class="flex items-center justify-between mb-1">
+        <div class="flex items-center justify-between mb-2">
           <h2 class="font-serif-kr text-[16px] font-extrabold text-[#22304d]">📋 하린의 MBTI 상담 차트</h2>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-300">Today Check ✓</span>
-        </div>
-        <p class="text-[11px] text-slate-500 mb-2.5">각 자리 글자를 눌러 나와 상대방의 MBTI를 맞춰보세요 ♡</p>
-
-        <div class="grid grid-cols-2 gap-2.5 mb-3">
-          <div class="bg-white rounded-xl p-2 border border-slate-200 shadow-sm">
-            <div class="flex items-center justify-between mb-1.5">
-              <span class="text-[10.5px] font-bold text-slate-500">나의 유형</span>
-              <span id="mbti-me-badge" class="text-xs font-extrabold text-sky-700">INFP</span>
-            </div>
-            <div class="grid grid-cols-4 gap-1" id="mbti-me-toggles"></div>
-          </div>
-          <div class="bg-white rounded-xl p-2 border border-slate-200 shadow-sm">
-            <div class="flex items-center justify-between mb-1.5">
-              <span class="text-[10.5px] font-bold text-slate-500">상대 유형</span>
-              <span id="mbti-you-badge" class="text-xs font-extrabold text-indigo-700">ENFJ</span>
-            </div>
-            <div class="grid grid-cols-4 gap-1" id="mbti-you-toggles"></div>
+          <div class="flex rounded-full overflow-hidden border border-sky-400/70 bg-white text-[10.5px]">
+            <button type="button" data-mbti-tab="compat" class="mbti-tab-btn px-2.5 py-0.5 bg-[#3b5b92] text-white font-bold">💙 궁합</button>
+            <button type="button" data-mbti-tab="guide" class="mbti-tab-btn px-2.5 py-0.5 text-slate-700 font-semibold">📖 성향 도감</button>
           </div>
         </div>
 
-        <input id="mbti-question" type="text" placeholder="📝 하린 선생님께 털어놓고 싶은 관계 고민 (선택)" class="char-q-input mb-2.5 bg-white border border-slate-300 text-slate-800 placeholder-slate-400" />
-        <button id="btn-run-mbti" type="button" class="w-full py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#3b5b92] to-[#5678b8] text-white shadow-md active:scale-95 transition">
-          하린의 AI 심리 궁합 처방전 받기 💙
-        </button>
+        <div id="mbti-tab-compat">
+          <div class="grid grid-cols-2 gap-2 mb-2">
+            <input id="mbti-me-name" type="text" placeholder="💙 나의 이름 (예: 지민)" class="px-2.5 py-1.5 rounded-lg text-xs bg-white border border-slate-300 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500" />
+            <input id="mbti-you-name" type="text" placeholder="💜 상대 이름 (예: 민수)" class="px-2.5 py-1.5 rounded-lg text-xs bg-white border border-slate-300 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-indigo-500" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5 mb-2.5">
+            <div class="bg-white rounded-xl p-2 border border-slate-200 shadow-sm">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[10.5px] font-bold text-slate-500">나의 유형</span>
+                <span id="mbti-me-badge" class="text-xs font-extrabold text-sky-700">INFP</span>
+              </div>
+              <div class="grid grid-cols-4 gap-1" id="mbti-me-toggles"></div>
+            </div>
+            <div class="bg-white rounded-xl p-2 border border-slate-200 shadow-sm">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-[10.5px] font-bold text-slate-500">상대 유형</span>
+                <span id="mbti-you-badge" class="text-xs font-extrabold text-indigo-700">ENFJ</span>
+              </div>
+              <div class="grid grid-cols-4 gap-1" id="mbti-you-toggles"></div>
+            </div>
+          </div>
+
+          <input id="mbti-question" type="text" placeholder="📝 하린 선생님께 털어놓고 싶은 관계 고민 (선택)" class="char-q-input mb-2.5 bg-white border border-slate-300 text-slate-800 placeholder-slate-400" />
+          <button id="btn-run-mbti" type="button" class="w-full py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#3b5b92] to-[#5678b8] text-white shadow-md active:scale-95 transition">
+            하린의 AI 심리 궁합 처방전 받기 💙
+          </button>
+        </div>
+
+        <div id="mbti-tab-guide" class="hidden space-y-2.5">
+          <div id="mbti-guide-grid" class="grid grid-cols-4 gap-1.5"></div>
+          <div id="mbti-guide-card" class="rounded-xl bg-white border border-slate-200 p-3 text-slate-800 text-xs shadow-sm space-y-1.5"></div>
+        </div>
       </div>
 
       <div id="mbti-inline-result" class="rounded-2xl p-3.5 bg-white/5 border border-sky-300/30"></div>
@@ -1325,37 +1449,51 @@
     <!-- ==================== PANEL 5: FACE READING (ARIN - BRONZE MIRROR STUDY) ==================== -->
     <div id="panel-5" class="char-panel hidden space-y-3 pt-1">
       <div class="face-study-card p-3.5">
-        <div class="flex items-center justify-between mb-1">
+        <div class="flex items-center justify-between mb-2">
           <h2 class="font-serif-kr text-[16px] font-extrabold text-[#163d31]">🪞 아린의 청동거울 관상</h2>
-          <div class="flex items-center gap-1 rounded-full overflow-hidden border border-[#1b5746]/45 bg-white/75 text-[10px]">
-            <button type="button" data-spouse="M" class="spouse-gender-btn px-2 py-0.5 bg-[#1b5746] text-[#fae9c3] font-bold">남성 배우자</button>
-            <button type="button" data-spouse="F" class="spouse-gender-btn px-2 py-0.5 text-[#1e3d32] font-semibold">여성 배우자</button>
+          <div class="flex rounded-full overflow-hidden border border-[#1b5746]/55 bg-white/80 text-[10.5px]">
+            <button type="button" data-face-tab="analyze" class="face-tab-btn px-2.5 py-0.5 bg-[#1b5746] text-[#fae9c3] font-bold">🪞 분석</button>
+            <button type="button" data-face-tab="guide" class="face-tab-btn px-2.5 py-0.5 text-[#1e3d32] font-semibold">📖 관상 도감</button>
           </div>
         </div>
-        <p class="text-[11px] text-[#5c503e] mb-2.5">얼굴 사진을 올리면 <strong>나의 관상 타입</strong>을 분석하고 <strong>미래 배우자 얼굴</strong>을 AI로 그려드려요</p>
 
-        <input id="input-face-upload" type="file" accept="image/*" class="hidden" />
-        <input id="input-face-camera" type="file" accept="image/*" capture="user" class="hidden" />
+        <div id="face-tab-analyze">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <p class="text-[11px] text-[#5c503e]">사진으로 <strong>나의 관상</strong> &amp; <strong>미래 배우자</strong> 분석</p>
+            <div class="flex items-center rounded-full overflow-hidden border border-[#1b5746]/45 bg-white/75 text-[10px] shrink-0">
+              <button type="button" data-spouse="M" class="spouse-gender-btn px-2 py-0.5 bg-[#1b5746] text-[#fae9c3] font-bold">남성 배우자</button>
+              <button type="button" data-spouse="F" class="spouse-gender-btn px-2 py-0.5 text-[#1e3d32] font-semibold">여성 배우자</button>
+            </div>
+          </div>
 
-        <div class="grid grid-cols-2 gap-2 mb-2.5">
-          <button id="btn-face-camera" type="button" class="py-2 rounded-xl text-xs font-bold bg-[#1b5746] text-[#f7ebd1] border border-[#c8a65a] active:scale-95 transition flex items-center justify-center gap-1.5">
-            <span>📷</span><span>카메라 바로 찍기</span>
-          </button>
-          <button id="btn-face-upload" type="button" class="py-2 rounded-xl text-xs font-bold bg-white/80 text-[#1e3d32] border border-[#2b6654]/45 active:scale-95 transition flex items-center justify-center gap-1.5">
-            <span>🖼️</span><span>사진 업로드</span>
+          <input id="input-face-upload" type="file" accept="image/*" class="hidden" />
+          <input id="input-face-camera" type="file" accept="image/*" capture="user" class="hidden" />
+
+          <div class="grid grid-cols-2 gap-2 mb-2.5">
+            <button id="btn-face-camera" type="button" class="py-2 rounded-xl text-xs font-bold bg-[#1b5746] text-[#f7ebd1] border border-[#c8a65a] active:scale-95 transition flex items-center justify-center gap-1.5">
+              <span>📷</span><span>카메라 바로 찍기</span>
+            </button>
+            <button id="btn-face-upload" type="button" class="py-2 rounded-xl text-xs font-bold bg-white/80 text-[#1e3d32] border border-[#2b6654]/45 active:scale-95 transition flex items-center justify-center gap-1.5">
+              <span>🖼️</span><span>사진 업로드</span>
+            </button>
+          </div>
+
+          <div id="face-preview-wrap" class="hidden mb-2.5 relative rounded-xl overflow-hidden border-2 border-[#c8a65a] bg-black/20 h-32 flex items-center justify-center">
+            <img id="face-preview-img" src="" alt="업로드된 얼굴 사진" class="h-full w-full object-cover" />
+            <span class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded-full bg-black/70 text-[10px] text-amber-200">사진 준비됨 ✓</span>
+          </div>
+
+          <input id="face-question" type="text" placeholder="궁금한 점 (예: 올해 재물운과 인복이 궁금해요)" class="w-full mb-2.5 px-3 py-2 rounded-xl text-xs bg-white/85 border border-[#b9a57c] text-[#231e16] focus:outline-none placeholder-[#8c7b62]" />
+
+          <button id="btn-run-face" type="button" class="w-full py-2.5 rounded-xl font-serif-kr font-bold text-sm bg-gradient-to-r from-[#164a3b] to-[#246954] text-[#fae9c3] border border-[#d6b266] shadow-md active:scale-95 transition">
+            관상 분석 & 미래 배우자 얼굴 그리기 ✨
           </button>
         </div>
 
-        <div id="face-preview-wrap" class="hidden mb-2.5 relative rounded-xl overflow-hidden border-2 border-[#c8a65a] bg-black/20 h-32 flex items-center justify-center">
-          <img id="face-preview-img" src="" alt="업로드된 얼굴 사진" class="h-full w-full object-cover" />
-          <span class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded-full bg-black/70 text-[10px] text-amber-200">사진 준비됨 ✓</span>
+        <div id="face-tab-guide" class="hidden space-y-2.5">
+          <div id="face-guide-grid" class="grid grid-cols-4 gap-1.5"></div>
+          <div id="face-guide-card" class="rounded-xl bg-white/90 border border-[#c8a65a]/70 p-3 text-[#231e16] text-xs space-y-1.5"></div>
         </div>
-
-        <input id="face-question" type="text" placeholder="궁금한 점 (예: 올해 재물운과 인복이 궁금해요)" class="w-full mb-2.5 px-3 py-2 rounded-xl text-xs bg-white/85 border border-[#b9a57c] text-[#231e16] focus:outline-none placeholder-[#8c7b62]" />
-
-        <button id="btn-run-face" type="button" class="w-full py-2.5 rounded-xl font-serif-kr font-bold text-sm bg-gradient-to-r from-[#164a3b] to-[#246954] text-[#fae9c3] border border-[#d6b266] shadow-md active:scale-95 transition">
-          관상 분석 & 미래 배우자 얼굴 그리기 ✨
-        </button>
       </div>
 
       <div id="face-inline-result" class="rounded-2xl p-3.5 bg-white/5 border border-emerald-300/30 text-xs text-emerald-100/85 text-center">
@@ -1366,49 +1504,63 @@
     <!-- ==================== PANEL 6: PALM READING (SEOYEON - GOLDEN PALM ATELIER) ==================== -->
     <div id="panel-6" class="char-panel hidden space-y-3 pt-1">
       <div class="palm-atelier-card p-3.5">
-        <div class="flex items-center justify-between mb-1">
+        <div class="flex items-center justify-between mb-2">
           <h2 class="font-serif-kr text-[16px] font-bold text-teal-100">✋ 서연의 황금 손금 아틀리에</h2>
-          <div class="flex rounded-full overflow-hidden border border-amber-300/50 text-[10px] bg-black/35">
-            <button type="button" data-hand="왼손" class="palm-hand-btn px-2 py-0.5 bg-teal-500/60 text-white font-bold">왼손</button>
-            <button type="button" data-hand="오른손" class="palm-hand-btn px-2 py-0.5 bg-transparent text-teal-200">오른손</button>
-          </div>
-        </div>
-        <p class="text-[11px] text-teal-200/80 mb-2.5">손바닥 선이 잘 보이게 찍거나 업로드하면 생명·두뇌·감정·운명선을 읽어드려요</p>
-
-        <input id="input-palm-upload" type="file" accept="image/*" class="hidden" />
-        <input id="input-palm-camera" type="file" accept="image/*" capture="environment" class="hidden" />
-
-        <div class="grid grid-cols-2 gap-2 mb-2.5">
-          <button id="btn-palm-camera" type="button" class="py-2 rounded-xl text-xs font-bold bg-teal-600/80 text-white border border-amber-300/50 active:scale-95 transition flex items-center justify-center gap-1.5">
-            <span>📷</span><span>손바닥 바로 찍기</span>
-          </button>
-          <button id="btn-palm-upload" type="button" class="py-2 rounded-xl text-xs font-bold bg-white/10 text-teal-100 border border-teal-300/35 active:scale-95 transition flex items-center justify-center gap-1.5">
-            <span>🖼️</span><span>손금 사진 올리기</span>
-          </button>
-        </div>
-
-        <div id="palm-preview-wrap" class="hidden mb-2.5 relative rounded-xl overflow-hidden border-2 border-amber-300/70 bg-black/40 h-44 flex items-center justify-center">
-          <img id="palm-preview-img" src="" alt="업로드된 손바닥 사진" class="h-full w-full object-cover" />
-          <svg id="palm-guide-overlay" viewBox="0 0 200 180" class="palm-guide-svg absolute inset-0 w-full h-full pointer-events-none">
-            <path d="M 150 56 Q 112 58 64 46" stroke="#fb7185" stroke-dasharray="5 3" />
-            <path d="M 52 72 Q 102 82 146 96" stroke="#38bdf8" stroke-dasharray="5 3" />
-            <path d="M 54 74 Q 78 106 72 152" stroke="#34d399" stroke-dasharray="5 3" />
-            <path d="M 102 156 Q 100 105 104 42" stroke="#fbbf24" stroke-dasharray="4 3" />
-          </svg>
-          <button id="btn-toggle-palm-guide" type="button" class="absolute top-1.5 right-1.5 px-2 py-0.5 rounded-full bg-black/75 border border-amber-300/50 text-[10px] font-bold text-amber-200">선 가이드 ON</button>
-          <div class="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between gap-1 px-2 py-1 rounded-lg bg-black/70 text-[9.5px]">
-            <span class="text-emerald-300 font-bold">● 생명선</span>
-            <span class="text-sky-300 font-bold">● 두뇌선</span>
-            <span class="text-rose-300 font-bold">● 감정선</span>
-            <span class="text-amber-300 font-bold">● 운명선</span>
+          <div class="flex rounded-full overflow-hidden border border-amber-300/50 text-[10.5px] bg-black/35">
+            <button type="button" data-palm-tab="analyze" class="palm-tab-btn px-2.5 py-0.5 bg-teal-500/75 text-white font-bold">✋ 분석</button>
+            <button type="button" data-palm-tab="guide" class="palm-tab-btn px-2.5 py-0.5 text-teal-100 font-semibold">📖 손금 도감</button>
           </div>
         </div>
 
-        <input id="palm-question" type="text" placeholder="궁금한 점 (예: 연애선과 재물선이 궁금해요)" class="w-full mb-2.5 px-3 py-2 rounded-xl text-xs bg-black/35 border border-teal-300/35 text-white focus:outline-none placeholder-teal-200/50" />
+        <div id="palm-tab-analyze">
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <p class="text-[11px] text-teal-200/85">손바닥 사진으로 4대 손금선 정밀 분석</p>
+            <div class="flex rounded-full overflow-hidden border border-amber-300/50 text-[10px] bg-black/35 shrink-0">
+              <button type="button" data-hand="왼손" class="palm-hand-btn px-2 py-0.5 bg-teal-500/60 text-white font-bold">왼손</button>
+              <button type="button" data-hand="오른손" class="palm-hand-btn px-2 py-0.5 bg-transparent text-teal-200">오른손</button>
+            </div>
+          </div>
 
-        <button id="btn-run-palm" type="button" class="w-full py-2.5 rounded-xl font-serif-kr font-bold text-sm bg-gradient-to-r from-teal-500 to-emerald-500 text-white border border-amber-200/50 shadow-lg active:scale-95 transition">
-          황금 돋보기로 손금 읽기 ✦
-        </button>
+          <input id="input-palm-upload" type="file" accept="image/*" class="hidden" />
+          <input id="input-palm-camera" type="file" accept="image/*" capture="environment" class="hidden" />
+
+          <div class="grid grid-cols-2 gap-2 mb-2.5">
+            <button id="btn-palm-camera" type="button" class="py-2 rounded-xl text-xs font-bold bg-teal-600/80 text-white border border-amber-300/50 active:scale-95 transition flex items-center justify-center gap-1.5">
+              <span>📷</span><span>손바닥 바로 찍기</span>
+            </button>
+            <button id="btn-palm-upload" type="button" class="py-2 rounded-xl text-xs font-bold bg-white/10 text-teal-100 border border-teal-300/35 active:scale-95 transition flex items-center justify-center gap-1.5">
+              <span>🖼️</span><span>손금 사진 올리기</span>
+            </button>
+          </div>
+
+          <div id="palm-preview-wrap" class="hidden mb-2.5 relative rounded-xl overflow-hidden border-2 border-amber-300/70 bg-black/40 h-44 flex items-center justify-center">
+            <img id="palm-preview-img" src="" alt="업로드된 손바닥 사진" class="h-full w-full object-cover" />
+            <svg id="palm-guide-overlay" viewBox="0 0 200 180" class="palm-guide-svg absolute inset-0 w-full h-full pointer-events-none">
+              <path d="M 150 56 Q 112 58 64 46" stroke="#fb7185" stroke-dasharray="5 3" />
+              <path d="M 52 72 Q 102 82 146 96" stroke="#38bdf8" stroke-dasharray="5 3" />
+              <path d="M 54 74 Q 78 106 72 152" stroke="#34d399" stroke-dasharray="5 3" />
+              <path d="M 102 156 Q 100 105 104 42" stroke="#fbbf24" stroke-dasharray="4 3" />
+            </svg>
+            <button id="btn-toggle-palm-guide" type="button" class="absolute top-1.5 right-1.5 px-2 py-0.5 rounded-full bg-black/75 border border-amber-300/50 text-[10px] font-bold text-amber-200">선 가이드 ON</button>
+            <div class="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between gap-1 px-2 py-1 rounded-lg bg-black/70 text-[9.5px]">
+              <span class="text-emerald-300 font-bold">● 생명선</span>
+              <span class="text-sky-300 font-bold">● 두뇌선</span>
+              <span class="text-rose-300 font-bold">● 감정선</span>
+              <span class="text-amber-300 font-bold">● 운명선</span>
+            </div>
+          </div>
+
+          <input id="palm-question" type="text" placeholder="궁금한 점 (예: 연애선과 재물선이 궁금해요)" class="w-full mb-2.5 px-3 py-2 rounded-xl text-xs bg-black/35 border border-teal-300/35 text-white focus:outline-none placeholder-teal-200/50" />
+
+          <button id="btn-run-palm" type="button" class="w-full py-2.5 rounded-xl font-serif-kr font-bold text-sm bg-gradient-to-r from-teal-500 to-emerald-500 text-white border border-amber-200/50 shadow-lg active:scale-95 transition">
+            황금 돋보기로 손금 읽기 ✦
+          </button>
+        </div>
+
+        <div id="palm-tab-guide" class="hidden space-y-2.5">
+          <div id="palm-guide-grid" class="grid grid-cols-4 gap-1.5"></div>
+          <div id="palm-guide-card" class="rounded-xl bg-black/45 border border-amber-300/40 p-3 text-teal-50 text-xs space-y-2"></div>
+        </div>
       </div>
 
       <div id="palm-inline-result" class="rounded-2xl p-3.5 bg-white/5 border border-teal-300/30 text-xs text-teal-100/85 text-center">
@@ -2703,18 +2855,18 @@
   };
 
   const ZODIAC_LIST = [
-    { name: '양자리', symbol: '♈', dates: '3/21~4/19', el: '불', ruler: '화성', color: '루비 레드', num: '9', item: '메탈 키링', msg: '주저하던 일에 첫 발을 내딛기 좋은 날! 당신의 솔직한 추진력이 행운을 끌어당깁니다.' },
-    { name: '황소자리', symbol: '♉', dates: '4/20~5/20', el: '흙', ruler: '금성', color: '에메랄드', num: '6', item: '향수·디퓨저', msg: '오감이 즐거워지는 달콤한 하루입니다. 맛있는 식사나 작은 선물이 예상치 못한 기쁨을 가져다줍니다.' },
-    { name: '쌍둥이자리', symbol: '♊', dates: '5/21~6/21', el: '공기', ruler: '수성', color: '레몬 옐로우', num: '5', item: '이어폰', msg: '반가운 연락이나 흥미로운 소식이 들려올 예감! 가벼운 대화 속에서 빛나는 아이디어가 탄생합니다.' },
-    { name: '게자리', symbol: '♋', dates: '6/22~7/22', el: '물', ruler: '달', color: '실버 문', num: '2', item: '따뜻한 머그컵', msg: '마음이 통하는 사람과의 시간이 큰 힐링이 됩니다. 직감이 예리해지는 날이니 첫 느낌을 믿어보세요.' },
-    { name: '사자자리', symbol: '♌', dates: '7/23~8/22', el: '불', ruler: '태양', color: '골드 앰버', num: '1', item: '골드 액세서리', msg: '어디서나 주목받는 주인공의 에너지가 흐릅니다! 자신감 있게 의견을 표현하면 좋은 제안이 들어옵니다.' },
-    { name: '처녀자리', symbol: '♍', dates: '8/23~9/22', el: '흙', ruler: '수성', color: '세이지 그린', num: '4', item: '만년필·다이어리', msg: '복잡했던 일들이 깔끔하게 정리되는 개운한 하루! 꼼꼼한 준비가 기대 이상의 성과로 돌아옵니다.' },
-    { name: '천칭자리', symbol: '♎', dates: '9/23~10/22', el: '공기', ruler: '금성', color: '로즈 쿼츠', num: '7', item: '손거울', msg: '인간관계와 연애운에 부드러운 훈풍이 불어옵니다. 센스 있는 코디가 좋은 인연을 부르는 열쇠예요.' },
-    { name: '전갈자리', symbol: '♏', dates: '10/23~11/22', el: '물', ruler: '명왕성', color: '딥 바이올렛', num: '8', item: '블랙 노트', msg: '숨겨진 진실이나 핵심을 꿰뚫어 보는 집중력이 최고조에 달합니다. 깊이 몰입한 일에서 큰 보람을 얻어요.' },
-    { name: '사수자리', symbol: '♐', dates: '11/23~12/21', el: '불', ruler: '목성', color: '로열 블루', num: '3', item: '스니커즈', msg: '새로운 장소나 낯선 경험 속에 행운이 숨어 있습니다! 평소 안 가던 카페나 산책길을 걸어보세요.' },
-    { name: '염소자리', symbol: '♑', dates: '12/22~1/19', el: '흙', ruler: '토성', color: '차콜 골드', num: '10', item: '손목시계', msg: '묵묵히 쌓아온 노력이 드디어 인정받는 흐름입니다. 장기적인 목표를 한 단계 끌어올릴 절호의 타이밍!' },
-    { name: '물병자리', symbol: '♒', dates: '1/20~2/18', el: '공기', ruler: '천왕성', color: '일렉트릭 블루', num: '11', item: '스마트 기기', msg: '남들과 다른 독창적인 발상이 빛을 발합니다. 뜻이 맞는 동료나 친구와 재미있는 프로젝트가 시작될 수 있어요.' },
-    { name: '물고기자리', symbol: '♓', dates: '2/19~3/20', el: '물', ruler: '해왕성', color: '라벤더 미스트', num: '12', item: '플레이리스트', msg: '감수성과 상상력이 별빛처럼 반짝이는 날입니다. 로맨틱한 우연이나 마음을 울리는 선물을 기대해 보세요.' }
+    { name: '양자리', symbol: '♈', dates: '3/21 ~ 4/19', el: '불', ruler: '화성', color: '루비 레드', num: '9', item: '메탈 키링', msg: '주저하던 일에 첫 발을 내딛기 좋은 날! 당신의 솔직한 추진력이 행운을 끌어당깁니다.' },
+    { name: '황소자리', symbol: '♉', dates: '4/20 ~ 5/20', el: '흙', ruler: '금성', color: '에메랄드', num: '6', item: '향수·디퓨저', msg: '오감이 즐거워지는 달콤한 하루입니다. 맛있는 식사나 작은 선물이 예상치 못한 기쁨을 가져다줍니다.' },
+    { name: '쌍둥이자리', symbol: '♊', dates: '5/21 ~ 6/21', el: '공기', ruler: '수성', color: '레몬 옐로우', num: '5', item: '이어폰', msg: '반가운 연락이나 흥미로운 소식이 들려올 예감! 가벼운 대화 속에서 빛나는 아이디어가 탄생합니다.' },
+    { name: '게자리', symbol: '♋', dates: '6/22 ~ 7/22', el: '물', ruler: '달', color: '실버 문', num: '2', item: '따뜻한 머그컵', msg: '마음이 통하는 사람과의 시간이 큰 힐링이 됩니다. 직감이 예리해지는 날이니 첫 느낌을 믿어보세요.' },
+    { name: '사자자리', symbol: '♌', dates: '7/23 ~ 8/22', el: '불', ruler: '태양', color: '골드 앰버', num: '1', item: '골드 액세서리', msg: '어디서나 주목받는 주인공의 에너지가 흐릅니다! 자신감 있게 의견을 표현하면 좋은 제안이 들어옵니다.' },
+    { name: '처녀자리', symbol: '♍', dates: '8/23 ~ 9/22', el: '흙', ruler: '수성', color: '세이지 그린', num: '4', item: '만년필·다이어리', msg: '복잡했던 일들이 깔끔하게 정리되는 개운한 하루! 꼼꼼한 준비가 기대 이상의 성과로 돌아옵니다.' },
+    { name: '천칭자리', symbol: '♎', dates: '9/23 ~ 10/22', el: '공기', ruler: '금성', color: '로즈 쿼츠', num: '7', item: '손거울', msg: '인간관계와 연애운에 부드러운 훈풍이 불어옵니다. 센스 있는 코디가 좋은 인연을 부르는 열쇠예요.' },
+    { name: '전갈자리', symbol: '♏', dates: '10/23 ~ 11/22', el: '물', ruler: '명왕성', color: '딥 바이올렛', num: '8', item: '블랙 노트', msg: '숨겨진 진실이나 핵심을 꿰뚫어 보는 집중력이 최고조에 달합니다. 깊이 몰입한 일에서 큰 보람을 얻어요.' },
+    { name: '사수자리', symbol: '♐', dates: '11/23 ~ 12/21', el: '불', ruler: '목성', color: '로열 블루', num: '3', item: '스니커즈', msg: '새로운 장소나 낯선 경험 속에 행운이 숨어 있습니다! 평소 안 가던 카페나 산책길을 걸어보세요.' },
+    { name: '염소자리', symbol: '♑', dates: '12/22 ~ 1/19', el: '흙', ruler: '토성', color: '차콜 골드', num: '10', item: '손목시계', msg: '묵묵히 쌓아온 노력이 드디어 인정받는 흐름입니다. 장기적인 목표를 한 단계 끌어올릴 절호의 타이밍!' },
+    { name: '물병자리', symbol: '♒', dates: '1/20 ~ 2/18', el: '공기', ruler: '천왕성', color: '일렉트릭 블루', num: '11', item: '스마트 기기', msg: '남들과 다른 독창적인 발상이 빛을 발합니다. 뜻이 맞는 동료나 친구와 재미있는 프로젝트가 시작될 수 있어요.' },
+    { name: '물고기자리', symbol: '♓', dates: '2/19 ~ 3/20', el: '물', ruler: '해왕성', color: '라벤더 미스트', num: '12', item: '플레이리스트', msg: '감수성과 상상력이 별빛처럼 반짝이는 날입니다. 로맨틱한 우연이나 마음을 울리는 선물을 기대해 보세요.' }
   ];
 
   function getZodiacIndex(m, d) {
@@ -4111,10 +4263,78 @@
     });
   }
 
+  const BLOOD_TRAITS = {
+    A: {
+      badge: '섬세한 배려왕 · 신중한 완벽주의',
+      desc: 'A형은 세심하고 책임감이 강하며 주변 사람의 감정을 누구보다 잘 살피는 타입이에요. 겉으로는 차분하고 신중해 보이지만, 마음을 연 상대에게는 끝없는 다정함과 진심을 쏟아냅니다.',
+      love: '천천히 신뢰를 쌓아가는 진지한 연애 스타일 · 한 번 좋아하면 오래 깊게 사랑함',
+      best: 'O형 (따뜻한 리드와 완벽한 보완)'
+    },
+    B: {
+      badge: '자유로운 매력쟁이 · 솔직한 열정가',
+      desc: 'B형은 호기심이 넘치고 개성이 뚜렷하며 좋아하는 일에 무섭게 몰입하는 타입이에요. 꾸밈없이 솔직하고 유쾌해서 함께 있으면 지루할 틈이 없는 반전 매력의 소유자입니다.',
+      love: '설렘과 티키타카를 중시하는 직진 연애 스타일 · 속박보다 존중을 좋아함',
+      best: 'O형 · AB형 (자유로움을 즐겁게 받아주는 케미)'
+    },
+    O: {
+      badge: '활발한 분위기 메이커 · 든든한 리더',
+      desc: 'O형은 활발하고 사교적이며 에너지가 넘쳐 어디서나 사람들을 자연스럽게 이끄는 타입이에요. 뒤끝이 없고 쿨하며, 내 사람이라고 생각하면 아낌없이 챙겨주는 의리파입니다.',
+      love: '표현이 확실하고 다정한 직진 로맨티스트 · 상대의 기분을 환하게 밝혀줌',
+      best: 'A형 · B형 (서로의 매력을 극대화하는 환상 궁합)'
+    },
+    AB: {
+      badge: '지적인 4차원 매력 · 감각적인 전략가',
+      desc: 'AB형은 냉철한 이성과 풍부한 감성을 동시에 지닌 독창적인 타입이에요. 남들과 다른 시선으로 본질을 꿰뚫어 보며, 은근한 유머와 세련된 배려로 주변을 매료시킵니다.',
+      love: '서로의 개인 공간을 존중하면서도 대화가 깊이 통하는 지적인 연애 스타일',
+      best: 'AB형 · B형 (독특한 코드가 찰떡같이 통하는 인연)'
+    }
+  };
+
+  function renderBloodGuide(type) {
+    const t = BLOOD_TRAITS[type] || BLOOD_TRAITS.A;
+    document.querySelectorAll('.blood-guide-btn').forEach(b => {
+      const act = b.dataset.bguide === type;
+      b.className = `blood-guide-btn py-1.5 rounded-lg text-xs ${act ? 'font-extrabold bg-rose-600 text-white shadow-sm' : 'font-bold bg-white/80 text-rose-900 border border-pink-300'}`;
+    });
+    const el = document.getElementById('blood-guide-card');
+    if (!el) return;
+    el.innerHTML = `
+      <div class="flex items-center justify-between">
+        <span class="font-serif-kr text-sm font-extrabold text-rose-700">${type}형 성향 리포트</span>
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">${t.badge}</span>
+      </div>
+      <p class="leading-relaxed text-[#47162c]">${t.desc}</p>
+      <div class="bg-pink-50 rounded-lg p-2 border border-pink-200 text-[11px] space-y-1">
+        <div><strong class="text-rose-700">💘 연애 스타일:</strong> ${t.love}</div>
+        <div><strong class="text-rose-700">✨ 찰떡 궁합:</strong> ${t.best}</div>
+      </div>`;
+  }
+
+  document.querySelectorAll('.blood-guide-btn').forEach(btn => {
+    btn.addEventListener('click', () => { playSwipeSound(); renderBloodGuide(btn.dataset.bguide); });
+  });
+  document.querySelectorAll('.blood-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.bloodTab;
+      document.querySelectorAll('.blood-tab-btn').forEach(b => {
+        const act = b.dataset.bloodTab === tab;
+        b.className = `blood-tab-btn px-2.5 py-0.5 ${act ? 'bg-rose-600 text-white font-bold' : 'text-rose-800 font-semibold'}`;
+      });
+      document.getElementById('blood-tab-compat').classList.toggle('hidden', tab !== 'compat');
+      document.getElementById('blood-tab-guide').classList.toggle('hidden', tab !== 'guide');
+      document.getElementById('blood-inline-result').classList.toggle('hidden', tab !== 'compat');
+      if (tab === 'guide') renderBloodGuide(state.bloodMe || 'A');
+    });
+  });
+
   function renderBloodResult(withEffect = false) {
     const key = `${state.bloodMe}-${state.bloodYou}`;
     const res = BLOOD_DB[key] || BLOOD_DB['A-O'];
+    const meName = (document.getElementById('blood-me-name')?.value || '').trim() || '나';
+    const youName = (document.getElementById('blood-you-name')?.value || '').trim() || '상대방';
+    const headline = `${meName}님(${state.bloodMe}형)과 ${youName}님(${state.bloodYou}형)의 혈액형 궁합은 ${res.score}%!`;
     document.getElementById('blood-inline-result').innerHTML = `
+      <div class="mb-1.5 text-xs font-extrabold text-pink-100">${headline}</div>
       <div class="flex items-center justify-between mb-2">
         <div class="flex items-center gap-1.5">
           <span class="px-2 py-0.5 rounded-md bg-pink-500/30 text-pink-100 text-xs font-bold">${state.bloodMe}형 ♥ ${state.bloodYou}형</span>
@@ -4125,25 +4345,25 @@
       <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden mb-2.5">
         <div class="h-full bg-gradient-to-r from-rose-500 to-pink-300 rounded-full transition-all duration-500" style="width:${res.score}%"></div>
       </div>
-      <p class="text-xs text-pink-100/90 leading-relaxed mb-2">${res.text}</p>
+      <p class="text-xs text-pink-100/90 leading-relaxed mb-2">${meName}님과 ${youName}님의 궁합 풀이: ${res.text}</p>
       <div class="text-[11px] bg-pink-500/15 border border-pink-400/25 rounded-lg px-2.5 py-1.5 text-pink-200">
         💡 <strong>루미의 비밀 메모:</strong> ${res.tip}
       </div>
       ${renderShareActionBar('blood', '궁합 공유하기')}
     `;
     registerSharePayload('blood', {
-      category: '혈액형 궁합', title: `${state.bloodMe}형 ♥ ${state.bloodYou}형`,
-      scoreText: `${res.score}%`, subtitle: res.tag, summary: res.text, tip: `루미의 비밀 메모: ${res.tip}`,
+      category: '혈액형 궁합', title: `${meName}(${state.bloodMe}) ♥ ${youName}(${state.bloodYou})`,
+      scoreText: `${res.score}%`, subtitle: res.tag, summary: `${meName}님과 ${youName}님의 혈액형 궁합: ${res.text}`, tip: `루미의 비밀 메모: ${res.tip}`,
       bg1: '#3b152c', bg2: '#140911', accent: '#f472b6'
     });
     if (withEffect) {
       playChimeSound(740);
       rigPhys.flinchElapsed = 0.0;
       rigPhys.happyTimer = 1.0;
-      speechBubble.innerHTML = `${state.bloodMe}형이랑 ${state.bloodYou}형이라구? 궁합 점수 ${res.score}%야! ♥`;
+      speechBubble.innerHTML = `${meName}님(${state.bloodMe}형)이랑 ${youName}님(${state.bloodYou}형) 궁합은 ${res.score}%야! ♥`;
       const q = (document.getElementById('blood-question')?.value || '').trim();
       const box = document.getElementById('blood-inline-result');
-      askGeminiFortune('blood', '혈액형 궁합', `${state.bloodMe}형과 ${state.bloodYou}형 (${res.score}%)`, q, res.text).then(txt => {
+      askGeminiFortune('blood', '혈액형 궁합', `${meName}님(${state.bloodMe}형)과 ${youName}님(${state.bloodYou}형)의 혈액형 궁합 (${res.score}%, ${res.tag}). 반드시 "${meName}님과 ${youName}님의 혈액형 궁합은"으로 시작해 풀이해 주세요.`, q, `${meName}님과 ${youName}님의 혈액형 궁합은 ${res.text}`, `${meName}·${youName}`).then(txt => {
         const p = box.querySelector('p');
         if (p) p.textContent = txt;
       });
@@ -4170,6 +4390,10 @@
       });
       renderBloodResult(false);
     });
+  });
+  ['blood-me-name', 'blood-you-name'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => renderBloodResult(false));
   });
   document.getElementById('btn-run-blood').addEventListener('click', () => renderBloodResult(true));
 
@@ -4259,24 +4483,371 @@
     }
   }
 
+  // ---- 3D ROTATING CELESTIAL GLOBE (별자리 지구본) ----
+  const ZODIAC_GLOBE_NODES = [
+    { lon:   0, lat:  16, pts: [[-10, 4],[ -2,-3],[  6,-1],[ 12, 6]] },                          // 양자리
+    { lon:  30, lat: -16, pts: [[-10,-7],[ -2,-1],[  4, 1],[ 12,-5],[  4, 1],[ 10, 9]] },        // 황소자리
+    { lon:  60, lat:  18, pts: [[ -8,-9],[ -4, 0],[ -6, 9],[  8,-9],[  5, 0],[  8, 9]] },        // 쌍둥이자리
+    { lon:  90, lat: -14, pts: [[ -6,-8],[  0, 0],[ -2, 9],[  0, 0],[ 10, 3]] },                 // 게자리
+    { lon: 120, lat:  16, pts: [[ -9, 7],[ -2, 3],[  5, 4],[ 10,-4],[  5,-9],[ -1,-5]] },        // 사자자리
+    { lon: 150, lat: -18, pts: [[-10,-3],[ -3,-5],[  3, 2],[ 11,-2],[  3, 2],[ -1, 9],[  9, 9]] }, // 처녀자리
+    { lon: 180, lat:  14, pts: [[  0,-9],[-10, 1],[ 10, 1],[  0,-9],[ -6, 9],[  7, 8]] },        // 천칭자리
+    { lon: 210, lat: -16, pts: [[-10,-7],[ -4,-4],[  0, 2],[  5, 9],[ 10, 7],[ 12, 2]] },        // 전갈자리
+    { lon: 240, lat:  18, pts: [[ -9, 7],[  0, 0],[  9,-6],[  4, 8],[  0, 0],[ -6,-5]] },        // 사수자리
+    { lon: 270, lat: -15, pts: [[-10,-4],[  0, 9],[ 11,-2],[  1,-7],[-10,-4]] },                 // 염소자리
+    { lon: 300, lat:  16, pts: [[-10, 1],[ -3,-5],[  2, 3],[  8,-4],[ 12, 5]] },                 // 물병자리
+    { lon: 330, lat: -16, pts: [[-10,-6],[ -5, 2],[  1, 9],[  7, 2],[ 11,-5],[  7, 2]] }         // 물고기자리
+  ];
+
+  const globeCanvas = document.getElementById('zodiac-globe-canvas');
+  const globeCtx = globeCanvas ? globeCanvas.getContext('2d') : null;
+  const scopeFocusBadge = document.getElementById('telescope-focus-badge');
+  const scopeQuickList = document.getElementById('telescope-quick-list');
+
+  const globeState = {
+    rotY: -30 * Math.PI / 180,
+    rotX: 16 * Math.PI / 180,
+    velY: 0,
+    velX: 0,
+    targetY: null,
+    targetX: null,
+    dragging: false,
+    moved: 0,
+    lastX: 0,
+    lastY: 0,
+    hitNodes: [],
+    rafId: null
+  };
+
+  // 160 deterministic 3D background stars on the celestial sphere
+  const GLOBE_STARS = Array.from({ length: 160 }, (_, i) => {
+    const phi = Math.acos(1 - 2 * ((i + 0.5) / 160));
+    const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+    return {
+      x: Math.sin(phi) * Math.cos(theta),
+      y: Math.cos(phi),
+      z: Math.sin(phi) * Math.sin(theta),
+      r: (i % 5 === 0) ? 2.1 : (i % 2 === 0 ? 1.3 : 0.9),
+      tw: (i * 0.7) % (Math.PI * 2)
+    };
+  });
+
+  function latLonToVec(latDeg, lonDeg) {
+    const lat = latDeg * Math.PI / 180;
+    const lon = lonDeg * Math.PI / 180;
+    return {
+      x: Math.cos(lat) * Math.sin(lon),
+      y: -Math.sin(lat),
+      z: Math.cos(lat) * Math.cos(lon)
+    };
+  }
+
+  function rotateVec(v, rotY, rotX) {
+    // Yaw around Y
+    const cy = Math.cos(rotY), sy = Math.sin(rotY);
+    const x1 = v.x * cy + v.z * sy;
+    const z1 = -v.x * sy + v.z * cy;
+    // Pitch around X
+    const cx = Math.cos(rotX), sx = Math.sin(rotX);
+    const y2 = v.y * cx - z1 * sx;
+    const z2 = v.y * sx + z1 * cx;
+    return { x: x1, y: y2, z: z2 };
+  }
+
+  function drawZodiacGlobe(now) {
+    if (!globeCtx || !globeCanvas) return;
+    const W = globeCanvas.width, H = globeCanvas.height;
+    const cx = W / 2, cy = H / 2, R = W * 0.455;
+    const t = (now || 0) * 0.002;
+
+    // Smooth target tween or gentle inertia/auto-drift
+    if (!globeState.dragging) {
+      if (globeState.targetY !== null) {
+        let dy = globeState.targetY - globeState.rotY;
+        while (dy > Math.PI) dy -= Math.PI * 2;
+        while (dy < -Math.PI) dy += Math.PI * 2;
+        const dx = globeState.targetX - globeState.rotX;
+        globeState.rotY += dy * 0.12;
+        globeState.rotX += dx * 0.12;
+        if (Math.abs(dy) < 0.004 && Math.abs(dx) < 0.004) {
+          globeState.rotY = globeState.targetY;
+          globeState.rotX = globeState.targetX;
+          globeState.targetY = null;
+          globeState.targetX = null;
+        }
+      } else {
+        globeState.rotY += globeState.velY;
+        globeState.rotX = Math.max(-1.05, Math.min(1.05, globeState.rotX + globeState.velX));
+        globeState.velY *= 0.93;
+        globeState.velX *= 0.93;
+        if (Math.abs(globeState.velY) < 0.0004 && Math.abs(globeState.velX) < 0.0004) {
+          globeState.rotY += 0.0014; // gentle celestial globe drift
+        }
+      }
+    }
+
+    globeCtx.clearRect(0, 0, W, H);
+
+    // 1. 3D Sphere Base Gradient
+    const sphGrad = globeCtx.createRadialGradient(cx - R * 0.28, cy - R * 0.28, R * 0.08, cx, cy, R);
+    sphGrad.addColorStop(0, '#1e3570');
+    sphGrad.addColorStop(0.55, '#0d193d');
+    sphGrad.addColorStop(0.88, '#060c20');
+    sphGrad.addColorStop(1, '#02040c');
+    globeCtx.save();
+    globeCtx.beginPath();
+    globeCtx.arc(cx, cy, R, 0, Math.PI * 2);
+    globeCtx.fillStyle = sphGrad;
+    globeCtx.fill();
+    globeCtx.clip();
+
+    // 2. 3D Latitude & Longitude Globe Grid Lines
+    globeCtx.lineWidth = 1;
+    // Parallels (latitudes)
+    for (let lat = -60; lat <= 60; lat += 30) {
+      globeCtx.beginPath();
+      let started = false;
+      for (let lon = 0; lon <= 360; lon += 10) {
+        const p = rotateVec(latLonToVec(lat, lon), globeState.rotY, globeState.rotX);
+        if (p.z > -0.05) {
+          const sx = cx + p.x * R, sy = cy + p.y * R;
+          if (!started) { globeCtx.moveTo(sx, sy); started = true; }
+          else globeCtx.lineTo(sx, sy);
+        } else started = false;
+      }
+      globeCtx.strokeStyle = lat === 0 ? 'rgba(253, 224, 71, 0.26)' : 'rgba(148, 163, 255, 0.14)';
+      globeCtx.stroke();
+    }
+    // Meridians (longitudes)
+    for (let lon = 0; lon < 360; lon += 30) {
+      globeCtx.beginPath();
+      let started = false;
+      for (let lat = -85; lat <= 85; lat += 10) {
+        const p = rotateVec(latLonToVec(lat, lon), globeState.rotY, globeState.rotX);
+        if (p.z > -0.05) {
+          const sx = cx + p.x * R, sy = cy + p.y * R;
+          if (!started) { globeCtx.moveTo(sx, sy); started = true; }
+          else globeCtx.lineTo(sx, sy);
+        } else started = false;
+      }
+      globeCtx.strokeStyle = 'rgba(148, 163, 255, 0.14)';
+      globeCtx.stroke();
+    }
+
+    // 3. 3D Background Stars
+    for (const s of GLOBE_STARS) {
+      const p = rotateVec(s, globeState.rotY, globeState.rotX);
+      if (p.z < -0.1) continue;
+      const alpha = Math.max(0.1, (p.z + 0.1) * (0.55 + 0.35 * Math.sin(t + s.tw)));
+      globeCtx.fillStyle = `rgba(254, 249, 195, ${alpha.toFixed(2)})`;
+      globeCtx.beginPath();
+      globeCtx.arc(cx + p.x * R, cy + p.y * R, s.r * (0.7 + 0.4 * p.z), 0, Math.PI * 2);
+      globeCtx.fill();
+    }
+
+    // 4. 12 Zodiac Constellations Projected on the 3D Sphere
+    globeState.hitNodes = [];
+    const drawOrder = ZODIAC_GLOBE_NODES.map((n, idx) => {
+      const p = rotateVec(latLonToVec(n.lat, n.lon), globeState.rotY, globeState.rotX);
+      return { idx, n, p };
+    }).sort((a, b) => a.p.z - b.p.z);
+
+    for (const { idx, n, p } of drawOrder) {
+      if (p.z < 0.05) continue;
+      const sx = cx + p.x * R;
+      const sy = cy + p.y * R;
+      const scale = 0.65 + 0.52 * p.z;
+      const alpha = Math.min(1, (p.z - 0.05) * 1.65);
+      const isSelected = idx === state.zodiacMe;
+      const z = ZODIAC_LIST[idx];
+
+      globeState.hitNodes.push({ idx, sx, sy, r: 44 * scale });
+
+      // Glow aura for active constellation
+      if (isSelected) {
+        const g = globeCtx.createRadialGradient(sx, sy, 4, sx, sy, 52 * scale);
+        g.addColorStop(0, 'rgba(253, 224, 71, 0.38)');
+        g.addColorStop(1, 'rgba(253, 224, 71, 0)');
+        globeCtx.fillStyle = g;
+        globeCtx.beginPath();
+        globeCtx.arc(sx, sy, 52 * scale, 0, Math.PI * 2);
+        globeCtx.fill();
+      }
+
+      // Draw constellation star-lines on tangent plane
+      const lineScale = 2.0 * scale;
+      globeCtx.beginPath();
+      n.pts.forEach((pt, k) => {
+        const px = sx + pt[0] * lineScale;
+        const py = sy - 10 * scale + pt[1] * lineScale;
+        if (k === 0) globeCtx.moveTo(px, py);
+        else globeCtx.lineTo(px, py);
+      });
+      globeCtx.strokeStyle = isSelected
+        ? `rgba(254, 240, 138, ${(0.95 * alpha).toFixed(2)})`
+        : `rgba(196, 181, 253, ${(0.72 * alpha).toFixed(2)})`;
+      globeCtx.lineWidth = isSelected ? 2.6 : 1.7;
+      globeCtx.stroke();
+
+      // Draw star dots
+      for (const pt of n.pts) {
+        const px = sx + pt[0] * lineScale;
+        const py = sy - 10 * scale + pt[1] * lineScale;
+        globeCtx.fillStyle = isSelected ? `rgba(255, 251, 200, ${alpha.toFixed(2)})` : `rgba(253, 224, 71, ${(0.9 * alpha).toFixed(2)})`;
+        globeCtx.beginPath();
+        globeCtx.arc(px, py, isSelected ? 3.5 * scale : 2.5 * scale, 0, Math.PI * 2);
+        globeCtx.fill();
+      }
+
+      // Pill Label: "♉ 황소자리 (4/20 ~ 5/20)"
+      const label = `${z.symbol} ${z.name} (${z.dates})`;
+      globeCtx.font = `700 ${Math.round(16 * scale)}px sans-serif`;
+      const tw = globeCtx.measureText(label).width;
+      const pw = tw + 16 * scale;
+      const ph = 24 * scale;
+      const lx = sx - pw / 2;
+      const ly = sy + 14 * scale;
+
+      globeCtx.fillStyle = isSelected
+        ? `rgba(124, 58, 237, ${(0.92 * alpha).toFixed(2)})`
+        : `rgba(8, 14, 36, ${(0.82 * alpha).toFixed(2)})`;
+      globeCtx.strokeStyle = isSelected
+        ? `rgba(253, 224, 71, ${alpha.toFixed(2)})`
+        : `rgba(253, 224, 71, ${(0.45 * alpha).toFixed(2)})`;
+      globeCtx.lineWidth = isSelected ? 1.8 : 1.1;
+      globeCtx.beginPath();
+      globeCtx.roundRect(lx, ly, pw, ph, ph / 2);
+      globeCtx.fill();
+      globeCtx.stroke();
+
+      globeCtx.fillStyle = isSelected ? `rgba(255,255,255,${alpha.toFixed(2)})` : `rgba(254,243,199,${alpha.toFixed(2)})`;
+      globeCtx.textAlign = 'center';
+      globeCtx.textBaseline = 'middle';
+      globeCtx.fillText(label, sx, ly + ph / 2 + 0.5);
+    }
+
+    // 5. Glass Specular Rim Highlight
+    const rim = globeCtx.createRadialGradient(cx, cy, R * 0.72, cx, cy, R);
+    rim.addColorStop(0, 'rgba(0,0,0,0)');
+    rim.addColorStop(0.85, 'rgba(139,92,246,0.12)');
+    rim.addColorStop(1, 'rgba(253,224,71,0.34)');
+    globeCtx.fillStyle = rim;
+    globeCtx.beginPath();
+    globeCtx.arc(cx, cy, R, 0, Math.PI * 2);
+    globeCtx.fill();
+    globeCtx.restore();
+
+    if (state.zodiacTab === 'scope' && state.currentIdx === 2) {
+      globeState.rafId = requestAnimationFrame(drawZodiacGlobe);
+    } else {
+      globeState.rafId = null;
+    }
+  }
+
+  function startGlobeLoop() {
+    if (!globeState.rafId) globeState.rafId = requestAnimationFrame(drawZodiacGlobe);
+  }
+
+  function focusConstellation(idx, withSound = true) {
+    state.zodiacMe = idx;
+    zMeSel.value = String(idx);
+    zMatchMe.value = String(idx);
+    const z = ZODIAC_LIST[idx];
+    const node = ZODIAC_GLOBE_NODES[idx];
+    globeState.targetY = -node.lon * Math.PI / 180;
+    globeState.targetX = -node.lat * Math.PI / 180;
+    globeState.velY = 0;
+    globeState.velX = 0;
+
+    if (scopeFocusBadge) scopeFocusBadge.textContent = `${z.symbol} ${z.name} (${z.dates})`;
+    scopeQuickList?.querySelectorAll('.scope-quick-btn').forEach(b => {
+      const act = parseInt(b.dataset.zidx, 10) === idx;
+      b.className = `scope-quick-btn px-2 py-1.5 rounded-lg text-[10.5px] font-bold text-left border transition truncate ${act ? 'bg-violet-500/60 border-amber-300 text-white shadow' : 'bg-black/35 border-violet-300/25 text-violet-100/90 hover:bg-violet-500/25'}`;
+    });
+    if (withSound) {
+      playChimeSound(780);
+      speechBubble.innerHTML = `별자리 지구본에서 ${z.symbol} ${z.name} (${z.dates})를 찾았어! ★`;
+    }
+    startGlobeLoop();
+    renderZodiacDaily(false);
+  }
+
+  function initTelescopeSky() {
+    if (!scopeQuickList || !globeCanvas) return;
+    scopeQuickList.innerHTML = ZODIAC_LIST.map((z, idx) => `
+      <button type="button" data-zidx="${idx}" class="scope-quick-btn px-2 py-1.5 rounded-lg text-[10.5px] font-bold text-left border bg-black/35 border-violet-300/25 text-violet-100/90 truncate">
+        ${z.symbol} ${z.name} <span class="text-amber-200/90 font-normal">(${z.dates})</span>
+      </button>
+    `).join('');
+    scopeQuickList.querySelectorAll('.scope-quick-btn').forEach(btn => {
+      btn.addEventListener('click', () => focusConstellation(parseInt(btn.dataset.zidx, 10), true));
+    });
+
+    globeCanvas.addEventListener('pointerdown', (e) => {
+      globeState.dragging = true;
+      globeState.moved = 0;
+      globeState.targetY = null;
+      globeState.targetX = null;
+      globeState.velY = 0;
+      globeState.velX = 0;
+      globeState.lastX = e.clientX;
+      globeState.lastY = e.clientY;
+      globeCanvas.setPointerCapture(e.pointerId);
+      startGlobeLoop();
+    });
+    globeCanvas.addEventListener('pointermove', (e) => {
+      if (!globeState.dragging) return;
+      const dx = e.clientX - globeState.lastX;
+      const dy = e.clientY - globeState.lastY;
+      globeState.moved += Math.hypot(dx, dy);
+      globeState.lastX = e.clientX;
+      globeState.lastY = e.clientY;
+      globeState.rotY += dx * 0.011;
+      globeState.rotX = Math.max(-1.05, Math.min(1.05, globeState.rotX - dy * 0.011));
+      globeState.velY = dx * 0.008;
+      globeState.velX = -dy * 0.008;
+    });
+    const finishGlobeDrag = (e) => {
+      if (!globeState.dragging) return;
+      globeState.dragging = false;
+      // Short tap -> pick nearest constellation on front hemisphere!
+      if (globeState.moved < 9) {
+        const rect = globeCanvas.getBoundingClientRect();
+        const mx = (e.clientX - rect.left) * (globeCanvas.width / rect.width);
+        const my = (e.clientY - rect.top) * (globeCanvas.height / rect.height);
+        let best = null, bestDist = 64;
+        for (const h of globeState.hitNodes) {
+          const dist = Math.hypot(mx - h.sx, my - h.sy);
+          if (dist < bestDist) { bestDist = dist; best = h.idx; }
+        }
+        if (best !== null) focusConstellation(best, true);
+      }
+    };
+    globeCanvas.addEventListener('pointerup', finishGlobeDrag);
+    globeCanvas.addEventListener('pointercancel', () => { globeState.dragging = false; });
+  }
+  initTelescopeSky();
+
   const zTabDaily = document.getElementById('zodiac-tab-daily');
   const zTabMatch = document.getElementById('zodiac-tab-match');
-  zTabDaily.addEventListener('click', () => {
-    state.zodiacTab = 'daily';
-    zTabDaily.className = 'px-2.5 py-1 bg-violet-500/70 text-white font-semibold';
-    zTabMatch.className = 'px-2.5 py-1 bg-transparent text-violet-200';
-    document.getElementById('zodiac-daily-box').classList.remove('hidden');
-    document.getElementById('zodiac-match-box').classList.add('hidden');
-    renderZodiacDaily(false);
-  });
-  zTabMatch.addEventListener('click', () => {
-    state.zodiacTab = 'match';
-    zTabMatch.className = 'px-2.5 py-1 bg-violet-500/70 text-white font-semibold';
-    zTabDaily.className = 'px-2.5 py-1 bg-transparent text-violet-200';
-    document.getElementById('zodiac-match-box').classList.remove('hidden');
-    document.getElementById('zodiac-daily-box').classList.add('hidden');
-    renderZodiacMatch(false);
-  });
+  const zTabScope = document.getElementById('zodiac-tab-scope');
+
+  function setZodiacTab(tab) {
+    state.zodiacTab = tab;
+    zTabDaily.className = `px-2 py-1 ${tab === 'daily' ? 'bg-violet-500/70 text-white font-semibold' : 'bg-transparent text-violet-200'}`;
+    zTabMatch.className = `px-2 py-1 ${tab === 'match' ? 'bg-violet-500/70 text-white font-semibold' : 'bg-transparent text-violet-200'}`;
+    zTabScope.className = `px-2 py-1 ${tab === 'scope' ? 'bg-amber-500/75 text-white font-semibold' : 'bg-transparent text-amber-200'}`;
+    document.getElementById('zodiac-daily-box').classList.toggle('hidden', tab !== 'daily');
+    document.getElementById('zodiac-match-box').classList.toggle('hidden', tab !== 'match');
+    document.getElementById('zodiac-scope-box').classList.toggle('hidden', tab !== 'scope');
+    if (tab === 'daily') renderZodiacDaily(false);
+    else if (tab === 'match') renderZodiacMatch(false);
+    else { focusConstellation(state.zodiacMe || 0, false); startGlobeLoop(); }
+  }
+  zTabDaily.addEventListener('click', () => setZodiacTab('daily'));
+  zTabMatch.addEventListener('click', () => setZodiacTab('match'));
+  zTabScope.addEventListener('click', () => setZodiacTab('scope'));
+  document.getElementById('btn-scope-run-daily').addEventListener('click', () => renderZodiacDaily(true));
   document.getElementById('btn-run-zodiac-daily').addEventListener('click', () => renderZodiacDaily(true));
   document.getElementById('btn-run-zodiac-match').addEventListener('click', () => renderZodiacMatch(true));
 
@@ -4340,28 +4911,46 @@
     return arts[motif] || arts.star;
   }
 
+  const TAROT_IMG_SRCS = [
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_00.jpg',
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_01.jpg',
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_02.jpg',
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_03.jpg',
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_04.jpg',
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_05.jpg',
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_06.jpg',
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_07.jpg',
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_08.jpg',
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_09.jpg',
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_10.jpg',
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_11.jpg',
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_12.jpg',
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_13.jpg',
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_14.jpg',
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_15.jpg',
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_16.jpg',
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_17.jpg',
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_18.jpg',
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_19.jpg',
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_20.jpg',
+    'artifacts/file_generation/ttl=63d/intermediate/assets/tarot_21.jpg'
+  ];
+
   function renderTarotFrontSVG(card, compact = false) {
-    const uid = `tf_${card.num}_${compact ? 'c' : 'f'}`;
-    const artTransform = card.reversed ? 'transform="rotate(180 50 76)"' : '';
+    const idx = TAROT_CARDS.findIndex(c => c.num === card.num);
+    const imgSrc = TAROT_IMG_SRCS[idx >= 0 ? idx : 0];
+    const revCls = card.reversed ? 'rotate-180' : '';
     return `
-      <svg viewBox="0 0 100 170" class="w-full h-full block" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="${uid}" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="${card.c1}"/>
-            <stop offset="100%" stop-color="${card.c2}"/>
-          </linearGradient>
-        </defs>
-        <rect width="100" height="170" rx="7" fill="#f4e6c4"/>
-        <rect x="3.5" y="3.5" width="93" height="163" rx="5" fill="none" stroke="#9c7328" stroke-width="1.3"/>
-        <rect x="7" y="21" width="86" height="114" rx="4" fill="url(#${uid})" stroke="#b88933" stroke-width="1"/>
-        <text x="50" y="16" text-anchor="middle" font-family="serif" font-size="10.5" font-weight="700" fill="#3b260b">${card.num}</text>
-        <g ${artTransform}>
-          ${getTarotMotifArt(card.motif)}
-        </g>
-        <rect x="7" y="138" width="86" height="25" rx="3" fill="#211535" stroke="#c89d47" stroke-width="0.9"/>
-        <text x="50" y="${compact ? '154' : '150'}" text-anchor="middle" font-family="sans-serif" font-size="${compact ? '9.5' : '9.8'}" font-weight="700" fill="#fde68a">${card.kr}</text>
-        ${compact ? '' : `<text x="50" y="160" text-anchor="middle" font-family="serif" font-size="5.6" letter-spacing="0.6" fill="#d8c59e">${card.en}</text>`}
-      </svg>`;
+      <div class="w-full h-full flex flex-col bg-[#f5e7c6] p-[3px] rounded-[7px] border border-[#b88933] overflow-hidden select-none">
+        <div class="text-center font-serif-kr font-extrabold text-[#36220a] leading-none ${compact ? 'text-[7px] py-[1px]' : 'text-[9.5px] py-[2px]'}">${card.num}</div>
+        <div class="relative flex-1 w-full overflow-hidden rounded-[3px] border border-[#9c7328]/80 bg-[#140b2e]">
+          <img src="${imgSrc}" alt="${card.name}" class="w-full h-full object-cover ${revCls}" />
+        </div>
+        <div class="mt-[2px] bg-[#1d1233] rounded-[3px] border border-[#c89d47]/80 text-center ${compact ? 'py-[1px]' : 'py-[2.5px] px-0.5'}">
+          <div class="font-serif-kr font-bold text-[#fde68a] leading-tight truncate ${compact ? 'text-[6.5px]' : 'text-[9px]'}">${card.kr}</div>
+          ${compact ? '' : `<div class="text-[5.5px] tracking-wider text-[#d8c59e] leading-tight truncate">${card.en}</div>`}
+        </div>
+      </div>`;
   }
 
   function dealTarotRiffle() {
@@ -4505,9 +5094,69 @@
     });
   }
 
+  const MBTI_TRAITS = {
+    ENTJ: { title: '대담한 통솔자', kw: '외향 · 전략 · 카리스마 리더', desc: 'ENTJ는 외향적이고 결단력이 뛰어나며, 큰 그림을 설계해 목표를 현실로 만들어내는 타고난 리더형입니다. 효율성과 성장을 중시하고 내 사람에게는 든든한 버팀목이 되어줘요.', best: 'INFP · INTP' },
+    INTJ: { title: '용의주도한 전략가', kw: '독립 · 통찰 · 완벽한 설계', desc: 'INTJ는 깊은 통찰력과 논리적 사고로 미래를 내다보는 전략가형입니다. 조용하지만 내면의 야망과 기준이 뚜렷하며, 진심으로 인정한 상대에게 깊은 신뢰를 보냅니다.', best: 'ENFP · ENTP' },
+    INTP: { title: '논리적인 사색가', kw: '호기심 · 분석 · 독창적 아이디어', desc: 'INTP는 지적 호기심이 풍부하고 원리를 탐구하는 것을 즐기는 아이디어 뱅크입니다. 자유롭고 유연한 사고를 지녔으며, 대화가 통하는 상대에게 푹 빠지는 타입이에요.', best: 'ENTJ · ESTJ' },
+    ENTP: { title: '뜨거운 논쟁가', kw: '재치 · 도전 · 번뜩이는 기지', desc: 'ENTP는 넘치는 재치와 창의력으로 새로운 가능성을 탐색하는 에너지 넘치는 혁신가입니다. 유쾌한 티키타카를 즐기며, 함께 있으면 매일 새로운 자극을 줍니다.', best: 'INFJ · INTJ' },
+    INFJ: { title: '선의의 옹호자', kw: '직관 · 깊은 공감 · 신념', desc: 'INFJ는 타인의 마음을 섬세하게 읽는 통찰력과 따뜻한 이상을 품은 조용한 카리스마형입니다. 겉으로는 부드럽지만 내면이 단단하고, 영혼이 통하는 깊은 인연을 소중히 여겨요.', best: 'ENFP · ENTP' },
+    INFP: { title: '열정적인 중재자', kw: '감성 · 진정성 · 따뜻한 상상력', desc: 'INFP는 풍부한 감수성과 진실한 마음을 지닌 로맨티스트입니다. 상대의 작은 진심에도 크게 감동하며, 사랑하는 사람에게 온 마음을 다해 헌신하는 따뜻한 성향이에요.', best: 'ENFJ · ENTJ' },
+    ENFJ: { title: '정의로운 사회운동가', kw: '따뜻한 리더십 · 배려 · 소통왕', desc: 'ENFJ는 사람을 진심으로 아끼고 긍정적인 에너지를 전파하는 따뜻한 리더형입니다. 상대의 장점을 누구보다 잘 찾아내며, 연애에서도 다정하고 세심하게 챙겨줍니다.', best: 'INFP · ISFP' },
+    ENFP: { title: '재기발랄한 활동가', kw: '밝은 에너지 · 공감 · 자유로움', desc: 'ENFP는 반짝이는 열정과 풍부한 표현력으로 주변을 환하게 밝히는 분위기 메이커입니다. 사람들과의 진솔한 교감을 사랑하며, 설렘 가득한 로맨스를 만들어가요.', best: 'INFJ · INTJ' },
+    ISTJ: { title: '청렴결백한 논리주의자', kw: '성실 · 책임감 · 흔들림 없는 신뢰', desc: 'ISTJ는 약속과 원칙을 철저히 지키며 묵묵히 책임을 다하는 가장 믿음직한 타입입니다. 화려한 말보다 꾸준한 행동으로 진심을 보여주는 든든한 파트너예요.', best: 'ESFP · ESTP' },
+    ISFJ: { title: '용감한 수호자', kw: '헌신 · 세심한 기억력 · 온화함', desc: 'ISFJ는 조용하고 따뜻한 배려로 주변 사람들을 살뜰히 챙기는 수호자형입니다. 상대가 지나가듯 한 말도 기억해 챙겨주는 섬세한 다정함이 가장 큰 매력이에요.', best: 'ESFP · ESTP' },
+    ESTJ: { title: '엄격한 관리자', kw: '실행력 · 체계 · 든든한 추진력', desc: 'ESTJ는 현실 감각과 조직력이 뛰어나 어떤 일이든 척척 해결해 내는 실행가입니다. 솔직하고 명쾌한 소통을 선호하며, 사랑하는 사람의 일상을 든든히 지켜줍니다.', best: 'INTP · ISTP' },
+    ESFJ: { title: '사교적인 외교관', kw: '친화력 · 다정함 · 조화로운 관계', desc: 'ESFJ는 따뜻한 친화력과 센스로 모임의 중심이 되는 배려 깊은 성향입니다. 상대의 기분을 빠르게 캐치하고 다정한 말과 행동으로 안정감을 선물해요.', best: 'ISFP · ISTP' },
+    ISTP: { title: '만능 재주꾼', kw: '쿨함 · 실용적 센스 · 침착함', desc: 'ISTP는 위기 상황에서도 침착하게 해답을 찾아내는 쿨하고 유능한 현실주의자입니다. 불필요한 간섭을 싫어하지만, 은근히 챙겨주는 츤데레 매력이 넘쳐요.', best: 'ESFJ · ESTJ' },
+    ISFP: { title: '호기심 많은 예술가', kw: '온순 · 미적 감각 · 현재의 행복', desc: 'ISFP는 부드러운 감성과 뛰어난 미적 감각으로 소소한 일상을 아름답게 즐기는 타입입니다. 다툼을 싫어하고 상대를 있는 그대로 존중해 주는 편안한 연인이에요.', best: 'ENFJ · ESFJ' },
+    ESTP: { title: '모험을 즐기는 사업가', kw: '순발력 · 화끈함 · 넘치는 활력', desc: 'ESTP는 망설임 없이 행동하고 순간을 뜨겁게 즐기는 매력적인 액션파입니다. 유쾌한 입담과 대담한 매력으로 함께하는 매 순간을 영화처럼 만들어 줍니다.', best: 'ISFJ · ISTJ' },
+    ESFP: { title: '자유로운 영혼의 연예인', kw: '흥과 끼 · 낙천적 · 사랑스러움', desc: 'ESFP는 긍정적인 에너지와 사랑스러운 애교로 어디서나 환영받는 인기쟁이입니다. 솔직하고 다정하게 애정을 표현해 연인에게 늘 웃음을 안겨줘요.', best: 'ISFJ · ISTJ' }
+  };
+
+  function renderMbtiGuide(code) {
+    const grid = document.getElementById('mbti-guide-grid');
+    const card = document.getElementById('mbti-guide-card');
+    if (!grid || !card) return;
+    grid.innerHTML = Object.keys(MBTI_TRAITS).map(k => {
+      const act = k === code;
+      return `<button type="button" data-mguide="${k}" class="mbti-guide-btn py-1.5 rounded-lg text-[11px] font-extrabold border transition ${act ? 'bg-[#3b5b92] text-white border-[#3b5b92] shadow-sm' : 'bg-white text-slate-700 border-slate-200 hover:bg-sky-50'}">${k}</button>`;
+    }).join('');
+    grid.querySelectorAll('.mbti-guide-btn').forEach(b => {
+      b.addEventListener('click', () => { playSwipeSound(); renderMbtiGuide(b.dataset.mguide); });
+    });
+    const t = MBTI_TRAITS[code] || MBTI_TRAITS.INFP;
+    card.innerHTML = `
+      <div class="flex items-center justify-between">
+        <span class="font-serif-kr text-sm font-extrabold text-[#22304d]">${code} · ${t.title}</span>
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800">${t.kw}</span>
+      </div>
+      <p class="leading-relaxed text-slate-700">${t.desc}</p>
+      <div class="bg-sky-50 rounded-lg p-2 border border-sky-200 text-[11px] text-sky-900">
+        💙 <strong>최고의 황금 궁합:</strong> ${t.best}
+      </div>`;
+  }
+
+  document.querySelectorAll('.mbti-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.mbtiTab;
+      document.querySelectorAll('.mbti-tab-btn').forEach(b => {
+        const act = b.dataset.mbtiTab === tab;
+        b.className = `mbti-tab-btn px-2.5 py-0.5 ${act ? 'bg-[#3b5b92] text-white font-bold' : 'text-slate-700 font-semibold'}`;
+      });
+      document.getElementById('mbti-tab-compat').classList.toggle('hidden', tab !== 'compat');
+      document.getElementById('mbti-tab-guide').classList.toggle('hidden', tab !== 'guide');
+      document.getElementById('mbti-inline-result').classList.toggle('hidden', tab !== 'compat');
+      if (tab === 'guide') renderMbtiGuide(state.mbtiMe.join('') || 'INFP');
+    });
+  });
+
   function renderMBTI(withEffect = false) {
     const res = analyzeMBTI(state.mbtiMe.join(''), state.mbtiYou.join(''));
+    const meName = (document.getElementById('mbti-me-name')?.value || '').trim() || '나';
+    const youName = (document.getElementById('mbti-you-name')?.value || '').trim() || '상대방';
+    const headline = `${meName}님(${res.a})과 ${youName}님(${res.b})의 MBTI 궁합은 ${res.score}점!`;
     document.getElementById('mbti-inline-result').innerHTML = `
+      <div class="mb-1.5 text-xs font-extrabold text-sky-100">${headline}</div>
       <div class="flex items-center justify-between mb-2">
         <div>
           <span class="text-xs font-bold text-sky-200">${res.a} × ${res.b}</span>
@@ -4515,15 +5164,15 @@
         </div>
         <span class="text-lg font-extrabold text-sky-300">${res.score}점</span>
       </div>
-      <p class="text-xs text-slate-200 leading-relaxed mb-2">${res.summary}</p>
+      <p class="text-xs text-slate-200 leading-relaxed mb-2">${meName}님과 ${youName}님의 MBTI 궁합 풀이: ${res.summary}</p>
       <div class="text-[11px] bg-sky-500/15 border border-sky-300/25 rounded-lg px-2.5 py-1.5 text-sky-100">
         💙 <strong>하린의 상담 처방:</strong> ${res.tip}
       </div>
       ${renderShareActionBar('mbti', 'MBTI 궁합 공유')}
     `;
     registerSharePayload('mbti', {
-      category: 'MBTI 심리 궁합', title: `${res.a} × ${res.b}`,
-      scoreText: `${res.score}점`, subtitle: res.grade, summary: res.summary,
+      category: 'MBTI 심리 궁합', title: `${meName}(${res.a}) × ${youName}(${res.b})`,
+      scoreText: `${res.score}점`, subtitle: res.grade, summary: `${meName}님과 ${youName}님의 MBTI 궁합: ${res.summary}`,
       tip: `하린의 상담 처방: ${res.tip}`,
       bg1: '#1c2b4a', bg2: '#0e1526', accent: '#60a5fa'
     });
@@ -4531,15 +5180,19 @@
       playChimeSound(680);
       rigPhys.flinchElapsed = 0.0;
       rigPhys.happyTimer = 1.0;
-      speechBubble.innerHTML = `${res.a}와 ${res.b}의 궁합은 ${res.score}점! 서로의 마음을 조금만 더 들여다보면 완벽해 ♡`;
+      speechBubble.innerHTML = `${meName}님(${res.a})과 ${youName}님(${res.b})의 궁합은 ${res.score}점! 서로의 마음을 조금만 더 들여다보면 완벽해 ♡`;
       const q = (document.getElementById('mbti-question')?.value || '').trim();
       const box = document.getElementById('mbti-inline-result');
-      askGeminiFortune('mbti', 'MBTI 궁합', `${res.a}와 ${res.b} (${res.score}점, ${res.grade})`, q, res.summary).then(txt => {
+      askGeminiFortune('mbti', 'MBTI 궁합', `${meName}님(${res.a})과 ${youName}님(${res.b})의 MBTI 궁합 (${res.score}점, ${res.grade}). 반드시 "${meName}님과 ${youName}님의 MBTI 궁합은"으로 시작해 풀이해 주세요.`, q, `${meName}님과 ${youName}님의 MBTI 궁합은 ${res.summary}`, `${meName}·${youName}`).then(txt => {
         const p = box.querySelector('p');
         if (p) p.textContent = txt;
       });
     }
   }
+  ['mbti-me-name', 'mbti-you-name'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', () => renderMBTI(false));
+  });
   document.getElementById('btn-run-mbti').addEventListener('click', () => renderMBTI(true));
 
   /* ==================== DB RECORDING + OLLAMA CHAT & VISION ENGINE ==================== */
@@ -4900,6 +5553,117 @@
 
   document.getElementById('btn-run-face').addEventListener('click', () => runVisionReading('face'));
   document.getElementById('btn-run-palm').addEventListener('click', () => runVisionReading('palm'));
+
+  // ---- FACE READING ENCYCLOPEDIA (관상 도감: 8대 대표 ~상) ----
+  const FACE_GUIDE_DB = [
+    { key: 'deer', icon: '🦌', name: '사슴상', badge: '귀인운 · 맑은 인복', features: '크고 맑은 눈망울, 길고 우아한 목선, 부드러운 턱선', desc: '첫인상부터 선하고 맑은 기운이 흘러 주변에 귀인이 끊이지 않는 관상입니다. 예술적 감수성과 배려심이 깊어 사랑과 신뢰를 동시에 얻습니다.', match: '듬직한 곰상 · 온화한 강아지상' },
+    { key: 'fox', icon: '🦊', name: '여우상', badge: '도화 · 매력 · 재물운', features: '살짝 올라간 매혹적인 눈꼬리, 오똑한 콧날, 갸름한 V라인', desc: '눈빛에 총기와 카리스마가 서려 시선을 단번에 사로잡는 매력적인 관상입니다. 눈치가 빠르고 감각이 뛰어나 사업·인기 분야에서 두각을 나타냅니다.', match: '다정한 강아지상 · 강인한 호랑이상' },
+    { key: 'puppy', icon: '🐶', name: '강아지상', badge: '친화력 · 연애 대길', features: '살짝 처진 선한 눈매, 도톰한 애교살, 환하게 번지는 미소', desc: '누구와도 금세 친해지는 따뜻한 친화력과 호감형 기운이 넘치는 관상입니다. 인복이 많아 직장·연애 모두에서 든든한 조력자를 만나게 됩니다.', match: '매혹적인 여우상 · 도도한 고양이상' },
+    { key: 'cat', icon: '🐱', name: '고양이상', badge: '직관 · 세련된 전문성', features: '또렷한 눈매, 세련된 콧대, 도도하면서도 입꼬리가 올라간 입매', desc: '차가워 보이지만 알수록 깊은 매력이 드러나는 반전 카리스마 관상입니다. 독립심과 심미안이 뛰어나 자신만의 전문 영역에서 크게 성공합니다.', match: '온화한 강아지상 · 지적인 봉황상' },
+    { key: 'tiger', icon: '🐯', name: '호랑이상', badge: '리더십 · 명예 · 큰 성취', features: '진하고 힘 있는 눈썹, 또렷한 눈빛, 단단하고 안정적인 코와 하관', desc: '타고난 기백과 추진력으로 조직을 이끌고 큰 성취를 거두는 대장부·리더형 관상입니다. 중년 이후 명예와 재물이 함께 커지는 귀한 상이에요.', match: '우아한 사슴상 · 사랑스러운 토끼상' },
+    { key: 'phoenix', icon: '🕊️', name: '봉황상', badge: '최상급 귀인 · 품격', features: '가늘고 길게 뻗은 우아한 눈매, 맑은 이마, 조화로운 삼정 비율', desc: '전통 관상에서 손꼽히는 고귀한 길상입니다. 품격 있는 말투와 지혜로 어디서나 존중받으며, 인생의 중요한 갈림길마다 하늘의 도움 같은 귀인이 나타납니다.', match: '품격 있는 호랑이상 · 맑은 사슴상' },
+    { key: 'bear', icon: '🐻', name: '곰상', badge: '신뢰 · 말년 대복', features: '넓고 안정된 이마, 순하고 깊은 눈빛, 복스럽고 탄탄한 하관', desc: '한 번 믿으면 끝까지 지키는 뚝심과 포용력이 넘치는 든든한 관상입니다. 초년보다 중·말년으로 갈수록 재산과 가정이 단단하게 번창합니다.', match: '발랄한 토끼상 · 맑은 사슴상' },
+    { key: 'rabbit', icon: '🐰', name: '토끼상', badge: '동안 생기 · 행운과 애정', features: '동그랗고 반짝이는 눈, 맑은 피부 톤, 생기 넘치는 입매', desc: '나이가 들어도 싱그러운 동안 기운을 유지하며 주변에 밝은 에너지를 전하는 관상입니다. 센스와 재치가 좋아 자연스럽게 행운과 사랑을 끌어당깁니다.', match: '듬직한 곰상 · 카리스마 호랑이상' }
+  ];
+
+  function renderFaceGuide(key) {
+    const grid = document.getElementById('face-guide-grid');
+    const card = document.getElementById('face-guide-card');
+    if (!grid || !card) return;
+    grid.innerHTML = FACE_GUIDE_DB.map(f => {
+      const act = f.key === key;
+      return `<button type="button" data-fguide="${f.key}" class="face-guide-btn py-1.5 px-1 rounded-lg text-[10.5px] font-bold border transition ${act ? 'bg-[#1b5746] text-[#fae9c3] border-[#c8a65a] shadow-sm' : 'bg-white/80 text-[#1e3d32] border-[#b9a57c]/60 hover:bg-emerald-50'}">${f.icon} ${f.name}</button>`;
+    }).join('');
+    grid.querySelectorAll('.face-guide-btn').forEach(b => {
+      b.addEventListener('click', () => { playSwipeSound(); renderFaceGuide(b.dataset.fguide); });
+    });
+    const item = FACE_GUIDE_DB.find(f => f.key === key) || FACE_GUIDE_DB[0];
+    card.innerHTML = `
+      <div class="flex items-center justify-between gap-2">
+        <span class="font-serif-kr text-sm font-extrabold text-[#163d31]">${item.icon} ${item.name}</span>
+        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-800/15 text-emerald-900">${item.badge}</span>
+      </div>
+      <div class="text-[11px] text-[#5c503e] bg-amber-50/90 rounded-lg px-2.5 py-1.5 border border-[#d6b266]/45">
+        <strong class="text-[#163d31]">이목구비 특징:</strong> ${item.features}
+      </div>
+      <p class="leading-relaxed text-[#231e16]">${item.desc}</p>
+      <div class="text-[11px] text-emerald-900 font-semibold">💍 찰떡 배우자 관상: <span class="font-normal text-[#3b3022]">${item.match}</span></div>`;
+  }
+
+  document.querySelectorAll('.face-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.faceTab;
+      document.querySelectorAll('.face-tab-btn').forEach(b => {
+        const act = b.dataset.faceTab === tab;
+        b.className = `face-tab-btn px-2.5 py-0.5 ${act ? 'bg-[#1b5746] text-[#fae9c3] font-bold' : 'text-[#1e3d32] font-semibold'}`;
+      });
+      document.getElementById('face-tab-analyze').classList.toggle('hidden', tab !== 'analyze');
+      document.getElementById('face-tab-guide').classList.toggle('hidden', tab !== 'guide');
+      document.getElementById('face-inline-result').classList.toggle('hidden', tab !== 'analyze');
+      if (tab === 'guide') renderFaceGuide('deer');
+    });
+  });
+
+  // ---- PALM READING ENCYCLOPEDIA (손금 도감: 7대 핵심 ~선 + 인터랙티브 손바닥 SVG) ----
+  const PALM_GUIDE_DB = [
+    { key: 'life', icon: '❤️', name: '생명선', color: '#34d399', loc: '엄지와 검지 사이에서 시작해 손목 쪽으로 둥글게 감싸는 선', good: '끊김 없이 깊고 둥근 반원을 그리며 길게 뻗어 있을수록 활력과 회복력이 뛰어납니다.', desc: '생명선은 단순한 수명이 아니라 체력, 생활 에너지, 인생의 안정감을 보여줍니다. 선이 선명하고 두툼한 금성구(엄지 아래)를 감쌀수록 건강하고 활기찬 삶을 누립니다.', path: 'M 48 64 Q 76 96 68 144' },
+    { key: 'head', icon: '🧠', name: '두뇌선', color: '#38bdf8', loc: '엄지와 검지 사이에서 손바닥 중앙을 가로지르는 선', good: '또렷하고 균형 있게 뻗으면 판단력이 좋고, 아래로 완만히 휘면 창의·예술 감각이 빛납니다.', desc: '사고방식, 집중력, 적성과 진로를 읽는 선입니다. 직선형은 현실적·논리적 전략가, 완만한 곡선형은 상상력과 감성이 풍부한 크리에이터 기질을 뜻해요.', path: 'M 46 62 Q 96 74 142 88' },
+    { key: 'heart', icon: '💕', name: '감정선', color: '#fb7185', loc: '새끼손가락 아래에서 검지·중지 방향으로 뻗는 상단 가로선', good: '검지 쪽으로 부드럽게 올라가며 끝이 갈라지면 배려 깊고 사랑받는 로맨티스트 상입니다.', desc: '연애 스타일, 공감 능력, 마음의 온도를 보여줍니다. 선이 맑고 완만히 상승할수록 진심 어린 표현과 따뜻한 유대감으로 행복한 인연을 만들어 갑니다.', path: 'M 152 46 Q 112 52 60 38' },
+    { key: 'fate', icon: '🌟', name: '운명선', color: '#fbbf24', loc: '손목 중앙에서 중지 아래로 수직으로 올라가는 세로선', good: '중지 아래까지 곧고 선명하게 뻗으면 스스로 인생을 개척해 큰 사회적 성취를 이룹니다.', desc: '직업운, 커리어 전환점, 사회적 성공 흐름을 나타냅니다. 중간에 새 선이 합류하면 귀인이나 배우자를 만나 운세가 한 단계 크게 도약하는 신호예요.', path: 'M 100 146 Q 98 96 102 36' },
+    { key: 'wealth', icon: '💰', name: '재물선', color: '#facc15', loc: '약지(네 번째 손가락) 아래로 세로로 곧게 뻗는 태양선', good: '길고 굵으며 잔가지가 적을수록 돈이 모이고 명예·인기운이 함께 따라옵니다.', desc: '금전적 여유, 투자 감각, 대중적 인기를 상징하는 황금선입니다. 운명선과 나란히 선명하게 나타나면 일의 성과가 곧바로 풍요로운 재물로 이어집니다.', path: 'M 124 128 Q 124 88 126 38' },
+    { key: 'marriage', icon: '💍', name: '결혼선', color: '#f472b6', loc: '새끼손가락 바로 아래 손날(옆면)에 짧게 가로로 그어진 선', good: '감정선과 새끼손가락 중간쯤에 굵고 또렷한 1~2줄이 곧게 뻗어 있으면 원만한 백년해로 상입니다.', desc: '인연이 깊어지는 시기와 배우자와의 조화를 보여줍니다. 선이 위쪽으로 살짝 올라가 있으면 결혼 후 애정과 생활이 더욱 행복해지는 길조예요.', path: 'M 156 30 L 136 33' },
+    { key: 'mline', icon: '👑', name: 'M자 손금', color: '#c084fc', loc: '생명선·두뇌선·감정선·운명선이 만나 뚜렷한 알파벳 M을 이루는 형태', good: '네 선이 모두 끊김 없이 선명하게 이어질수록 직관력·재물복·귀인운이 한데 모인 대길상입니다.', desc: '세계적인 리더와 성공한 인물들에게 자주 나타나는 희귀 행운 패턴입니다. 타고난 직감과 실행력이 균형을 이루어 위기마저 기회로 바꾸는 힘이 있어요.', path: 'M 68 144 Q 76 96 48 64 L 100 76 L 102 44 L 152 46' }
+  ];
+
+  function renderPalmGuide(key) {
+    const grid = document.getElementById('palm-guide-grid');
+    const card = document.getElementById('palm-guide-card');
+    if (!grid || !card) return;
+    grid.innerHTML = PALM_GUIDE_DB.map(p => {
+      const act = p.key === key;
+      return `<button type="button" data-pguide="${p.key}" class="palm-guide-btn py-1.5 px-1 rounded-lg text-[10.5px] font-bold border transition ${act ? 'bg-teal-500/80 text-white border-amber-300 shadow-sm' : 'bg-black/30 text-teal-100 border-teal-300/30 hover:bg-teal-500/25'}">${p.icon} ${p.name}</button>`;
+    }).join('');
+    grid.querySelectorAll('.palm-guide-btn').forEach(b => {
+      b.addEventListener('click', () => { playSwipeSound(); renderPalmGuide(b.dataset.pguide); });
+    });
+    const item = PALM_GUIDE_DB.find(p => p.key === key) || PALM_GUIDE_DB[0];
+    const baseLines = PALM_GUIDE_DB.slice(0, 6).map(l => {
+      const isActive = l.key === key || (key === 'mline' && ['life','head','heart','fate'].includes(l.key));
+      return `<path d="${l.path}" fill="none" stroke="${isActive ? item.color : 'rgba(204,251,241,0.22)'}" stroke-width="${isActive ? '3.4' : '1.4'}" stroke-linecap="round" ${isActive ? 'filter="url(#palmGlow)"' : ''}/>`;
+    }).join('');
+    card.innerHTML = `
+      <div class="flex items-center gap-3">
+        <div class="w-24 h-28 shrink-0 rounded-xl bg-[#07191d] border border-amber-300/40 flex items-center justify-center p-1">
+          <svg viewBox="0 0 200 165" class="w-full h-full">
+            <defs><filter id="palmGlow"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+            <path d="M 48 148 C 36 122 30 92 34 62 C 36 46 48 42 54 56 L 62 24 C 65 14 77 16 77 28 L 80 48 L 88 14 C 92 4 104 6 104 18 L 106 46 L 118 16 C 122 7 134 10 132 22 L 128 50 L 142 28 C 147 20 158 25 154 36 L 146 66 C 156 88 150 124 132 148 Z" fill="rgba(45,212,191,0.12)" stroke="rgba(253,224,71,0.45)" stroke-width="1.6"/>
+            ${baseLines}
+          </svg>
+        </div>
+        <div class="flex-1 space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="font-serif-kr text-sm font-extrabold text-amber-200">${item.icon} ${item.name}</span>
+          </div>
+          <div class="text-[10.5px] text-teal-200/90"><strong class="text-white">위치:</strong> ${item.loc}</div>
+          <div class="text-[10.5px] text-amber-200/90"><strong class="text-amber-300">길상 포인트:</strong> ${item.good}</div>
+        </div>
+      </div>
+      <p class="leading-relaxed text-teal-50/95 bg-white/5 rounded-lg p-2.5 border border-teal-300/20">${item.desc}</p>`;
+  }
+
+  document.querySelectorAll('.palm-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.palmTab;
+      document.querySelectorAll('.palm-tab-btn').forEach(b => {
+        const act = b.dataset.palmTab === tab;
+        b.className = `palm-tab-btn px-2.5 py-0.5 ${act ? 'bg-teal-500/75 text-white font-bold' : 'text-teal-100 font-semibold'}`;
+      });
+      document.getElementById('palm-tab-analyze').classList.toggle('hidden', tab !== 'analyze');
+      document.getElementById('palm-tab-guide').classList.toggle('hidden', tab !== 'guide');
+      document.getElementById('palm-inline-result').classList.toggle('hidden', tab !== 'analyze');
+      if (tab === 'guide') renderPalmGuide('life');
+    });
+  });
 
   // ---- OLLAMA AI CHARACTER CHAT DRAWER ----
   const chatDrawer = document.getElementById('chat-drawer');
