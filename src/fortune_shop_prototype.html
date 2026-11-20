@@ -1540,13 +1540,13 @@
 
           <div id="palm-preview-wrap" class="hidden mb-2.5 relative rounded-xl overflow-hidden border-2 border-amber-300/70 bg-black/40 h-44 flex items-center justify-center">
             <img id="palm-preview-img" src="" alt="업로드된 손바닥 사진" class="h-full w-full object-cover" />
-            <svg id="palm-guide-overlay" viewBox="0 0 200 180" class="palm-guide-svg absolute inset-0 w-full h-full pointer-events-none">
+            <svg id="palm-guide-overlay" viewBox="0 0 200 180" class="palm-guide-svg hidden absolute inset-0 w-full h-full pointer-events-none">
               <path d="M 150 56 Q 112 58 64 46" stroke="#fb7185" stroke-dasharray="5 3" />
               <path d="M 52 72 Q 102 82 146 96" stroke="#38bdf8" stroke-dasharray="5 3" />
               <path d="M 54 74 Q 78 106 72 152" stroke="#34d399" stroke-dasharray="5 3" />
               <path d="M 102 156 Q 100 105 104 42" stroke="#fbbf24" stroke-dasharray="4 3" />
             </svg>
-            <button id="btn-toggle-palm-guide" type="button" class="absolute top-1.5 right-1.5 px-2 py-0.5 rounded-full bg-black/75 border border-amber-300/50 text-[10px] font-bold text-amber-200">선 가이드 ON</button>
+            <button id="btn-toggle-palm-guide" type="button" class="absolute top-1.5 right-1.5 px-2 py-0.5 rounded-full bg-black/75 border border-amber-300/50 text-[10px] font-bold text-amber-200">선 가이드 OFF</button>
             <div class="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between gap-1 px-2 py-1 rounded-lg bg-black/70 text-[9.5px]">
               <span class="text-emerald-300 font-bold">● 생명선</span>
               <span class="text-sky-300 font-bold">● 두뇌선</span>
@@ -1754,20 +1754,85 @@
     </div>
   </div>
 
-  <!-- ==================== LIVE WEBCAM CAPTURE MODAL ==================== -->
+  <!-- ==================== LIVE WEBCAM CAPTURE MODAL (FACE & PALM GUIDELINES) ==================== -->
   <div id="camera-modal" class="drawer-backdrop" role="dialog" aria-modal="true">
     <div class="drawer-sheet space-y-3">
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between gap-2">
         <h3 id="camera-modal-title" class="font-serif-kr text-base font-bold text-[#fae6b8]">📷 실시간 카메라 촬영</h3>
-        <button id="btn-close-camera" type="button" class="w-8 h-8 rounded-full bg-white/10 text-white/80 flex items-center justify-center">✕</button>
+        <div class="flex items-center gap-1.5">
+          <button id="btn-flip-camera" type="button" class="px-2.5 py-1 rounded-full bg-white/10 text-[11px] font-bold text-amber-200 border border-amber-300/35">🔄 전환</button>
+          <button id="btn-close-camera" type="button" class="w-8 h-8 rounded-full bg-white/10 text-white/80 flex items-center justify-center">✕</button>
+        </div>
       </div>
-      <div class="relative rounded-2xl overflow-hidden bg-black h-64 border border-[#e6c67c]/50">
-        <video id="webcam-video" autoplay playsinline class="w-full h-full object-cover"></video>
+
+      <!-- 상단 촬영 안내 배너 -->
+      <div id="camera-guide-banner" class="rounded-xl bg-amber-400/15 border border-amber-300/50 px-3 py-2 text-center text-xs font-bold text-[#fff1cc]">
+        이마와 눈썹과 귀가 보이게 찍어주세요
+      </div>
+
+      <!-- 실시간 카메라 + 가이드라인 오버레이 뷰파인더 -->
+      <div class="relative rounded-2xl overflow-hidden bg-[#070b14] h-[350px] border-2 border-[#e6c67c]/65 shadow-xl">
+        <video id="webcam-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
         <canvas id="webcam-canvas" class="hidden"></canvas>
+
+        <!-- 관상 전용 얼굴·이마·눈썹·귀 가이드라인 SVG -->
+        <svg id="camera-face-guide" viewBox="0 0 280 350" class="hidden pointer-events-none absolute inset-0 w-full h-full">
+          <defs>
+            <mask id="faceHoleMask">
+              <rect width="280" height="350" fill="white"/>
+              <ellipse cx="140" cy="176" rx="84" ry="114" fill="black"/>
+            </mask>
+          </defs>
+          <rect width="280" height="350" fill="rgba(5, 9, 18, 0.48)" mask="url(#faceHoleMask)"/>
+          <!-- 얼굴 외곽 타원 -->
+          <ellipse cx="140" cy="176" rx="84" ry="114" fill="none" stroke="#fde68a" stroke-width="2.2" stroke-dasharray="7 5"/>
+          <!-- 왼쪽·오른쪽 귀 가이드 -->
+          <path d="M 56 154 C 41 154 40 198 56 202" fill="none" stroke="#fde68a" stroke-width="2" stroke-dasharray="4 3"/>
+          <path d="M 224 154 C 239 154 240 198 224 202" fill="none" stroke="#fde68a" stroke-width="2" stroke-dasharray="4 3"/>
+          <!-- 이마 라인 가이드 -->
+          <path d="M 86 102 Q 140 88 194 102" fill="none" stroke="#34d399" stroke-width="1.6" stroke-dasharray="4 3"/>
+          <!-- 양쪽 눈썹 가이드 -->
+          <path d="M 84 146 Q 108 136 128 144" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+          <path d="M 152 144 Q 172 136 196 146" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round"/>
+          <!-- 중앙 수직 정렬선 -->
+          <line x1="140" y1="68" x2="140" y2="286" stroke="rgba(253,230,138,0.28)" stroke-width="1" stroke-dasharray="3 4"/>
+          <!-- 부위 라벨 -->
+          <text x="140" y="84" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="700">이마</text>
+          <text x="140" y="133" text-anchor="middle" fill="#7dd3fc" font-size="11" font-weight="700">눈썹</text>
+          <text x="34" y="182" text-anchor="middle" fill="#fde68a" font-size="11" font-weight="700">귀</text>
+          <text x="246" y="182" text-anchor="middle" fill="#fde68a" font-size="11" font-weight="700">귀</text>
+        </svg>
+
+        <!-- 손금 전용 손바닥 윤곽 + 주요 선 가이드라인 SVG -->
+        <svg id="camera-palm-guide" viewBox="0 0 280 350" class="hidden pointer-events-none absolute inset-0 w-full h-full">
+          <g id="camera-palm-svg-group">
+            <!-- 손바닥·다섯 손가락 윤곽 실루엣 -->
+            <path d="M 88 318 C 72 284 62 246 60 202 C 58 176 42 152 38 132 C 35 118 48 112 58 124 L 82 156 L 86 76 C 87 58 106 58 108 76 L 112 142 L 126 52 C 128 34 148 34 150 52 L 152 140 L 170 64 C 173 46 192 50 190 68 L 184 148 L 204 94 C 210 78 228 84 222 102 L 206 184 C 214 232 204 282 182 318 Z"
+                  fill="rgba(20, 184, 166, 0.08)" stroke="#5eead4" stroke-width="2.4" stroke-dasharray="8 5" stroke-linejoin="round"/>
+            <!-- 손바닥 안쪽 주요 4대 선 위치 가이드 -->
+            <path d="M 192 178 Q 146 184 96 168" fill="none" stroke="rgba(251,113,133,0.75)" stroke-width="1.8" stroke-dasharray="4 3"/>
+            <path d="M 86 194 Q 142 206 188 224" fill="none" stroke="rgba(56,189,248,0.75)" stroke-width="1.8" stroke-dasharray="4 3"/>
+            <path d="M 88 198 Q 118 242 110 302" fill="none" stroke="rgba(52,211,153,0.8)" stroke-width="1.8" stroke-dasharray="4 3"/>
+            <path d="M 142 308 Q 140 240 144 164" fill="none" stroke="rgba(251,191,36,0.75)" stroke-width="1.6" stroke-dasharray="4 3"/>
+          </g>
+          <text x="140" y="338" text-anchor="middle" fill="#99f6e4" font-size="11" font-weight="700">손바닥을 점선 윤곽 안에 맞춰주세요</text>
+        </svg>
+
+        <!-- 카메라 미지원/권한 거절 시 안내 오버레이 -->
+        <div id="camera-fallback-notice" class="hidden absolute inset-0 flex flex-col items-center justify-center bg-black/55 px-5 text-center space-y-2">
+          <div class="text-xs font-bold text-amber-200">카메라 연결 대기 중 (또는 권한 필요)</div>
+          <p class="text-[11px] text-slate-200 leading-relaxed">위 가이드라인에 맞춰 촬영하려면 브라우저 카메라 권한을 허용하거나 아래 버튼으로 기본 카메라/앨범을 열어주세요.</p>
+        </div>
       </div>
-      <button id="btn-capture-snap" type="button" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#1b6058] to-[#267a6e] text-white font-bold text-sm border border-[#e6c67c]/70">
-        📸 지금 촬영하기
-      </button>
+
+      <div class="grid grid-cols-2 gap-2">
+        <button id="btn-camera-fallback-file" type="button" class="py-2.5 rounded-xl bg-white/10 text-amber-100 font-bold text-xs border border-white/20 active:scale-95 transition">
+          📁 기본 카메라/앨범
+        </button>
+        <button id="btn-capture-snap" type="button" class="py-2.5 rounded-xl bg-gradient-to-r from-[#1b6058] to-[#267a6e] text-white font-bold text-sm border border-[#e6c67c]/70 shadow-md active:scale-95 transition">
+          📸 지금 촬영하기
+        </button>
+      </div>
     </div>
   </div>
 
@@ -5457,33 +5522,95 @@
     }
   }
 
-  async function openCameraFor(target) {
-    activeCameraTarget = target;
-    document.getElementById('camera-modal-title').textContent = target === 'face' ? '📷 아린 관상 · 정면 촬영' : '📷 서연 손금 · 손바닥 촬영';
+  let activeFacingMode = 'user';
+
+  function updateCameraGuideUI(target) {
+    const isFace = target === 'face';
+    document.getElementById('camera-modal-title').textContent = isFace
+      ? '📷 아린 관상 · 가이드라인 촬영'
+      : `📷 서연 손금 (${state.palmHand}) · 가이드라인 촬영`;
+    document.getElementById('camera-guide-banner').textContent = isFace
+      ? '이마와 눈썹과 귀가 보이게 찍어주세요'
+      : '손을 이 가이드라인에 맞춰서 찍어주세요';
+    document.getElementById('camera-face-guide').classList.toggle('hidden', !isFace);
+    document.getElementById('camera-palm-guide').classList.toggle('hidden', isFace);
+    const palmGroup = document.getElementById('camera-palm-svg-group');
+    if (palmGroup) {
+      palmGroup.setAttribute('transform', state.palmHand === '오른손' ? 'translate(280,0) scale(-1,1)' : '');
+    }
+    webcamVideo.style.transform = activeFacingMode === 'user' ? 'scaleX(-1)' : 'none';
+  }
+
+  async function startCameraStream(facingMode) {
+    if (activeStream) {
+      activeStream.getTracks().forEach(t => t.stop());
+      activeStream = null;
+    }
+    const fallbackNotice = document.getElementById('camera-fallback-notice');
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       try {
         activeStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: target === 'face' ? 'user' : 'environment' },
+          video: { facingMode: { ideal: facingMode }, width: { ideal: 1080 }, height: { ideal: 1440 } },
           audio: false
         });
         webcamVideo.srcObject = activeStream;
-        cameraModal.classList.add('open');
-        return;
+        fallbackNotice?.classList.add('hidden');
+        return true;
       } catch (err) {
-        // Fallback to native mobile camera file picker if webcam permission blocked
+        // Fallback: try any available video device
+        try {
+          activeStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+          webcamVideo.srcObject = activeStream;
+          fallbackNotice?.classList.add('hidden');
+          return true;
+        } catch (_) {}
       }
     }
-    document.getElementById(target === 'face' ? 'input-face-camera' : 'input-palm-camera').click();
+    fallbackNotice?.classList.remove('hidden');
+    return false;
   }
+
+  async function openCameraFor(target) {
+    activeCameraTarget = target;
+    activeFacingMode = target === 'face' ? 'user' : 'environment';
+    updateCameraGuideUI(target);
+    cameraModal.classList.add('open');
+    await startCameraStream(activeFacingMode);
+  }
+
+  document.getElementById('btn-flip-camera')?.addEventListener('click', async () => {
+    activeFacingMode = activeFacingMode === 'user' ? 'environment' : 'user';
+    updateCameraGuideUI(activeCameraTarget);
+    await startCameraStream(activeFacingMode);
+  });
+
+  document.getElementById('btn-camera-fallback-file')?.addEventListener('click', () => {
+    const t = activeCameraTarget;
+    stopWebcam();
+    document.getElementById(t === 'face' ? 'input-face-camera' : 'input-palm-camera').click();
+  });
 
   document.getElementById('btn-close-camera').addEventListener('click', stopWebcam);
   document.getElementById('btn-capture-snap').addEventListener('click', () => {
+    if (!activeStream || !webcamVideo.videoWidth) {
+      const t = activeCameraTarget;
+      stopWebcam();
+      document.getElementById(t === 'face' ? 'input-face-camera' : 'input-palm-camera').click();
+      return;
+    }
     const vw = webcamVideo.videoWidth || 480;
     const vh = webcamVideo.videoHeight || 640;
     webcamCanvas.width = vw;
     webcamCanvas.height = vh;
-    webcamCanvas.getContext('2d').drawImage(webcamVideo, 0, 0, vw, vh);
-    const dataUrl = webcamCanvas.toDataURL('image/jpeg', 0.85);
+    const cctx = webcamCanvas.getContext('2d');
+    cctx.save();
+    if (activeFacingMode === 'user') {
+      cctx.translate(vw, 0);
+      cctx.scale(-1, 1);
+    }
+    cctx.drawImage(webcamVideo, 0, 0, vw, vh);
+    cctx.restore();
+    const dataUrl = webcamCanvas.toDataURL('image/jpeg', 0.86);
     stopWebcam();
     setUploadedPhoto(activeCameraTarget, dataUrl);
   });
