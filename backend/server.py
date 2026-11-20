@@ -485,7 +485,9 @@ async def analyze_vision(req: VisionRequest):
     else:
         prompt = (
             f"사용자 이름: {req.user_name}. "
-            "이 손바닥 사진을 보고 손금(생명선·두뇌선·감정선·운명선과 앞으로의 재물·연애·건강 흐름)을 마크다운 없이 4~5문장으로 상세하고 희망적으로 풀이해 주세요."
+            "이 손바닥 사진을 정밀하게 보고 아래 JSON 형식으로만 응답하세요(코드블록 없이 순수 JSON): "
+            '{"palm_type": "예: 황금 M자 재물손금 (또는 강인한 리더십 운명손금 / 감성·지성 균형 예술손금 / 천재형 막쥔손금 등)", '
+            '"analysis": "생명선·두뇌선·감정선·운명선과 앞으로의 재물·연애·건강 흐름 풀이 (마크다운 없이 4~5문장)"}'
         )
     if req.question:
         prompt += f" 추가 질문: {req.question}"
@@ -524,9 +526,22 @@ async def analyze_vision(req: VisionRequest):
         "INSERT INTO fortune_history (user_id, category, user_name, input_summary, result_summary, full_content, score, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
         (req.user_id, "관상" if is_face else "손금", req.user_name, req.question or "사진 업로드 분석", analysis[:180], full_txt, 93, now)
     )
+    palm_type = ""
+    if not is_face:
+        try:
+            cleaned = raw_text.strip()
+            if "{" in cleaned and "}" in cleaned:
+                cleaned = cleaned[cleaned.find("{"):cleaned.rfind("}") + 1]
+            parsed = json.loads(cleaned)
+            palm_type = parsed.get("palm_type", "황금 M자 재물손금")
+            analysis = parsed.get("analysis", raw_text)
+        except Exception:
+            palm_type = "균형 잡힌 복된 손금"
+
     return {
         "analysis": analysis,
         "face_type": face_type,
+        "palm_type": palm_type,
         "spouse_desc": spouse_desc,
         "spouse_prompt": spouse_prompt,
         "model": model_name
@@ -587,3 +602,28 @@ def serve_index():
     if os.path.exists(index_path):
         return FileResponse(index_path)
     return {"message": "운명상점 MVP API 서버가 실행 중입니다."}
+
+@app.get("/manifest.json")
+def serve_manifest():
+    p = os.path.join(os.path.dirname(__file__), "..", "manifest.json")
+    return FileResponse(p, media_type="application/manifest+json")
+
+@app.get("/sw.js")
+def serve_sw():
+    p = os.path.join(os.path.dirname(__file__), "..", "sw.js")
+    return FileResponse(p, media_type="application/javascript")
+
+@app.get("/icon-192.png")
+def serve_icon192():
+    p = os.path.join(os.path.dirname(__file__), "..", "icon-192.png")
+    return FileResponse(p, media_type="image/png")
+
+@app.get("/icon-512.png")
+def serve_icon512():
+    p = os.path.join(os.path.dirname(__file__), "..", "icon-512.png")
+    return FileResponse(p, media_type="image/png")
+
+@app.get("/og-preview.jpg")
+def serve_og():
+    p = os.path.join(os.path.dirname(__file__), "..", "og-preview.jpg")
+    return FileResponse(p, media_type="image/jpeg")

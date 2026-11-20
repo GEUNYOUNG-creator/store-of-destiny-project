@@ -3,7 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>운명상점 — AI 운세 &amp; 궁합 플랫폼</title>
+  <title>운명상점 — AI 3D 운세 &amp; 궁합 플랫폼</title>
+  <meta name="description" content="3D 마스터와 미니 펫이 풀어주는 사주·신살 일러스트·관상 미래 배우자·손금·22장 타로·MBTI·별자리·혈액형 AI 운세" />
+  <meta name="theme-color" content="#10192b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="운명상점" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/icon-192.png" />
+  <!-- KakaoTalk & SNS Open Graph Preview -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="운명상점" />
+  <meta property="og:title" content="🔮 운명상점 — AI 3D 사주·관상·타로·궁합" />
+  <meta property="og:description" content="내 사주 신살 일러스트부터 AI가 그려주는 미래 배우자 얼굴, 22장 타로와 궁합 카드까지 한 번에 확인해 보세요." />
+  <meta property="og:url" content="https://store-of-destiny-project.onrender.com" />
+  <meta property="og:image" content="https://store-of-destiny-project.onrender.com/og-preview.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="🔮 운명상점 — AI 3D 사주·관상·타로·궁합" />
+  <meta name="twitter:description" content="내 사주 신살 일러스트, 관상 미래 배우자 얼굴, 22장 타로와 궁합 결과 카드 저장까지!" />
+  <meta name="twitter:image" content="https://store-of-destiny-project.onrender.com/og-preview.jpg" />
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
@@ -825,9 +843,28 @@
       animation: subtleLanternBreath 4.5s ease-in-out infinite;
     }
 
+    #pwa-splash {
+      position: fixed; inset: 0; z-index: 9999;
+      background: radial-gradient(circle at 50% 42%, #1d2042 0%, #0b0e1a 75%);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transition: opacity 0.45s ease, visibility 0.45s ease;
+    }
+    #pwa-splash.done { opacity: 0; visibility: hidden; pointer-events: none; }
+    .palm-guide-svg path {
+      fill: none; stroke-width: 2.6; stroke-linecap: round;
+      filter: drop-shadow(0 0 4px rgba(0,0,0,0.9));
+    }
   </style>
 </head>
 <body>
+  <!-- PWA Loading Splash Screen -->
+  <div id="pwa-splash" aria-hidden="true">
+    <div class="w-20 h-20 rounded-2xl overflow-hidden border border-amber-300/60 shadow-2xl mb-3">
+      <img src="artifacts/file_generation/ttl=63d/intermediate/assets/app_icon_128.jpg" alt="운명상점 앱 아이콘" class="w-full h-full object-cover" />
+    </div>
+    <div class="font-serif-kr text-lg font-extrabold text-[#fae6b8] tracking-widest">운 명 상 점</div>
+    <div class="text-[11px] text-amber-200/75 mt-1">3D AI 운세 &amp; 궁합 스튜디오 불러오는 중…</div>
+  </div>
 
 <div id="app-shell">
   <div id="theme-backdrop"></div>
@@ -978,6 +1015,18 @@
           </button>
         </div>
 
+        <div class="flex items-center justify-between gap-2 mb-2 px-1 pr-12">
+          <div class="flex rounded-lg overflow-hidden border border-[#4b6357]/60 bg-white/50">
+            <button type="button" data-cal="solar" class="saju-cal-btn px-2.5 py-0.5 text-[10.5px] font-bold bg-[#154d48] text-[#f7e9c7]">양력</button>
+            <button type="button" data-cal="lunar" class="saju-cal-btn px-2.5 py-0.5 text-[10.5px] font-bold text-[#2b3a32]">음력</button>
+          </div>
+          <label id="saju-leap-wrap" class="hidden items-center gap-1 text-[10.5px] font-bold text-[#154d48] cursor-pointer select-none">
+            <input id="saju-leap" type="checkbox" class="accent-[#154d48] w-3.5 h-3.5" />
+            <span>윤달</span>
+          </label>
+          <span id="saju-cal-hint" class="text-[10px] text-[#3a5246]/85 ml-auto">양력 기준</span>
+        </div>
+
         <div class="grid grid-cols-12 gap-x-2 gap-y-2 items-end pr-12 pb-1">
           <div class="col-span-5 flex items-end gap-1">
             <input id="saju-year" type="number" min="1920" max="2026" value="" placeholder="1997" class="saju-underline-input w-full text-[15px]" aria-label="출생 연도" />
@@ -1051,6 +1100,18 @@
             <button type="button" data-pgender="M" class="saju-pgender-btn px-2 py-1 text-[11px] font-bold bg-[#154d48] text-[#f7e9c7]">남</button>
           </div>
         </div>
+        <div class="flex items-center justify-between gap-2 mb-2 px-1">
+          <div class="flex rounded-lg overflow-hidden border border-[#4b6357]/60 bg-white/50">
+            <button type="button" data-pcal="solar" class="saju-pcal-btn px-2.5 py-0.5 text-[10.5px] font-bold bg-[#154d48] text-[#f7e9c7]">양력</button>
+            <button type="button" data-pcal="lunar" class="saju-pcal-btn px-2.5 py-0.5 text-[10.5px] font-bold text-[#2b3a32]">음력</button>
+          </div>
+          <label id="saju-partner-leap-wrap" class="hidden items-center gap-1 text-[10.5px] font-bold text-[#154d48] cursor-pointer select-none">
+            <input id="saju-partner-leap" type="checkbox" class="accent-[#154d48] w-3.5 h-3.5" />
+            <span>윤달</span>
+          </label>
+          <span id="saju-pcal-hint" class="text-[10px] text-[#3a5246]/85 ml-auto">양력 기준</span>
+        </div>
+
         <div class="grid grid-cols-12 gap-x-2 gap-y-2 items-end pb-2.5">
           <div class="col-span-5 flex items-end gap-1">
             <input id="saju-partner-year" type="number" min="1920" max="2026" value="" placeholder="1996" class="saju-underline-input w-full text-[15px]" aria-label="상대 출생 연도" />
@@ -1326,9 +1387,21 @@
           </button>
         </div>
 
-        <div id="palm-preview-wrap" class="hidden mb-2.5 relative rounded-xl overflow-hidden border-2 border-amber-300/70 bg-black/30 h-32 flex items-center justify-center">
+        <div id="palm-preview-wrap" class="hidden mb-2.5 relative rounded-xl overflow-hidden border-2 border-amber-300/70 bg-black/40 h-44 flex items-center justify-center">
           <img id="palm-preview-img" src="" alt="업로드된 손바닥 사진" class="h-full w-full object-cover" />
-          <span class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded-full bg-black/70 text-[10px] text-teal-200">손금 사진 준비됨 ✓</span>
+          <svg id="palm-guide-overlay" viewBox="0 0 200 180" class="palm-guide-svg absolute inset-0 w-full h-full pointer-events-none">
+            <path d="M 150 56 Q 112 58 64 46" stroke="#fb7185" stroke-dasharray="5 3" />
+            <path d="M 52 72 Q 102 82 146 96" stroke="#38bdf8" stroke-dasharray="5 3" />
+            <path d="M 54 74 Q 78 106 72 152" stroke="#34d399" stroke-dasharray="5 3" />
+            <path d="M 102 156 Q 100 105 104 42" stroke="#fbbf24" stroke-dasharray="4 3" />
+          </svg>
+          <button id="btn-toggle-palm-guide" type="button" class="absolute top-1.5 right-1.5 px-2 py-0.5 rounded-full bg-black/75 border border-amber-300/50 text-[10px] font-bold text-amber-200">선 가이드 ON</button>
+          <div class="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between gap-1 px-2 py-1 rounded-lg bg-black/70 text-[9.5px]">
+            <span class="text-emerald-300 font-bold">● 생명선</span>
+            <span class="text-sky-300 font-bold">● 두뇌선</span>
+            <span class="text-rose-300 font-bold">● 감정선</span>
+            <span class="text-amber-300 font-bold">● 운명선</span>
+          </div>
         </div>
 
         <input id="palm-question" type="text" placeholder="궁금한 점 (예: 연애선과 재물선이 궁금해요)" class="w-full mb-2.5 px-3 py-2 rounded-xl text-xs bg-black/35 border border-teal-300/35 text-white focus:outline-none placeholder-teal-200/50" />
@@ -1437,6 +1510,14 @@
             <div class="text-[10.5px] text-slate-400">구슬·카드·터치 효과음 켜기 · 끄기</div>
           </div>
           <button id="btn-toggle-sfx" type="button" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/30 text-emerald-100 border border-emerald-400/60 min-w-[72px]">켜짐</button>
+        </div>
+
+        <div class="flex items-center justify-between bg-gradient-to-r from-[#154d48]/40 to-[#2e1f4d]/40 border border-[#e6c67c]/35 rounded-xl p-3.5">
+          <div>
+            <div class="text-xs font-bold text-[#fae8bf]">📲 홈 화면에 앱으로 설치 (PWA)</div>
+            <div class="text-[10.5px] text-slate-300">모바일 홈 화면에 아이콘을 추가해 앱처럼 실행</div>
+          </div>
+          <button id="btn-install-pwa" type="button" class="px-3 py-1.5 rounded-full text-xs font-bold bg-[#e6c67c] text-[#1a1612] shadow active:scale-95 transition shrink-0">앱 설치</button>
         </div>
       </div>
     </div>
@@ -2585,11 +2666,13 @@
     if (hasGwiin) sinsalTags.push({ key: 'gwiin', label: '✨ 천을귀인(天乙貴人)', desc: '결정적인 순간마다 뜻밖의 귀인이 나타나 길을 열어주는 최고의 길신' });
     if (!sinsalTags.length) sinsalTags.push({ key: 'hwagae', label: '✨ 천을귀인(天乙貴人)', desc: '고요한 지혜와 품격으로 귀한 인연을 부르는 기운' });
 
-    let primarySinsal = 'dohwa';
-    if (yeokmaCnt > dohwaCnt && yeokmaCnt >= hwagaeCnt) primarySinsal = 'yeokma';
-    else if (hwagaeCnt > dohwaCnt && hwagaeCnt > yeokmaCnt) primarySinsal = 'hwagae';
-    else if (dohwaCnt === 0 && yeokmaCnt === 0) primarySinsal = 'hwagae';
-    else if (dohwaCnt === 0) primarySinsal = 'yeokma';
+    // 일지(Day Branch) > 월지 > 년지 가중치로 대표 신살을 공정하게 결정
+    const scoresBySal = {
+      dohwa: dohwaCnt * 10 + (dohwaSet.has(dBranchIdx) ? 6 : 0) + (dohwaSet.has(mBranchIdx) ? 3 : 0) + (dohwaSet.has(yBranchIdx) ? 2 : 0),
+      yeokma: yeokmaCnt * 10 + (yeokmaSet.has(dBranchIdx) ? 6 : 0) + (yeokmaSet.has(mBranchIdx) ? 3 : 0) + (yeokmaSet.has(yBranchIdx) ? 2 : 0),
+      hwagae: hwagaeCnt * 10 + (hwagaeSet.has(dBranchIdx) ? 6 : 0) + (hwagaeSet.has(mBranchIdx) ? 3 : 0) + (hwagaeSet.has(yBranchIdx) ? 2 : 0) + (hasGwiin ? 4 : 0)
+    };
+    const primarySinsal = Object.entries(scoresBySal).sort((a, b) => b[1] - a[1])[0][0];
 
     return {
       pillars, counts, totalEl, dominant, lacking,
@@ -3446,7 +3529,91 @@
     F: 'artifacts/file_generation/ttl=63d/intermediate/assets/spouse_f.jpg'
   };
 
-  function validateBirthInputs(yId, mId, dId, whoLabel) {
+  // ==================== KOREAN LUNAR -> SOLAR CONVERTER (1900~2050) ====================
+  const LUNAR_INFO = [
+    0x04bd8,0x04ae0,0x0a570,0x054d5,0x0d260,0x0d950,0x16554,0x056a0,0x09ad0,0x055d2,
+    0x04ae0,0x0a5b6,0x0a4d0,0x0d250,0x1d255,0x0b540,0x0d6a0,0x0ada2,0x095b0,0x14977,
+    0x04970,0x0a4b0,0x0b4b5,0x06a50,0x06d40,0x1ab54,0x02b60,0x09570,0x052f2,0x04970,
+    0x06566,0x0d4a0,0x0ea50,0x06e95,0x05ad0,0x02b60,0x186e3,0x092e0,0x1c8d7,0x0c950,
+    0x0d4a0,0x1d8a6,0x0b550,0x056a0,0x1a5b4,0x025d0,0x092d0,0x0d2b2,0x0a950,0x0b557,
+    0x06ca0,0x0b550,0x15355,0x04da0,0x0a5d0,0x14573,0x052d0,0x0a9a8,0x0e950,0x06aa0,
+    0x0aea6,0x0ab50,0x04b60,0x0aae4,0x0a570,0x05260,0x0f263,0x0d950,0x05b57,0x056a0,
+    0x096d0,0x04dd5,0x04ad0,0x0a4d0,0x0d4d4,0x0d250,0x0d558,0x0b540,0x0b5a0,0x195a6,
+    0x095b0,0x049b0,0x0a974,0x0a4b0,0x0b27a,0x06a50,0x06d40,0x0af46,0x0ab60,0x09570,
+    0x04af5,0x04970,0x064b0,0x074a3,0x0ea50,0x06b58,0x05ac0,0x0ab60,0x096d5,0x092e0,
+    0x0c960,0x0d954,0x0d4a0,0x0da50,0x07552,0x056a0,0x0abb7,0x025d0,0x092d0,0x0cab5,
+    0x0a950,0x0b4a0,0x0baa4,0x0ad50,0x055d9,0x04ba0,0x0a5b0,0x15176,0x052b0,0x0a930,
+    0x07954,0x06aa0,0x0ad50,0x05b52,0x04b60,0x0a6e6,0x0a4e0,0x0d260,0x0ea65,0x0d530,
+    0x05aa0,0x076a3,0x096d0,0x04afb,0x04ad0,0x0a4d0,0x1d0b6,0x0d250,0x0d520,0x0dd45,
+    0x0b5a0,0x056d0,0x055b2,0x049b0,0x0a577,0x0a4b0,0x0aa50,0x1b255,0x06d20,0x0ada0,
+    0x14b63
+  ];
+  function lunarLeapMonth(y) { return (LUNAR_INFO[y - 1900] || 0) & 0xf; }
+  function lunarLeapDays(y) { return lunarLeapMonth(y) ? ((LUNAR_INFO[y - 1900] & 0x10000) ? 30 : 29) : 0; }
+  function lunarMonthDays(y, m) { return ((LUNAR_INFO[y - 1900] || 0) & (0x10000 >> m)) ? 30 : 29; }
+  function lunarYearDays(y) {
+    let sum = 348;
+    const info = LUNAR_INFO[y - 1900] || 0;
+    for (let i = 0x8000; i > 0x8; i >>= 1) if (info & i) sum += 1;
+    return sum + lunarLeapDays(y);
+  }
+  function lunarToSolar(y, m, d, isLeap = false) {
+    let offset = 0;
+    for (let yr = 1900; yr < y; yr++) offset += lunarYearDays(yr);
+    const lm = lunarLeapMonth(y);
+    for (let mo = 1; mo < m; mo++) {
+      offset += lunarMonthDays(y, mo);
+      if (lm && mo === lm) offset += lunarLeapDays(y);
+    }
+    if (isLeap && lm === m) offset += lunarMonthDays(y, m);
+    offset += (d - 1);
+    const baseMs = Date.UTC(1900, 0, 31) + offset * 86400000;
+    const dt = new Date(baseMs);
+    return { y: dt.getUTCFullYear(), m: dt.getUTCMonth() + 1, d: dt.getUTCDate() };
+  }
+
+  state.userCalType = 'solar';
+  state.partnerCalType = 'solar';
+  document.querySelectorAll('.saju-cal-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.userCalType = btn.dataset.cal;
+      document.querySelectorAll('.saju-cal-btn').forEach(b => {
+        const act = b.dataset.cal === state.userCalType;
+        b.className = `saju-cal-btn px-2.5 py-0.5 text-[10.5px] font-bold ${act ? 'bg-[#154d48] text-[#f7e9c7]' : 'text-[#2b3a32]'}`;
+      });
+      const lw = document.getElementById('saju-leap-wrap');
+      const hint = document.getElementById('saju-cal-hint');
+      if (state.userCalType === 'lunar') {
+        lw.classList.remove('hidden'); lw.classList.add('flex');
+        hint.textContent = '음력 → 양력 자동 환산';
+      } else {
+        lw.classList.add('hidden'); lw.classList.remove('flex');
+        document.getElementById('saju-leap').checked = false;
+        hint.textContent = '양력 기준';
+      }
+    });
+  });
+  document.querySelectorAll('.saju-pcal-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.partnerCalType = btn.dataset.pcal;
+      document.querySelectorAll('.saju-pcal-btn').forEach(b => {
+        const act = b.dataset.pcal === state.partnerCalType;
+        b.className = `saju-pcal-btn px-2.5 py-0.5 text-[10.5px] font-bold ${act ? 'bg-[#154d48] text-[#f7e9c7]' : 'text-[#2b3a32]'}`;
+      });
+      const lw = document.getElementById('saju-partner-leap-wrap');
+      const hint = document.getElementById('saju-pcal-hint');
+      if (state.partnerCalType === 'lunar') {
+        lw.classList.remove('hidden'); lw.classList.add('flex');
+        hint.textContent = '음력 → 양력 자동 환산';
+      } else {
+        lw.classList.add('hidden'); lw.classList.remove('flex');
+        document.getElementById('saju-partner-leap').checked = false;
+        hint.textContent = '양력 기준';
+      }
+    });
+  });
+
+  function validateBirthInputs(yId, mId, dId, whoLabel, calType = 'solar', isLeap = false) {
     const yEl = document.getElementById(yId);
     const mEl = document.getElementById(mId);
     const dEl = document.getElementById(dId);
@@ -3470,6 +3637,30 @@
         msg: `${whoLabel}의 출생 연도(1920~2026) 또는 월(1~12)을 정확히 입력해 주세요.`
       };
     }
+    if (calType === 'lunar') {
+      const lm = lunarLeapMonth(y);
+      if (isLeap && lm !== m) {
+        return {
+          ok: false,
+          focusEl: mEl,
+          msg: `${whoLabel}: ${y}년 음력 ${m}월에는 윤달이 없습니다.${lm ? ` (${y}년 윤달은 ${lm}월)` : ''}`
+        };
+      }
+      const maxLunarDay = (isLeap && lm === m) ? lunarLeapDays(y) : lunarMonthDays(y, m);
+      if (isNaN(d) || d < 1 || d > maxLunarDay) {
+        return {
+          ok: false,
+          focusEl: dEl,
+          msg: `${whoLabel}의 음력 ${y}년 ${isLeap ? '윤' : ''}${m}월은 1~${maxLunarDay}일까지입니다.`
+        };
+      }
+      const conv = lunarToSolar(y, m, d, isLeap);
+      return {
+        ok: true, y: conv.y, m: conv.m, d: conv.d,
+        calType: 'lunar', isLeap,
+        displayDate: `음력 ${y}년 ${isLeap ? '윤' : ''}${m}월 ${d}일 (양력 ${conv.y}.${conv.m}.${conv.d})`
+      };
+    }
     const maxDay = new Date(y, m, 0).getDate();
     if (isNaN(d) || d < 1 || d > maxDay) {
       return {
@@ -3478,7 +3669,7 @@
         msg: `${whoLabel}의 출생 일(${y}년 ${m}월은 1~${maxDay}일)을 정확히 입력해 주세요.`
       };
     }
-    return { ok: true, y, m, d };
+    return { ok: true, y, m, d, calType: 'solar', isLeap: false, displayDate: `양력 ${y}년 ${m}월 ${d}일` };
   }
 
   function showBirthValidationModal(messages, focusEl) {
@@ -3505,9 +3696,12 @@
   }
 
   document.getElementById('btn-run-saju').addEventListener('click', () => {
-    const myCheck = validateBirthInputs('saju-year', 'saju-month', 'saju-day', '본인');
+    const myLeap = !!document.getElementById('saju-leap')?.checked;
+    const myCheck = validateBirthInputs('saju-year', 'saju-month', 'saju-day', '본인', state.userCalType, myLeap);
     if (!myCheck.ok) { showBirthValidationModal([myCheck.msg], myCheck.focusEl); return; }
-    const { y, m, d, timeVal, name } = getSajuParams();
+    const y = myCheck.y, m = myCheck.m, d = myCheck.d;
+    const timeVal = sajuTimeSelect.value;
+    const name = sajuNameInput.value.trim() || '방문자';
     const gKey = (state.userGender === 'M') ? 'M' : 'F';
     const genderLabel = gKey === 'M' ? '남성' : '여성';
     state.userName = name;
@@ -3549,7 +3743,7 @@
 
     openModal('연화의 옥구슬 사주 풀이', `${name}님의 사주팔자 · 신살`, `
       <div class="text-xs text-slate-300 bg-white/5 rounded-xl p-3 border border-white/10">
-        <strong class="text-[#f3dfb1]">${name}</strong>님 (${genderLabel} · ${y}년 ${m}월 ${d}일 · ${data.animal}띠)의 사주 원국입니다.
+        <strong class="text-[#f3dfb1]">${name}</strong>님 (${genderLabel} · ${myCheck.displayDate} · ${data.animal}띠)의 사주 원국입니다.
       </div>
       <div class="grid grid-cols-4 gap-2">${pillarsHtml}</div>
 
@@ -3592,11 +3786,19 @@
         <span class="text-amber-200 font-semibold">🍀 행운 키워드</span>
         <span class="text-white font-medium">${data.ilgan.lucky}</span>
       </div>
+      ${renderShareActionBar('saju', '내 사주 결과 공유하기')}
     `);
+    registerSharePayload('saju', {
+      category: '사주팔자 · 신살 풀이', title: `${name}님의 ${artGroup.title}`,
+      scoreText: `${data.animal}띠`, subtitle: data.ilgan.title,
+      summary: `${data.ilgan.desc} ${artItem.caption}`,
+      tip: `행운 키워드: ${data.ilgan.lucky}`,
+      bg1: '#122e2b', bg2: '#0b1019', accent: '#e6c67c'
+    });
     const q = (document.getElementById('saju-question')?.value || '').trim();
     const sinsalNames = data.sinsalTags.map(s => s.label).join(', ');
-    const details = `${name}(${genderLabel}), ${y}년 ${m}월 ${d}일 (${data.animal}띠), 일간: ${data.ilgan.title}, 보유 신살: ${sinsalNames}, 오행 강함:${data.dominant}/보완:${data.lacking}`;
-    askGeminiFortune('saju', '사주 명리·신살', details, q, `${data.ilgan.desc} 특히 ${artGroup.title}의 기운이 강하게 자리 잡아 ${artItem.caption}`).then(txt => {
+    const details = `${name}(${genderLabel}), ${myCheck.displayDate}, 만세력 사주: ${data.pillars.map(p=>p.stem+p.branch).join(' ')}, ${data.animal}띠, 일간: ${data.ilgan.title}, 보유 신살: ${sinsalNames}, 오행 강함:${data.dominant}/보완:${data.lacking}`;
+    askGeminiFortune('saju', '사주 명리·신살', details, q, `${data.ilgan.desc} 특히 ${artGroup.title}의 기운이 강하게 자리 잡아 ${artItem.caption}`, name).then(txt => {
       const el = document.getElementById('saju-llm-box');
       if (el) el.textContent = txt;
     });
@@ -3626,8 +3828,10 @@
   });
 
   document.getElementById('btn-run-saju-compat').addEventListener('click', () => {
-    const myCheck = validateBirthInputs('saju-year', 'saju-month', 'saju-day', '나(본인)');
-    const partnerCheck = validateBirthInputs('saju-partner-year', 'saju-partner-month', 'saju-partner-day', '상대방');
+    const myLeap = !!document.getElementById('saju-leap')?.checked;
+    const pLeap = !!document.getElementById('saju-partner-leap')?.checked;
+    const myCheck = validateBirthInputs('saju-year', 'saju-month', 'saju-day', '나(본인)', state.userCalType, myLeap);
+    const partnerCheck = validateBirthInputs('saju-partner-year', 'saju-partner-month', 'saju-partner-day', '상대방', state.partnerCalType, pLeap);
     const errs = [];
     if (!myCheck.ok) errs.push(myCheck.msg);
     if (!partnerCheck.ok) errs.push(partnerCheck.msg);
@@ -3635,7 +3839,7 @@
       showBirthValidationModal(errs, !myCheck.ok ? myCheck.focusEl : partnerCheck.focusEl);
       return;
     }
-    const me = getSajuParams();
+    const me = { y: myCheck.y, m: myCheck.m, d: myCheck.d, timeVal: sajuTimeSelect.value, name: sajuNameInput.value.trim() || '나' };
     const myGender = state.userGender === 'M' ? '남성' : '여성';
     const pName = (document.getElementById('saju-partner-name').value || '').trim() || '상대방';
     const pYear = partnerCheck.y;
@@ -3686,14 +3890,14 @@
 
       <div class="grid grid-cols-2 gap-2 text-xs">
         <div class="bg-white/5 border border-[#e6c67c]/30 rounded-xl p-3">
-          <div class="text-[10px] text-amber-300 font-bold mb-1">나의 사주 (${myGender})</div>
+          <div class="text-[10px] text-amber-300 font-bold mb-1">나의 사주 (${myGender} · ${myCheck.calType === 'lunar' ? '음력' : '양력'})</div>
           <div class="font-serif-kr font-bold text-white">${me.name} · ${myData.animal}띠</div>
           <div class="text-[11px] text-slate-300 mt-1">일간: ${myData.ilgan.title.split('·')[0].trim()}</div>
           <div class="text-[11px] text-slate-300">주력 오행: <strong class="text-[#fde68a]">${myData.dominant}</strong></div>
           <div class="text-[10.5px] text-amber-200 mt-1">${myData.sinsalTags[0].label}</div>
         </div>
         <div class="bg-white/5 border border-rose-300/35 rounded-xl p-3">
-          <div class="text-[10px] text-rose-300 font-bold mb-1">상대방 사주 (${pGender})</div>
+          <div class="text-[10px] text-rose-300 font-bold mb-1">상대방 사주 (${pGender} · ${partnerCheck.calType === 'lunar' ? '음력' : '양력'})</div>
           <div class="font-serif-kr font-bold text-white">${pName} · ${pData.animal}띠</div>
           <div class="text-[11px] text-slate-300 mt-1">일간: ${pData.ilgan.title.split('·')[0].trim()}</div>
           <div class="text-[11px] text-slate-300">주력 오행: <strong class="text-rose-200">${pData.dominant}</strong></div>
@@ -3713,8 +3917,8 @@
     `);
 
     const q = (document.getElementById('saju-question')?.value || '').trim();
-    const details = `[나] ${me.name}(${myGender}, ${me.y}.${me.m}.${me.d}, ${myData.animal}띠, 일간:${myData.ilgan.title}, 주력오행:${myData.dominant}, 신살:${myData.sinsalTags[0].label}) vs [상대] ${pName}(${pGender}, ${pYear}.${pMonth}.${pDay}, ${pData.animal}띠, 일간:${pData.ilgan.title}, 주력오행:${pData.dominant}, 신살:${pData.sinsalTags[0].label}), 궁합점수:${score}점`;
-    askGeminiFortune('saju', '사주 궁합', details, q || '두 사람의 연애·결혼 궁합과 오래 잘 지내는 비결이 궁금해요', harmonySummary).then(txt => {
+    const details = `[나] ${me.name}(${myGender}, ${myCheck.displayDate}, ${myData.animal}띠, 일간:${myData.ilgan.title}, 주력오행:${myData.dominant}, 신살:${myData.sinsalTags[0].label}) vs [상대] ${pName}(${pGender}, ${partnerCheck.displayDate}, ${pData.animal}띠, 일간:${pData.ilgan.title}, 주력오행:${pData.dominant}, 신살:${pData.sinsalTags[0].label}), 궁합점수:${score}점`;
+    askGeminiFortune('saju', '사주 궁합', details, q || '두 사람의 연애·결혼 궁합과 오래 잘 지내는 비결이 궁금해요', harmonySummary, `${me.name}·${pName}`).then(txt => {
       const el = document.getElementById('saju-compat-llm-box');
       if (el) el.textContent = txt;
     });
@@ -3745,6 +3949,168 @@
     });
   });
 
+  /* ==================== RESULT CARD PNG GENERATOR & SNS SHARE ENGINE ==================== */
+  window.__fortuneShareStore = {};
+  function registerSharePayload(key, payload) {
+    window.__fortuneShareStore[key] = payload;
+  }
+
+  function wrapCanvasText(ctx, text, x, y, maxW, lineH, maxLines = 7) {
+    const words = String(text || '').replace(/\n+/g, ' ').split(' ');
+    let line = '', lines = [];
+    for (let i = 0; i < words.length; i++) {
+      const test = line ? line + ' ' + words[i] : words[i];
+      if (ctx.measureText(test).width > maxW && line) {
+        lines.push(line);
+        line = words[i];
+        if (lines.length >= maxLines - 1) break;
+      } else {
+        line = test;
+      }
+    }
+    if (line) lines.push(line);
+    lines.slice(0, maxLines).forEach((ln, idx) => ctx.fillText(ln, x, y + idx * lineH));
+    return y + Math.min(lines.length, maxLines) * lineH;
+  }
+
+  function buildFortuneCardBlob(p) {
+    return new Promise((resolve) => {
+      const c = document.createElement('canvas');
+      c.width = 720; c.height = 960;
+      const ctx = c.getContext('2d');
+      const g = ctx.createLinearGradient(0, 0, 720, 960);
+      g.addColorStop(0, p.bg1 || '#181438');
+      g.addColorStop(1, p.bg2 || '#0b0e1c');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, 720, 960);
+
+      const rg = ctx.createRadialGradient(360, 260, 20, 360, 260, 340);
+      rg.addColorStop(0, (p.accent || '#e6c67c') + '33');
+      rg.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = rg;
+      ctx.fillRect(0, 0, 720, 960);
+
+      ctx.strokeStyle = '#e6c67c';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(26, 26, 668, 908);
+      ctx.strokeStyle = 'rgba(230,198,124,0.4)';
+      ctx.lineWidth = 1.2;
+      ctx.strokeRect(38, 38, 644, 884);
+
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#e6c67c';
+      ctx.font = 'bold 20px "Noto Sans KR", sans-serif';
+      ctx.fillText('✦ 운 명 상 점  ·  FORTUNE SHOP ✦', 360, 92);
+
+      ctx.fillStyle = 'rgba(255,255,255,0.1)';
+      ctx.beginPath();
+      ctx.roundRect(220, 118, 280, 42, 21);
+      ctx.fill();
+      ctx.strokeStyle = p.accent || '#e6c67c';
+      ctx.lineWidth = 1.4;
+      ctx.stroke();
+      ctx.fillStyle = '#fff5dc';
+      ctx.font = 'bold 19px "Noto Sans KR", sans-serif';
+      ctx.fillText(p.category || 'AI 운세 결과', 360, 146);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 42px "Noto Serif KR", serif';
+      ctx.fillText(p.title || '', 360, 232);
+
+      if (p.scoreText) {
+        ctx.fillStyle = p.accent || '#fbbf24';
+        ctx.font = '900 54px "Inter", sans-serif';
+        ctx.fillText(p.scoreText, 360, 314);
+      }
+      if (p.subtitle) {
+        ctx.fillStyle = '#f5dc9c';
+        ctx.font = 'bold 24px "Noto Sans KR", sans-serif';
+        ctx.fillText(p.subtitle, 360, p.scoreText ? 364 : 292);
+      }
+
+      ctx.strokeStyle = 'rgba(230,198,124,0.35)';
+      ctx.beginPath(); ctx.moveTo(86, 404); ctx.lineTo(634, 404); ctx.stroke();
+
+      ctx.fillStyle = 'rgba(255,255,255,0.06)';
+      ctx.beginPath();
+      ctx.roundRect(66, 430, 588, 310, 22);
+      ctx.fill();
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#f1f5f9';
+      ctx.font = '500 22px "Noto Sans KR", sans-serif';
+      wrapCanvasText(ctx, p.summary || '', 96, 480, 528, 36, 7);
+
+      if (p.tip) {
+        ctx.fillStyle = 'rgba(230,198,124,0.14)';
+        ctx.beginPath();
+        ctx.roundRect(66, 766, 588, 86, 18);
+        ctx.fill();
+        ctx.fillStyle = '#fde68a';
+        ctx.font = 'bold 19px "Noto Sans KR", sans-serif';
+        wrapCanvasText(ctx, `✨ ${p.tip}`, 92, 804, 536, 28, 2);
+      }
+
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(226,232,240,0.65)';
+      ctx.font = '500 16px "Noto Sans KR", sans-serif';
+      ctx.fillText('store-of-destiny-project.onrender.com', 360, 898);
+
+      c.toBlob((blob) => resolve({ blob, dataUrl: c.toDataURL('image/png') }), 'image/png');
+    });
+  }
+
+  window.downloadFortuneCard = async function(key) {
+    const p = window.__fortuneShareStore[key];
+    if (!p) return;
+    const { dataUrl } = await buildFortuneCardBlob(p);
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = `운명상점_${(p.category || '결과').replace(/\s+/g, '_')}.png`;
+    a.click();
+    showToast('결과 카드 이미지가 저장되었습니다 🖼️');
+  };
+
+  window.shareFortuneResult = async function(key) {
+    const p = window.__fortuneShareStore[key];
+    if (!p) return;
+    const shareText = `[운명상점 · ${p.category}] ${p.title}${p.scoreText ? ' (' + p.scoreText + ')' : ''}\n${p.subtitle || ''}\n${(p.summary || '').slice(0, 110)}…\n👉 https://store-of-destiny-project.onrender.com`;
+    try {
+      const { blob } = await buildFortuneCardBlob(p);
+      const file = blob ? new File([blob], `운명상점_${key}.png`, { type: 'image/png' }) : null;
+      if (navigator.share) {
+        if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ title: `운명상점 — ${p.category}`, text: shareText, files: [file] });
+        } else {
+          await navigator.share({ title: `운명상점 — ${p.category}`, text: shareText, url: 'https://store-of-destiny-project.onrender.com' });
+        }
+        return;
+      }
+    } catch (_) {}
+    try {
+      await navigator.clipboard.writeText(shareText);
+      showToast('카카오톡·SNS 공유 문구가 복사되었습니다 📋');
+    } catch (_) {
+      showToast('결과 카드를 저장해 SNS에 공유해 보세요 ✨');
+    }
+  };
+
+  function renderShareActionBar(key, shareLabel = '결과 공유하기') {
+    return `
+      <div class="grid grid-cols-2 gap-1.5 mt-2.5 pt-2 border-t border-white/10">
+        <button type="button" onclick="window.downloadFortuneCard('${key}')" class="py-1.5 px-2 rounded-lg text-[11px] font-bold bg-white/10 hover:bg-white/15 text-amber-100 border border-amber-300/35 active:scale-95 transition">🖼️ 결과 카드 저장</button>
+        <button type="button" onclick="window.shareFortuneResult('${key}')" class="py-1.5 px-2 rounded-lg text-[11px] font-bold bg-amber-400/20 hover:bg-amber-400/30 text-amber-100 border border-amber-300/45 active:scale-95 transition">📤 ${shareLabel}</button>
+      </div>`;
+  }
+
+  const palmGuideBtn = document.getElementById('btn-toggle-palm-guide');
+  const palmGuideSvg = document.getElementById('palm-guide-overlay');
+  if (palmGuideBtn && palmGuideSvg) {
+    palmGuideBtn.addEventListener('click', () => {
+      const hidden = palmGuideSvg.classList.toggle('hidden');
+      palmGuideBtn.textContent = hidden ? '선 가이드 OFF' : '선 가이드 ON';
+    });
+  }
+
   function renderBloodResult(withEffect = false) {
     const key = `${state.bloodMe}-${state.bloodYou}`;
     const res = BLOOD_DB[key] || BLOOD_DB['A-O'];
@@ -3763,7 +4129,13 @@
       <div class="text-[11px] bg-pink-500/15 border border-pink-400/25 rounded-lg px-2.5 py-1.5 text-pink-200">
         💡 <strong>루미의 비밀 메모:</strong> ${res.tip}
       </div>
+      ${renderShareActionBar('blood', '궁합 공유하기')}
     `;
+    registerSharePayload('blood', {
+      category: '혈액형 궁합', title: `${state.bloodMe}형 ♥ ${state.bloodYou}형`,
+      scoreText: `${res.score}%`, subtitle: res.tag, summary: res.text, tip: `루미의 비밀 메모: ${res.tip}`,
+      bg1: '#3b152c', bg2: '#140911', accent: '#f472b6'
+    });
     if (withEffect) {
       playChimeSound(740);
       rigPhys.flinchElapsed = 0.0;
@@ -3840,7 +4212,14 @@
           <div class="font-semibold text-white">${z.item}</div>
         </div>
       </div>
+      ${renderShareActionBar('zodiac', '별자리 공유하기')}
     `;
+    registerSharePayload('zodiac', {
+      category: '오늘의 별자리 운세', title: `${z.symbol} ${z.name}`,
+      scoreText: '★★★★☆', subtitle: `${z.el} 원소 · 수호성 ${z.ruler}`,
+      summary: z.msg, tip: `행운 컬러 ${z.color} · 숫자 ${z.num} · 아이템 ${z.item}`,
+      bg1: '#1d184d', bg2: '#0c0a21', accent: '#c4b5fd'
+    });
     if (withEffect) {
       playChimeSound(820);
       rigPhys.flinchElapsed = 0.0;
@@ -3864,7 +4243,14 @@
       </div>
       <div class="text-xs font-bold text-fuchsia-300 mb-1.5">✦ ${res.title}</div>
       <p class="text-xs text-violet-100/90 leading-relaxed">${res.desc}</p>
+      ${renderShareActionBar('zodiac_match', '성좌 궁합 공유')}
     `;
+    registerSharePayload('zodiac_match', {
+      category: '별자리 궁합', title: `${res.a.name} × ${res.b.name}`,
+      scoreText: `${res.score}점`, subtitle: res.title, summary: res.desc,
+      tip: '스텔라의 천문 성좌 궁합 분석',
+      bg1: '#231654', bg2: '#0d0924', accent: '#e879f9'
+    });
     if (withEffect) {
       playChimeSound(860);
       rigPhys.bounceVel = 0.08;
@@ -4133,7 +4519,14 @@
       <div class="text-[11px] bg-sky-500/15 border border-sky-300/25 rounded-lg px-2.5 py-1.5 text-sky-100">
         💙 <strong>하린의 상담 처방:</strong> ${res.tip}
       </div>
+      ${renderShareActionBar('mbti', 'MBTI 궁합 공유')}
     `;
+    registerSharePayload('mbti', {
+      category: 'MBTI 심리 궁합', title: `${res.a} × ${res.b}`,
+      scoreText: `${res.score}점`, subtitle: res.grade, summary: res.summary,
+      tip: `하린의 상담 처방: ${res.tip}`,
+      bg1: '#1c2b4a', bg2: '#0e1526', accent: '#60a5fa'
+    });
     if (withEffect) {
       playChimeSound(680);
       rigPhys.flinchElapsed = 0.0;
@@ -4150,14 +4543,15 @@
   document.getElementById('btn-run-mbti').addEventListener('click', () => renderMBTI(true));
 
   /* ==================== DB RECORDING + OLLAMA CHAT & VISION ENGINE ==================== */
-  async function askGeminiFortune(charId, category, details, question, fallbackText) {
+  async function askGeminiFortune(charId, category, details, question, fallbackText, subjectName = '') {
     const uid = state.currentUser ? state.currentUser.id : null;
-    const uname = (state.currentUser && state.currentUser.name) || state.userName || '방문자';
+    const uname = (subjectName && subjectName.trim()) || (state.userName && state.userName.trim()) || (state.currentUser && state.currentUser.name) || '방문자';
     if (state.liveApiEnabled && state.apiBaseUrl) {
       try {
-        const resp = await fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/fortune`, {
+        const resp = await fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/fortune?_t=${Date.now()}`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          cache: 'no-store',
+          headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache' },
           body: JSON.stringify({
             user_id: uid,
             character_id: charId,
@@ -4319,6 +4713,12 @@
   });
 
   function renderFaceAndSpouseCard({ faceType, analysis, spouseDesc, spouseImg, badgeText, spouseBadge }) {
+    registerSharePayload('face', {
+      category: '청동거울 AI 관상', title: faceType,
+      scoreText: '귀인운 93점', subtitle: '아린의 관상 & 미래 배우자 리딩',
+      summary: analysis, tip: spouseDesc,
+      bg1: '#152e25', bg2: '#0b120e', accent: '#f6dc9b'
+    });
     return `
       <div class="text-left space-y-3">
         <div class="flex items-center justify-between gap-2">
@@ -4348,6 +4748,7 @@
             <p class="text-[11.5px] text-amber-50/90 leading-relaxed">${spouseDesc}</p>
           </div>
         </div>
+        ${renderShareActionBar('face', '내 관상 결과 공유하기')}
       </div>`;
   }
 
@@ -4421,13 +4822,28 @@
           return;
         }
 
+        const pType = data.palm_type || '황금 M자 재물손금';
+        registerSharePayload('palm', {
+          category: `황금 돋보기 손금 (${state.palmHand})`, title: pType,
+          scoreText: '운명선 94점', subtitle: '서연의 AI 손금 분석',
+          summary: data.analysis, tip: '생명선 · 두뇌선 · 감정선 · 운명선 정밀 리딩',
+          bg1: '#0f2c33', bg2: '#071216', accent: '#5eead4'
+        });
         resultEl.innerHTML = `
-          <div class="text-left space-y-1.5">
+          <div class="text-left space-y-2.5">
             <div class="flex items-center justify-between">
               <span class="font-bold text-amber-200">✋ 서연의 AI 손금 풀이</span>
               <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/25 text-emerald-200">${data.model}</span>
             </div>
+            <div class="rounded-xl bg-teal-950/65 border border-amber-300/45 px-3 py-2 flex items-center justify-between">
+              <div>
+                <div class="text-[10px] text-amber-300/90 font-semibold">${state.palmHand} 대표 손금 타입</div>
+                <div class="font-serif-kr text-sm font-extrabold text-white mt-0.5">${pType}</div>
+              </div>
+              <span class="text-lg">✦</span>
+            </div>
             <p class="text-xs text-slate-100 leading-relaxed whitespace-pre-line">${data.analysis}</p>
+            ${renderShareActionBar('palm', '손금 결과 공유하기')}
           </div>
         `;
         return;
@@ -4452,14 +4868,30 @@
       });
       saveFortuneRecord('관상', question || '얼굴 사진 업로드', `${pickedType} · ${txt.slice(0, 60)}`, 93);
     } else {
+      const palmTypes = ['황금 M자 재물손금', '감성·지성 균형 예술손금', '강인한 리더십 운명손금'];
+      const pType = palmTypes[(imgData.length) % palmTypes.length];
       const txt = `${name}님의 ${state.palmHand} 손바닥에서 생명선이 깊고 완만하게 뻗어 활력이 탄탄합니다. 두뇌선과 감정선의 간격이 조화로워 현실 감각과 공감 능력이 균형을 이루며, 중앙으로 오르는 운명선 덕분에 노력한 일에서 귀한 결실을 맺을 흐름입니다.`;
+      registerSharePayload('palm', {
+        category: `황금 돋보기 손금 (${state.palmHand})`, title: pType,
+        scoreText: '운명선 94점', subtitle: '서연의 손금 리딩',
+        summary: txt, tip: '생명선 · 두뇌선 · 감정선 · 운명선 분석',
+        bg1: '#0f2c33', bg2: '#071216', accent: '#5eead4'
+      });
       resultEl.innerHTML = `
-        <div class="text-left space-y-1.5">
+        <div class="text-left space-y-2.5">
           <div class="flex items-center justify-between">
-            <span class="font-bold text-teal-200">✋ 서연의 ${state.palmHand} 손금 리딩 (미리보기)</span>
+            <span class="font-bold text-teal-200">✋ 서연의 ${state.palmHand} 손금 리딩</span>
             <span class="text-xs font-extrabold text-amber-300">운명선 94점</span>
           </div>
+          <div class="rounded-xl bg-teal-950/65 border border-amber-300/45 px-3 py-2 flex items-center justify-between">
+            <div>
+              <div class="text-[10px] text-amber-300/90 font-semibold">${state.palmHand} 대표 손금 타입</div>
+              <div class="font-serif-kr text-sm font-extrabold text-white mt-0.5">${pType}</div>
+            </div>
+            <span class="text-lg">✦</span>
+          </div>
           <p class="text-xs text-teal-50/90 leading-relaxed">${txt}</p>
+          ${renderShareActionBar('palm', '손금 결과 공유하기')}
         </div>
       `;
       saveFortuneRecord('손금', `${state.palmHand} ${question || '손바닥 사진'}`, txt.slice(0, 70), 94);
@@ -4895,6 +5327,32 @@
   renderMbtiToggles();
   renderMBTI(false);
   requestAnimationFrame(animateThree);
+
+  // ---- PWA SPLASH DISMISS, SERVICE WORKER & APP INSTALL ----
+  const splashEl = document.getElementById('pwa-splash');
+  if (splashEl) {
+    setTimeout(() => splashEl.classList.add('done'), 420);
+  }
+  let deferredInstallPrompt = null;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+  });
+  const btnInstallPwa = document.getElementById('btn-install-pwa');
+  if (btnInstallPwa) {
+    btnInstallPwa.addEventListener('click', async () => {
+      if (deferredInstallPrompt) {
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice;
+        deferredInstallPrompt = null;
+      } else {
+        showToast('모바일 브라우저 메뉴에서 "홈 화면에 추가"를 눌러 앱으로 설치하세요 📲');
+      }
+    });
+  }
+  if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  }
 })();
 </script>
 </body>
