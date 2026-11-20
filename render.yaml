@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: fortune-shop-mvp
+    name: store-of-destiny-project
     runtime: python
     plan: free
     buildCommand: pip install -r backend/requirements.txt
@@ -10,11 +10,13 @@ services:
         sync: false
       - key: GEMINI_MODEL
         value: gemini-3.5-flash-lite
-      - key: APP_BASE_URL
-        value: https://store-of-destiny-project.onrender.com
+      - key: DATABASE_URL
+        sync: false
       - key: GOOGLE_CLIENT_ID
         sync: false
       - key: GOOGLE_CLIENT_SECRET
         sync: false
-      - key: KAKAO_REST_API_KEY
+      - key: KAKAO_CLIENT_ID
+        sync: false
+      - key: KAKAO_CLIENT_SECRET
         sync: false

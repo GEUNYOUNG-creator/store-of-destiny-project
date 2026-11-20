@@ -1473,6 +1473,22 @@
             <span>카카오톡으로 계속하기</span>
           </button>
         </div>
+
+        <div class="flex items-center gap-2 pt-1">
+          <span class="h-[1px] flex-1 bg-white/15"></span>
+          <span class="text-[10.5px] text-slate-400">또는 이메일 계정 (DB 저장)</span>
+          <span class="h-[1px] flex-1 bg-white/15"></span>
+        </div>
+
+        <div class="space-y-2 bg-white/5 border border-white/10 rounded-xl p-3">
+          <input id="auth-email" type="email" placeholder="이메일 주소 (예: user@example.com)" class="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#e6c67c]" />
+          <input id="auth-password" type="password" placeholder="비밀번호 (4자 이상)" class="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#e6c67c]" />
+          <div class="grid grid-cols-2 gap-2 pt-0.5">
+            <button id="btn-email-login" type="button" class="py-2 rounded-lg bg-[#154d48] text-[#fae9c3] border border-[#e6c67c]/55 font-bold text-xs active:scale-95 transition">이메일 로그인</button>
+            <button id="btn-email-register" type="button" class="py-2 rounded-lg bg-white/10 text-amber-100 border border-white/20 font-bold text-xs active:scale-95 transition">회원가입</button>
+          </div>
+          <div id="auth-db-badge" class="text-[10.5px] text-emerald-300/85 text-center pt-0.5">DB 저장소 상태 확인 중…</div>
+        </div>
       </div>
 
       <!-- Logged-in View & Saved DB History -->
@@ -4650,13 +4666,13 @@
       } catch (e) {}
       const sajuNameInp = document.getElementById('saju-name');
       if (sajuNameInp && !sajuNameInp.value.trim()) sajuNameInp.value = user.name;
-      authBtnIcon.textContent = user.provider === 'kakao' ? '💛' : '🔵';
+      authBtnIcon.textContent = user.provider === 'kakao' ? '💛' : (user.provider === 'email' ? '🟢' : '🔵');
       authBtnLabel.textContent = `${user.name.slice(0, 5)} · 기록`;
       authDrawerTitle.textContent = '📜 내 계정 & 운세 기록';
       authLoggedOut.classList.add('hidden');
       authLoggedIn.classList.remove('hidden');
       authUserName.textContent = user.name;
-      authUserProvider.textContent = user.provider === 'kakao' ? '카카오톡 계정 연동됨' : 'Google 계정 연동됨';
+      authUserProvider.textContent = user.provider === 'kakao' ? '카카오톡 계정 연동됨' : (user.provider === 'email' ? `이메일 계정 (${user.email || 'DB'})` : 'Google 계정 연동됨');
       authUserAvatar.textContent = user.name.slice(0, 1);
       loadMyFortuneHistory();
     } else {
@@ -4757,13 +4773,73 @@
 
   document.getElementById('btn-open-auth').addEventListener('click', () => {
     if (state.currentUser) loadMyFortuneHistory();
+    refreshAuthDbBadge();
     authDrawer.classList.add('open');
   });
   document.getElementById('btn-close-auth').addEventListener('click', () => authDrawer.classList.remove('open'));
   authDrawer.addEventListener('click', (e) => { if (e.target === authDrawer) authDrawer.classList.remove('open'); });
+  async function handleEmailAuth(mode) {
+    const email = (document.getElementById('auth-email')?.value || '').trim();
+    const password = (document.getElementById('auth-password')?.value || '').trim();
+    const nick = (document.getElementById('auth-demo-name')?.value || '').trim() || email.split('@')[0] || '여행자';
+    if (!email || !email.includes('@') || password.length < 4) {
+      showToast('이메일 형식과 4자 이상 비밀번호를 입력해 주세요');
+      return;
+    }
+    if (state.liveApiEnabled && state.apiBaseUrl) {
+      const base = state.apiBaseUrl.replace(/\/$/, '');
+      try {
+        const endpoint = mode === 'register' ? '/api/auth/register' : '/api/auth/login';
+        const r = await fetch(`${base}${endpoint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(mode === 'register' ? { email, password, name: nick } : { email, password })
+        });
+        const d = await r.json();
+        if (!r.ok) {
+          showToast(d.detail || '이메일 인증에 실패했습니다');
+          return;
+        }
+        if (d.token) { try { localStorage.setItem('fortune_shop_token', d.token); } catch (e) {} }
+        if (d.user) {
+          applyLoggedInUser(d.user);
+          showToast(mode === 'register' ? `${d.user.name}님 회원가입 및 DB 연동 완료 ✨` : `${d.user.name}님 환영합니다 ✨`);
+          return;
+        }
+      } catch (e) {}
+    }
+    const localUser = { id: `email_${email}`, provider: 'email', name: nick, email };
+    applyLoggedInUser(localUser);
+    showToast(`${nick}님으로 로그인되었어요 (미리보기 모드) ✨`);
+  }
+
+  async function refreshAuthDbBadge() {
+    const el = document.getElementById('auth-db-badge');
+    if (!el) return;
+    if (state.liveApiEnabled && state.apiBaseUrl) {
+      try {
+        const r = await fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/auth/config`);
+        if (r.ok) {
+          const c = await r.json();
+          const dbLabel = c.db === 'postgresql' ? '🟢 PostgreSQL 영구 DB 연결됨' : '🟡 SQLite DB 연결됨 (DATABASE_URL 설정 시 영구 저장)';
+          el.textContent = dbLabel;
+          return;
+        }
+      } catch (e) {}
+    }
+    el.textContent = '✨ 미리보기 모드 (Render 배포 시 DB 자동 연결)';
+  }
+
   document.getElementById('btn-login-google').addEventListener('click', () => handleSocialLogin('google'));
   document.getElementById('btn-login-kakao').addEventListener('click', () => handleSocialLogin('kakao'));
+  document.getElementById('btn-email-login').addEventListener('click', () => handleEmailAuth('login'));
+  document.getElementById('btn-email-register').addEventListener('click', () => handleEmailAuth('register'));
   document.getElementById('btn-logout').addEventListener('click', () => {
+    const tok = localStorage.getItem('fortune_shop_token');
+    if (tok && state.liveApiEnabled && state.apiBaseUrl) {
+      fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/auth/logout?token=${encodeURIComponent(tok)}`, { method: 'POST' }).catch(() => {});
+    }
+    try { localStorage.removeItem('fortune_shop_token'); } catch (e) {}
     applyLoggedInUser(null);
     showToast('로그아웃되었습니다');
   });
