@@ -1203,11 +1203,11 @@
         <div class="grid grid-cols-2 gap-2">
           <label class="block">
             <span class="text-slate-300 text-[11px]">Ollama 채팅 모델</span>
-            <input id="cfg-chat-model" type="text" value="qwen2.5:7b" class="w-full mt-1 px-2.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:outline-none" />
+            <input id="cfg-chat-model" type="text" value="gemini-3.5-flash-lite" class="w-full mt-1 px-2.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:outline-none" />
           </label>
           <label class="block">
             <span class="text-slate-300 text-[11px]">Ollama 비전(사진) 모델</span>
-            <input id="cfg-vision-model" type="text" value="llama3.2-vision" class="w-full mt-1 px-2.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:outline-none" />
+            <input id="cfg-vision-model" type="text" value="gemini-3.5-flash-lite" class="w-full mt-1 px-2.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white focus:outline-none" />
           </label>
         </div>
       </div>
@@ -1459,8 +1459,8 @@
     palmImgBase64: null,
     liveApiEnabled: false,
     apiBaseUrl: '',
-    chatModel: 'qwen2.5:7b',
-    visionModel: 'llama3.2-vision',
+    chatModel: 'gemini-3.5-flash-lite',
+    visionModel: 'gemini-3.5-flash-lite',
     localHistory: []
   };
 
@@ -3417,6 +3417,12 @@
   window.addEventListener('load', resizeThree);
   setTimeout(resizeThree, 250);
   loadVideoFromDB();
+  if (location.protocol.startsWith('http') && location.hostname && !location.hostname.includes('googleusercontent')) {
+    state.apiBaseUrl = location.origin;
+    state.liveApiEnabled = true;
+    const urlInp = document.getElementById('cfg-api-url');
+    if (urlInp) urlInp.value = location.origin;
+  }
   initThreeScene();
   initOrb3D();
   goToCharacter(0, true);
