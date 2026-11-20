@@ -1802,8 +1802,8 @@
     palmHand: '왼손',
     faceImgBase64: null,
     palmImgBase64: null,
-    liveApiEnabled: false,
-    apiBaseUrl: '',
+    liveApiEnabled: true,
+    apiBaseUrl: 'https://store-of-destiny-project.onrender.com',
     chatModel: 'gemini-3.5-flash-lite',
     visionModel: 'gemini-3.5-flash-lite',
     localHistory: []
@@ -4873,10 +4873,18 @@
   window.addEventListener('load', resizeThree);
   setTimeout(resizeThree, 250);
   loadVideoFromDB();
-  if (location.protocol.startsWith('http') && location.hostname && !location.hostname.includes('googleusercontent')) {
+  if (location.protocol.startsWith('http') && location.hostname && !location.hostname.includes('googleusercontent') && !location.hostname.includes('localhost')) {
     state.apiBaseUrl = location.origin;
     state.liveApiEnabled = true;
-}
+  } else {
+    state.apiBaseUrl = 'https://store-of-destiny-project.onrender.com';
+    state.liveApiEnabled = true;
+  }
+  fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/health`).then(r => r.ok ? r.json() : null).then(d => {
+    if (d && d.status === 'ok') {
+      if (d.gemini_ready) showToast('🟢 Render Gemini AI 서버 연결됨');
+    }
+  }).catch(() => {});
   restoreSessionOnBoot();
   syncSettingsUI();
   initThreeScene();

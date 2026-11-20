@@ -27,8 +27,14 @@ except Exception:
     HAS_PG = False
 
 DB_PATH = os.path.join(os.path.dirname(__file__), "fortune_shop.db")
-DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
+DATABASE_URL = os.environ.get("DATABASE_URL", "").strip().strip('"').strip("'")
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = "postgresql://" + DATABASE_URL[len("postgres://"):]
+if DATABASE_URL and "sslmode=" not in DATABASE_URL and "localhost" not in DATABASE_URL and "127.0.0.1" not in DATABASE_URL:
+    DATABASE_URL += ("&" if "?" in DATABASE_URL else "?") + "sslmode=require"
 USE_PG = bool(DATABASE_URL and HAS_PG)
+DB_ERROR = ""
+
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "").strip()
 DEFAULT_GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite")
@@ -67,7 +73,7 @@ def _adapt_sql(sql: str) -> str:
 def db_execute(sql: str, params: tuple = (), fetch: str = "none"):
     q = _adapt_sql(sql)
     if USE_PG:
-        conn = psycopg2.connect(DATABASE_URL, cursor_factory=psycopg2.extras.RealDictCursor)
+        conn = psycopg2.connect(DATABASE_URL, connect_timeout=8, cursor_factory=psycopg2.extras.RealDictCursor)
         try:
             with conn.cursor() as cur:
                 cur.execute(q, params)
@@ -144,7 +150,16 @@ def init_db():
             except Exception:
                 pass
 
-init_db()
+try:
+    init_db()
+except Exception as _pg_err:
+    if USE_PG:
+        DB_ERROR = str(_pg_err)
+        print(f"[WARN] PostgreSQL init failed ({DB_ERROR}); falling back to SQLite so server stays online.")
+        USE_PG = False
+        init_db()
+    else:
+        raise
 
 # ==================== PASSWORD & SESSION HELPERS ====================
 def hash_password(password: str) -> str:
@@ -266,6 +281,9 @@ async def health():
     return {
         "status": "ok",
         "db": "postgresql" if USE_PG else "sqlite",
+        "db_error": DB_ERROR,
+        "google_oauth_ready": bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET),
+        "kakao_oauth_ready": bool(KAKAO_CLIENT_ID),
         "gemini_ready": bool(api_key),
         "google_ready": bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET),
         "kakao_ready": bool(KAKAO_CLIENT_ID),
