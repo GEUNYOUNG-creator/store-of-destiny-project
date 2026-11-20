@@ -1,17 +1,23 @@
-# 운명상점 (Fortune Shop) — Interactive 3D Prototype
+# 운명상점 (Fortune Shop) — Full-Stack 3D AI Fortune App
 
-달빛 아래 사주·혈액형·별자리·타로·MBTI 5명의 3D 마스터와 만나는 인터랙티브 웹 앱 프로토타입입니다.
+7명의 3D CGI 마스터(사주·혈액형·별자리·타로·MBTI·관상·손금)와 3종의 무료 미니 3D 펫, SQLite DB, 로컬 Ollama(LLM 채팅 + Vision 사진 분석)가 연동되는 풀스택 앱입니다.
 
-## 주요 기능
-- **원본 영상(`.mp4`) 오프닝 플레이어**: 오프닝 영상 연결 시 브라우저(`IndexedDB`)에 저장되며, 문 두드리기 버튼 클릭 후 영상 재생 → 사주 첫 화면 자동 이동
-- **통일된 3D CGI 5인 캐릭터 & 터치 바디모핑**: 자연스러운 눈 깜빡임, 미세 호흡, 터치 시 움츠림 3D 바디모핑 & 눈웃음 리액션, 외부 `.glb` 3D 모델 로더 지원
-- **캐릭터별 고유 입력 UI & 내장 엔진**:
-  - 사주(연화): 비취옥 태극판, 미니 깃발, 빛나는 옥구슬 풀이, 사주팔자·오행 계산
-  - 혈액형(루미): 고딕 핑크 비밀 다이어리 & 16조합 궁합
-  - 별자리(스텔라): 천문 성도 & 12궁 운세·4원소 궁합
-  - 타로(셀레네): 퍼플 벨벳 제단 & 3D 플립 카드 리딩
-  - MBTI(하린): 심리상담 클립보드 차트 & 16×16 궁합 분석
+## 폴더 구조
+- `index.html`: 단일 완성본 프론트엔드 앱 (GitHub Pages 및 로컬 서버 실행용)
+- `backend/server.py`: FastAPI + SQLite DB + Ollama 채팅/비전 연동 백엔드 서버
+- `backend/requirements.txt`: 파이썬 패키지 목록
+- `src/`: 추후 편집용 분리 소스 및 3D 이미지 에셋
 
-## 실행 및 GitHub Pages 배포
-1. 별도 빌드 없이 루트의 `index.html`을 브라우저에서 열면 바로 실행됩니다.
-2. GitHub 저장소 업로드 후 **Settings → Pages → Branch: main / root**를 선택하면 모바일과 PC에서 바로 접속 가능한 URL이 생성됩니다.
+## 로컬 실행 방법 (Windows / macOS)
+1. [Ollama](https://ollama.com/) 설치 후 모델 다운로드:
+   ```bash
+   ollama pull qwen2.5:7b
+   ollama pull llama3.2-vision
+   ```
+2. 백엔드 실행:
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   uvicorn server:app --host 0.0.0.0 --port 8000 --reload
+   ```
+3. 브라우저에서 `http://127.0.0.1:8000` 접속 후 앱 우측 상단 **⚙️ 설정**에서 서버 주소(`http://127.0.0.1:8000`) 입력 및 연동 ON.
