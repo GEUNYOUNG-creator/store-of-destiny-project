@@ -476,18 +476,21 @@ async def analyze_vision(req: VisionRequest):
     if is_face:
         prompt = (
             f"사용자 이름: {req.user_name}. 희망 미래 배우자 성별: {spouse_label}. "
-            "이 얼굴 사진을 정밀하게 보고 아래 JSON 형식으로만 응답하세요(코드블록 없이 순수 JSON): "
-            '{"face_type": "예: 귀인을 부르는 맑은 사슴상 (또는 봉황상/여우상/호랑이상/학상 등)", '
+            "이 얼굴 사진을 정밀하게 보고 사진 속 인물의 실제 특징에 맞춰 매번 다른 점수와 관상을 부여하여 아래 순수 JSON으로만 응답하세요(코드블록 금지): "
+            '{"face_type": "예: 귀인을 부르는 맑은 사슴상 / 카리스마 여우상 / 듬직한 호랑이상 / 우아한 봉황상 / 친화력 강아지상 중 사진에 가장 어울리는 표현", '
+            '"score": 76부터 98 사이의 정수(사진의 이목구비 균형과 생기에 따라 매번 다르게 평가), '
+            '"spouse_archetype": 0(온화·감성형), 1(세련·도시 카리스마형), 2(밝고 다정한 강아지상), 3(지적·듬직한 신뢰형) 중 이 얼굴과 가장 잘 어울리는 배우자 유형 숫자(0~3), '
             '"analysis": "이마·눈매·코·하관 기반 초년·중년·말년 관상 풀이 (마크다운 없이 4~5문장)", '
             '"spouse_desc": "이 관상과 가장 잘 어우러지는 미래 ' + spouse_label + ' 배우자의 이목구비 인상, 성격, 만나는 인연 포인트 (2~3문장)", '
-            '"spouse_prompt": "Photorealistic warm candid portrait photograph of a charming Korean ' + ("man" if spouse_label == "남성" else "woman") + ' in their late 20s matching the complementary physiognomy traits above, soft golden hour cafe lighting, natural gentle smile, 85mm lens"}'
+            '"spouse_prompt": "Photorealistic warm candid portrait photograph of a charming Korean ' + ("man" if spouse_label == "남성" else "woman") + ' in their late 20s matching the complementary physiognomy traits above, soft natural lighting, 85mm lens"}'
         )
     else:
         prompt = (
             f"사용자 이름: {req.user_name}. "
-            "이 손바닥 사진을 정밀하게 보고 아래 JSON 형식으로만 응답하세요(코드블록 없이 순수 JSON): "
-            '{"palm_type": "예: 황금 M자 재물손금 (또는 강인한 리더십 운명손금 / 감성·지성 균형 예술손금 / 천재형 막쥔손금 등)", '
-            '"analysis": "생명선·두뇌선·감정선·운명선과 앞으로의 재물·연애·건강 흐름 풀이 (마크다운 없이 4~5문장)"}'
+            "이 손바닥 사진을 정밀하게 보고 사진 속 손금 선의 실제 특징에 맞춰 아래 순수 JSON으로만 응답하세요(코드블록 금지): "
+            '{"palm_type": "예: 재물과 귀인이 모이는 황금 운명선형 / 창의적 예술가 두뇌선형 / 활력 넘치는 대길 생명선형 등", '
+            '"score": 76부터 98 사이의 정수(손금 선의 선명도와 조화에 따라 실제 평가), '
+            '"analysis": "생명선·두뇌선·감정선·운명선과 앞으로의 재물·연애·건강 흐름을 마크다운 없이 4~5문장으로 상세하고 희망적으로 풀이"}'
         )
     if req.question:
         prompt += f" 추가 질문: {req.question}"
@@ -503,45 +506,51 @@ async def analyze_vision(req: VisionRequest):
         max_tokens=850
     )
 
+    # Deterministic fallback hash from image bytes so scores/archetypes vary if JSON parse fails
+    img_hash = sum(ord(c) for c in img_clean[:400:7]) if img_clean else 17
     face_type = ""
+    palm_type = ""
     analysis = raw_text
     spouse_desc = ""
     spouse_prompt = ""
-    if is_face:
-        try:
-            cleaned = raw_text.strip()
-            if "{" in cleaned and "}" in cleaned:
-                cleaned = cleaned[cleaned.find("{"):cleaned.rfind("}") + 1]
-            parsed = json.loads(cleaned)
-            face_type = parsed.get("face_type", "귀인을 부르는 복상")
+    score = 80 + (img_hash % 17)
+    spouse_archetype = img_hash % 4
+
+    try:
+        cleaned = raw_text.strip()
+        if "{" in cleaned and "}" in cleaned:
+            cleaned = cleaned[cleaned.find("{"):cleaned.rfind("}") + 1]
+        parsed = json.loads(cleaned)
+        if is_face:
+            face_type = parsed.get("face_type", "맑고 복된 귀인상")
             analysis = parsed.get("analysis", raw_text)
             spouse_desc = parsed.get("spouse_desc", "")
             spouse_prompt = parsed.get("spouse_prompt", "")
-        except Exception:
+            if isinstance(parsed.get("spouse_archetype"), int):
+                spouse_archetype = max(0, min(3, parsed["spouse_archetype"]))
+        else:
+            palm_type = parsed.get("palm_type", "균형 잡힌 황금 운명선형")
+            analysis = parsed.get("analysis", raw_text)
+        if isinstance(parsed.get("score"), (int, float)):
+            score = max(72, min(99, int(parsed["score"])))
+    except Exception:
+        if is_face:
             face_type = "맑고 복된 귀인상"
+        else:
+            palm_type = "균형 잡힌 황금 운명선형"
 
     now = datetime.datetime.now().isoformat(timespec="seconds")
-    full_txt = f"[{face_type}]\n{analysis}\n\n[미래 배우자] {spouse_desc}" if is_face else analysis
+    full_txt = f"[{face_type}] ({score}점)\n{analysis}\n\n[미래 배우자] {spouse_desc}" if is_face else f"[{palm_type}] ({score}점)\n{analysis}"
     db_execute(
         "INSERT INTO fortune_history (user_id, category, user_name, input_summary, result_summary, full_content, score, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        (req.user_id, "관상" if is_face else "손금", req.user_name, req.question or "사진 업로드 분석", analysis[:180], full_txt, 93, now)
+        (req.user_id, "관상" if is_face else "손금", req.user_name, req.question or "사진 업로드 분석", analysis[:180], full_txt, score, now)
     )
-    palm_type = ""
-    if not is_face:
-        try:
-            cleaned = raw_text.strip()
-            if "{" in cleaned and "}" in cleaned:
-                cleaned = cleaned[cleaned.find("{"):cleaned.rfind("}") + 1]
-            parsed = json.loads(cleaned)
-            palm_type = parsed.get("palm_type", "황금 M자 재물손금")
-            analysis = parsed.get("analysis", raw_text)
-        except Exception:
-            palm_type = "균형 잡힌 복된 손금"
-
     return {
         "analysis": analysis,
         "face_type": face_type,
         "palm_type": palm_type,
+        "score": score,
+        "spouse_archetype": spouse_archetype,
         "spouse_desc": spouse_desc,
         "spouse_prompt": spouse_prompt,
         "model": model_name
@@ -552,25 +561,34 @@ async def generate_spouse_portrait(req: SpousePortraitRequest):
     api_key = os.environ.get("GEMINI_API_KEY", GEMINI_API_KEY).strip()
     if not api_key:
         return {"generated": False, "reason": "no_api_key"}
-    img_model = os.environ.get("GEMINI_IMAGE_MODEL", GEMINI_IMAGE_MODEL).strip()
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{img_model}:generateContent?key={api_key}"
-    payload = {
-        "contents": [{"role": "user", "parts": [{"text": req.prompt}]}],
-        "generationConfig": {"responseModalities": ["IMAGE", "TEXT"]}
-    }
-    try:
-        async with httpx.AsyncClient(timeout=45.0) as client:
-            r = await client.post(url, json=payload)
-            if r.status_code == 200:
-                data = r.json()
-                parts = data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
-                for part in parts:
-                    inline = part.get("inlineData") or part.get("inline_data")
-                    if inline and inline.get("data"):
-                        mime = inline.get("mimeType") or inline.get("mime_type") or "image/png"
-                        return {"generated": True, "image_base64": f"data:{mime};base64,{inline['data']}", "model": img_model}
-    except Exception:
-        pass
+    candidates_models = [
+        os.environ.get("GEMINI_IMAGE_MODEL", GEMINI_IMAGE_MODEL).strip(),
+        "gemini-2.5-flash-image",
+        "gemini-2.0-flash-exp-image-generation"
+    ]
+    tried = set()
+    async with httpx.AsyncClient(timeout=40.0) as client:
+        for img_model in candidates_models:
+            if not img_model or img_model in tried:
+                continue
+            tried.add(img_model)
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{img_model}:generateContent?key={api_key}"
+            payload = {
+                "contents": [{"role": "user", "parts": [{"text": req.prompt}]}],
+                "generationConfig": {"responseModalities": ["IMAGE", "TEXT"]}
+            }
+            try:
+                r = await client.post(url, json=payload)
+                if r.status_code == 200:
+                    data = r.json()
+                    parts = data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
+                    for part in parts:
+                        inline = part.get("inlineData") or part.get("inline_data")
+                        if inline and inline.get("data"):
+                            mime = inline.get("mimeType") or inline.get("mime_type") or "image/png"
+                            return {"generated": True, "image_base64": f"data:{mime};base64,{inline['data']}", "model": img_model}
+            except Exception:
+                continue
     return {"generated": False, "reason": "image_model_unavailable"}
 
 @app.post("/api/history")
