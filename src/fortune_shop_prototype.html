@@ -1039,7 +1039,7 @@
     <div id="opening-seam-glow"></div>
     <div id="opening-ripple"></div>
     <!-- Optional Custom Opening Video Player -->
-    <video id="opening-video" playsinline webkit-playsinline preload="auto"></video>
+    <video id="opening-video" src="../opening.mp4" playsinline webkit-playsinline preload="auto"></video>
     <div id="door-light-beam"></div>
     <div id="opening-vignette" class="absolute inset-0 pointer-events-none bg-gradient-to-b from-black/55 via-transparent to-black/80 z-[18] transition-opacity duration-700"></div>
 
@@ -2250,6 +2250,7 @@
       blinkSrc: 'assets/char3d_sasang_blink.jpg',
       pet: {
         name: '초롱이', role: '사상의학 미니 펫 · 약초 사슴',
+        uvOffsetY: 0.08,
         openSrc: 'assets/pet3d_sasang_open.jpg',
         blinkSrc: 'assets/pet3d_sasang_blink.jpg',
         lines: [
@@ -2353,102 +2354,85 @@
   /* ==================== AMBIENT CHARACTER BGM ENGINE (OPENING + 7 BESPOKE TRACKS) ==================== */
   const BGM_TRACKS = {
     opening: {
-      name: '달빛 오프닝',
-      drone: [146.83, 220.0], // D3, A3
-      notes: [293.66, 349.23, 440.0, 523.25, 587.33, 659.25], // D minor pentatonic
-      tempoMs: 1450,
-      wave: 'sine',
-      padWave: 'sine',
-      filterHz: 1100,
-      vol: 0.14
+      name: '운명상점 · 달빛 서곡 (한국 전통 몽환)',
+      style: 'korean_court',
+      bpm: 72,
+      chords: [[146.83, 220.0, 293.66, 329.63], [130.81, 196.0, 261.63, 329.63], [110.0, 164.81, 220.0, 293.66], [146.83, 220.0, 261.63, 329.63]],
+      melody: [587.33, 659.25, 783.99, 659.25, 587.33, 440.0, 523.25, 587.33, 659.25, 783.99, 880.0, 783.99, 659.25, 587.33, 523.25, 440.0],
+      vol: 0.16
     },
-    0: { // 연화 (사주 · 동양 누각 가야금/대금)
-      name: '연화 · 동양 누각',
-      drone: [146.83, 220.0], // D3, A3
-      notes: [293.66, 329.63, 369.99, 440.0, 493.88, 587.33, 659.25], // D major pentatonic
-      tempoMs: 1250,
-      wave: 'triangle',
-      padWave: 'sine',
-      filterHz: 950,
-      vol: 0.13
+    0: { // 연화 (사주 · 한국 전통 궁중 가야금 & 대금)
+      name: '연화 · 달빛 가야금 산조 (한국 전통)',
+      style: 'korean_gayageum',
+      bpm: 76,
+      chords: [[146.83, 220.0, 293.66, 392.0], [164.81, 220.0, 329.63, 392.0], [130.81, 196.0, 261.63, 329.63], [146.83, 220.0, 293.66, 329.63]],
+      melody: [587.33, 659.25, 783.99, 880.0, 783.99, 659.25, 587.33, 440.0, 523.25, 587.33, 659.25, 783.99, 659.25, 587.33, 440.0, 587.33],
+      vol: 0.16
     },
-    1: { // 루미 (혈액형 · 발랄한 오르골 다이어리)
-      name: '루미 · 오르골 왈츠',
-      drone: [261.63, 329.63], // C4, E4
-      notes: [523.25, 659.25, 783.99, 987.77, 880.0, 698.46, 587.33], // C maj7 music box
-      tempoMs: 780,
-      wave: 'sine',
-      padWave: 'triangle',
-      filterHz: 1850,
-      vol: 0.11
+    1: { // 루미 (혈액형 · 한국 트렌디 K-Pop 시티팝 EP & 오르골)
+      name: '루미 · 핑크 시티팝 오르골 (K-Pop)',
+      style: 'kpop_ep',
+      bpm: 108,
+      chords: [[174.61, 220.0, 261.63, 329.63], [164.81, 196.0, 246.94, 293.66], [146.83, 174.61, 220.0, 261.63], [130.81, 164.81, 196.0, 246.94]],
+      melody: [659.25, 783.99, 880.0, 783.99, 659.25, 523.25, 587.33, 659.25, 783.99, 880.0, 1046.5, 880.0, 783.99, 659.25, 587.33, 523.25],
+      vol: 0.15
     },
-    2: { // 스텔라 (별자리 · 천문대 별빛 차임)
-      name: '스텔라 · 천문 성좌',
-      drone: [174.61, 261.63], // F3, C4
-      notes: [349.23, 440.0, 493.88, 523.25, 659.25, 783.99, 880.0], // F Lydian dreamy
-      tempoMs: 1050,
-      wave: 'sine',
-      padWave: 'sine',
-      filterHz: 1650,
-      vol: 0.12
+    2: { // 스텔라 (별자리 · 서양 오케스트라 콘서트 하프 & 첼레스타)
+      name: '스텔라 · 천문대 콘서트 하프 (서양 클래식)',
+      style: 'western_harp',
+      bpm: 84,
+      chords: [[196.0, 246.94, 293.66, 369.99], [164.81, 196.0, 246.94, 329.63], [130.81, 164.81, 196.0, 246.94], [146.83, 185.0, 220.0, 293.66]],
+      melody: [783.99, 987.77, 1174.66, 987.77, 739.99, 783.99, 659.25, 587.33, 523.25, 659.25, 783.99, 987.77, 880.0, 739.99, 587.33, 783.99],
+      vol: 0.15
     },
-    3: { // 셀레네 (타로 · 신비로운 보랏빛 싱잉볼)
-      name: '셀레네 · 신비의 제단',
-      drone: [110.0, 164.81], // A2, E3
-      notes: [220.0, 261.63, 329.63, 349.23, 415.30, 440.0, 493.88], // A mystical minor
-      tempoMs: 1550,
-      wave: 'sine',
-      padWave: 'triangle',
-      filterHz: 820,
-      vol: 0.14
+    3: { // 셀레네 (타로 · 서양 고딕 바로크 3/4 왈츠 하프시코드 & 첼로)
+      name: '셀레네 · 미드나잇 왈츠 (서양 바로크)',
+      style: 'western_waltz',
+      bpm: 92,
+      chords: [[110.0, 164.81, 220.0, 261.63], [146.83, 174.61, 220.0, 293.66], [164.81, 207.65, 246.94, 329.63], [110.0, 164.81, 220.0, 261.63]],
+      melody: [659.25, 587.33, 523.25, 493.88, 523.25, 587.33, 659.25, 698.46, 659.25, 587.33, 523.25, 493.88, 440.0, 523.25, 659.25, 440.0],
+      vol: 0.15
     },
-    4: { // 하린 (MBTI · 따뜻한 파스텔 로파이 피아노)
-      name: '하린 · 파스텔 상담실',
-      drone: [174.61, 220.0], // F3, A3
-      notes: [349.23, 440.0, 523.25, 659.25, 587.33, 493.88, 392.0], // Cozy Fmaj7 lo-fi
-      tempoMs: 920,
-      wave: 'triangle',
-      padWave: 'sine',
-      filterHz: 1200,
-      vol: 0.12
+    4: { // 하린 (MBTI · 모던 서울 로파이 어쿠스틱 카페)
+      name: '하린 · 서울 로파이 재즈 카페 (모던)',
+      style: 'lofi_cafe',
+      bpm: 82,
+      chords: [[130.81, 164.81, 196.0, 246.94], [110.0, 164.81, 196.0, 261.63], [146.83, 174.61, 220.0, 261.63], [196.0, 246.94, 293.66, 349.23]],
+      melody: [523.25, 587.33, 659.25, 783.99, 659.25, 587.33, 523.25, 493.88, 440.0, 523.25, 587.33, 659.25, 587.33, 523.25, 493.88, 392.0],
+      vol: 0.15
     },
-    5: { // 아린 (관상 · 청동거울 고풍 서재)
-      name: '아린 · 청동거울 서재',
-      drone: [164.81, 246.94], // E3, B3
-      notes: [329.63, 392.0, 440.0, 493.88, 587.33, 659.25], // E minor pentatonic zen
-      tempoMs: 1380,
-      wave: 'triangle',
-      padWave: 'sine',
-      filterHz: 900,
-      vol: 0.13
+    5: { // 아린 (관상 · 한국/동양 고풍 서재 거문고 & 해금)
+      name: '아린 · 청동거울 거문고와 해금 (한국 전통)',
+      style: 'korean_haegeum',
+      bpm: 74,
+      chords: [[164.81, 220.0, 246.94, 329.63], [146.83, 220.0, 293.66, 329.63], [130.81, 196.0, 261.63, 329.63], [164.81, 196.0, 246.94, 329.63]],
+      melody: [659.25, 783.99, 659.25, 587.33, 493.88, 587.33, 659.25, 440.0, 523.25, 659.25, 783.99, 880.0, 783.99, 659.25, 587.33, 493.88],
+      vol: 0.16
     },
-    7: { // 다온 (사상의학 · 옥빛 약초원 맑은 피리)
-      name: '다온 · 옥빛 약초원',
-      drone: [220.0, 329.63], // A3, E4
-      notes: [440.0, 523.25, 587.33, 659.25, 783.99, 880.0], // A pentatonic bright flute
-      tempoMs: 1050,
-      wave: 'triangle',
-      padWave: 'sine',
-      filterHz: 1850,
-      vol: 0.12
+    6: { // 서연 (손금 · 중국 전통 고쟁(Guzheng) & 얼후(Erhu) 몽환 선율)
+      name: '서연 · 월하 고쟁과 얼후 (중국 전통)',
+      style: 'chinese_guzheng',
+      bpm: 80,
+      chords: [[196.0, 246.94, 293.66, 392.0], [164.81, 220.0, 293.66, 329.63], [146.83, 220.0, 293.66, 369.99], [196.0, 246.94, 293.66, 329.63]],
+      melody: [783.99, 880.0, 987.77, 1174.66, 987.77, 880.0, 783.99, 659.25, 587.33, 659.25, 783.99, 880.0, 987.77, 880.0, 783.99, 587.33],
+      vol: 0.16
     },
-    6: { // 서연 (손금 · 황금 돋보기 글래스 하프)
-      name: '서연 · 황금 아틀리에',
-      drone: [196.0, 293.66], // G3, D4
-      notes: [392.0, 493.88, 587.33, 739.99, 880.0, 987.77], // G maj9 glass harp
-      tempoMs: 1120,
-      wave: 'sine',
-      padWave: 'sine',
-      filterHz: 1700,
-      vol: 0.12
+    7: { // 다온 (사상의학 · 한국/동양 청아한 약초원 대금·가야금·옥풍경)
+      name: '다온 · 옥빛 약초원 대금과 풍경 (한국 전통)',
+      style: 'korean_herbal',
+      bpm: 82,
+      chords: [[220.0, 261.63, 329.63, 392.0], [174.61, 220.0, 261.63, 329.63], [196.0, 246.94, 293.66, 392.0], [220.0, 261.63, 329.63, 440.0]],
+      melody: [659.25, 783.99, 880.0, 783.99, 659.25, 587.33, 523.25, 587.33, 659.25, 880.0, 1046.5, 880.0, 783.99, 659.25, 587.33, 523.25],
+      vol: 0.16
     }
   };
 
   state.bgmEnabled = true;
   const bgmEngine = (() => {
     let masterGain = null;
-    let padOscs = [];
-    let padGain = null;
+    let reverbNode = null;
+    let dryGain = null;
+    let wetGain = null;
     let timer = null;
     let currentKey = null;
     let stepIdx = 0;
@@ -2458,6 +2442,19 @@
       return state.bgmEnabled !== false;
     }
 
+    function createImpulseResponse(ctx, duration = 2.4, decay = 2.6) {
+      const rate = ctx.sampleRate;
+      const len = Math.floor(rate * duration);
+      const buf = ctx.createBuffer(2, len, rate);
+      for (let ch = 0; ch < 2; ch++) {
+        const data = buf.getChannelData(ch);
+        for (let i = 0; i < len; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+        }
+      }
+      return buf;
+    }
+
     function ensureMaster() {
       const ctx = ensureAudio();
       if (!ctx) return null;
@@ -2465,70 +2462,283 @@
         try { ctx.resume(); } catch (_) {}
       }
       if (!masterGain) {
+        const comp = ctx.createDynamicsCompressor();
+        comp.threshold.value = -16;
+        comp.ratio.value = 3;
         masterGain = ctx.createGain();
         masterGain.gain.setValueAtTime(isAudible() ? 1.0 : 0.0001, ctx.currentTime);
+
+        dryGain = ctx.createGain();
+        dryGain.gain.value = 0.72;
+        wetGain = ctx.createGain();
+        wetGain.gain.value = 0.42;
+
+        reverbNode = ctx.createConvolver();
+        reverbNode.buffer = createImpulseResponse(ctx, 2.5, 2.7);
+
+        dryGain.connect(comp);
+        reverbNode.connect(wetGain);
+        wetGain.connect(comp);
+        comp.connect(masterGain);
         masterGain.connect(ctx.destination);
       }
       return ctx;
     }
 
-    function stopPad() {
-      const ctx = audioCtx;
-      if (padGain && ctx) {
-        try {
-          padGain.gain.cancelScheduledValues(ctx.currentTime);
-          padGain.gain.setValueAtTime(Math.max(0.0001, padGain.gain.value), ctx.currentTime);
-          padGain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.6);
-        } catch (_) {}
-      }
-      const oldOscs = padOscs;
-      padOscs = [];
-      setTimeout(() => {
-        oldOscs.forEach(o => { try { o.stop(); o.disconnect(); } catch (_) {} });
-      }, 700);
+    function connectOut(node, wetAmount = 1.0) {
+      node.connect(dryGain);
+      if (wetAmount > 0 && reverbNode) node.connect(reverbNode);
     }
 
-    function playPluck(track) {
+    // 1. Acoustic Plucked String (가야금 / 고쟁 / 하프 / 기타) with realistic harmonic decay & optional 농현 vibrato
+    function playPluckedString(ctx, freq, now, dur, vol, opts = {}) {
+      const { brightness = 2400, vibrato = false, harmonicRatio = 2, detuneCents = 0 } = opts;
+      const o1 = ctx.createOscillator();
+      const o2 = ctx.createOscillator();
+      const filter = ctx.createBiquadFilter();
+      const env = ctx.createGain();
+      const g2 = ctx.createGain();
+
+      o1.type = 'triangle';
+      o2.type = 'sine';
+      o1.frequency.setValueAtTime(freq, now);
+      o2.frequency.setValueAtTime(freq * harmonicRatio, now);
+      if (detuneCents) o1.detune.setValueAtTime(detuneCents, now);
+
+      if (vibrato) {
+        const lfo = ctx.createOscillator();
+        const lfoG = ctx.createGain();
+        lfo.frequency.setValueAtTime(5.2, now);
+        lfoG.gain.setValueAtTime(freq * 0.0085, now);
+        lfo.connect(lfoG);
+        lfoG.connect(o1.frequency);
+        lfo.start(now + 0.12);
+        lfo.stop(now + dur);
+      }
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(brightness, now);
+      filter.frequency.exponentialRampToValueAtTime(Math.max(380, brightness * 0.22), now + dur * 0.85);
+      filter.Q.value = 1.2;
+
+      g2.gain.setValueAtTime(0.32, now);
+      g2.gain.exponentialRampToValueAtTime(0.01, now + dur * 0.55);
+
+      env.gain.setValueAtTime(0.0001, now);
+      env.gain.linearRampToValueAtTime(vol, now + 0.014);
+      env.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+      o1.connect(filter);
+      o2.connect(g2);
+      g2.connect(filter);
+      filter.connect(env);
+      connectOut(env);
+
+      o1.start(now); o2.start(now);
+      o1.stop(now + dur + 0.05); o2.stop(now + dur + 0.05);
+    }
+
+    // 2. Expressive Bowed / Flute Lead (대금 / 해금 / 얼후) with gentle breath swell & vibrato
+    function playExpressiveLead(ctx, freq, now, dur, vol, timbre = 'flute') {
+      const o = ctx.createOscillator();
+      const o2 = ctx.createOscillator();
+      const filter = ctx.createBiquadFilter();
+      const env = ctx.createGain();
+      const g2 = ctx.createGain();
+
+      o.type = timbre === 'bowed' ? 'sawtooth' : 'sine';
+      o2.type = 'triangle';
+      o.frequency.setValueAtTime(freq * 0.992, now);
+      o.frequency.exponentialRampToValueAtTime(freq, now + 0.09);
+      o2.frequency.setValueAtTime(freq * 2, now);
+
+      const lfo = ctx.createOscillator();
+      const lfoG = ctx.createGain();
+      lfo.frequency.setValueAtTime(timbre === 'bowed' ? 5.6 : 4.6, now);
+      lfoG.gain.setValueAtTime(freq * (timbre === 'bowed' ? 0.011 : 0.006), now);
+      lfo.connect(lfoG);
+      lfoG.connect(o.frequency);
+
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(timbre === 'bowed' ? 1650 : 2100, now);
+      filter.Q.value = timbre === 'bowed' ? 2.2 : 0.9;
+
+      g2.gain.value = timbre === 'bowed' ? 0.14 : 0.18;
+      env.gain.setValueAtTime(0.0001, now);
+      env.gain.linearRampToValueAtTime(vol, now + 0.22);
+      env.gain.setValueAtTime(vol * 0.85, now + dur * 0.72);
+      env.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+
+      o.connect(filter);
+      o2.connect(g2);
+      g2.connect(filter);
+      filter.connect(env);
+      connectOut(env);
+
+      lfo.start(now + 0.14); o.start(now); o2.start(now);
+      lfo.stop(now + dur + 0.05); o.stop(now + dur + 0.05); o2.stop(now + dur + 0.05);
+    }
+
+    // 3. Lush Warm Chord Pad (Rhodes EP / String Ensemble / Baroque Cello)
+    function playWarmChord(ctx, freqs, now, dur, vol, wave = 'sine', cutoff = 1100) {
+      const filter = ctx.createBiquadFilter();
+      const env = ctx.createGain();
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(cutoff, now);
+      filter.frequency.exponentialRampToValueAtTime(Math.max(420, cutoff * 0.55), now + dur);
+
+      env.gain.setValueAtTime(0.0001, now);
+      env.gain.linearRampToValueAtTime(vol, now + 0.18);
+      env.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+      filter.connect(env);
+      connectOut(env);
+
+      freqs.forEach((f, idx) => {
+        const o = ctx.createOscillator();
+        o.type = wave;
+        o.frequency.setValueAtTime(f, now);
+        o.detune.setValueAtTime((idx % 2 === 0 ? -4 : 4), now);
+        o.connect(filter);
+        o.start(now);
+        o.stop(now + dur + 0.06);
+      });
+    }
+
+    // 4. Soft Percussion Pulse (장구 low thump / K-pop soft kick / Lo-fi brush)
+    function playSoftDrum(ctx, now, vol, pitchStart = 115, pitchEnd = 46) {
+      const o = ctx.createOscillator();
+      const env = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(pitchStart, now);
+      o.frequency.exponentialRampToValueAtTime(pitchEnd, now + 0.14);
+      env.gain.setValueAtTime(0.0001, now);
+      env.gain.linearRampToValueAtTime(vol, now + 0.008);
+      env.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+      o.connect(env);
+      env.connect(dryGain);
+      o.start(now);
+      o.stop(now + 0.25);
+    }
+
+    // 5. Shimmering Celesta / Jade Wind-Chime Sparkle
+    function playChimeBell(ctx, freq, now, vol) {
+      const o = ctx.createOscillator();
+      const env = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.setValueAtTime(freq * 2, now);
+      env.gain.setValueAtTime(0.0001, now);
+      env.gain.linearRampToValueAtTime(vol, now + 0.01);
+      env.gain.exponentialRampToValueAtTime(0.0001, now + 1.45);
+      o.connect(env);
+      connectOut(env);
+      o.start(now);
+      o.stop(now + 1.5);
+    }
+
+    function playStep(track) {
       if (!isAudible() || !audioCtx || audioCtx.state !== 'running') return;
       const ctx = audioCtx;
       const now = ctx.currentTime;
-      const pattern = [0, 2, 4, 3, 5, 2, 1, 4];
-      const noteIdx = (pattern[stepIdx % pattern.length] + Math.floor(stepIdx / 8)) % track.notes.length;
-      stepIdx++;
-      const freq = track.notes[noteIdx];
+      const beatSec = 60 / (track.bpm || 80);
+      const step = stepIdx++;
+      const barStep = step % 4;
+      const chord = track.chords[Math.floor(step / 4) % track.chords.length];
+      const melNote = track.melody[step % track.melody.length];
+      const baseVol = track.vol || 0.15;
 
-      const osc = ctx.createOscillator();
-      const overtone = ctx.createOscillator();
-      const filter = ctx.createBiquadFilter();
-      const env = ctx.createGain();
+      // Chord / Bass layer on downbeat of each bar
+      if (barStep === 0) {
+        if (track.style === 'kpop_ep' || track.style === 'lofi_cafe') {
+          playWarmChord(ctx, chord, now, beatSec * 3.8, baseVol * 0.42, 'triangle', 1400);
+        } else if (track.style === 'western_waltz') {
+          playWarmChord(ctx, chord, now, beatSec * 3.6, baseVol * 0.38, 'sawtooth', 820);
+        } else {
+          playWarmChord(ctx, chord, now, beatSec * 3.9, baseVol * 0.36, 'sine', 950);
+        }
+      }
 
-      osc.type = track.wave;
-      osc.frequency.setValueAtTime(freq, now);
-      overtone.type = 'sine';
-      overtone.frequency.setValueAtTime(freq * 2, now);
-
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(Math.min(3200, track.filterHz * 1.25), now);
-      filter.frequency.exponentialRampToValueAtTime(Math.max(420, track.filterHz * 0.55), now + 2.0);
-
-      const ovGain = ctx.createGain();
-      ovGain.gain.setValueAtTime(0.22, now);
-
-      const peakVol = Math.min(0.28, (track.vol || 0.14) * 1.45);
-      env.gain.setValueAtTime(0.0001, now);
-      env.gain.linearRampToValueAtTime(peakVol, now + 0.045);
-      env.gain.exponentialRampToValueAtTime(0.0001, now + 2.2);
-
-      osc.connect(filter);
-      overtone.connect(ovGain);
-      ovGain.connect(filter);
-      filter.connect(env);
-      env.connect(masterGain);
-
-      osc.start(now);
-      overtone.start(now);
-      osc.stop(now + 2.3);
-      overtone.stop(now + 2.3);
+      // Style-specific authentic instrumentation & musical detail
+      switch (track.style) {
+        case 'korean_gayageum':
+        case 'korean_court': {
+          // 가야금 농현(vibrato) 주선율 + 장구 저음 + 2박마다 대금 선율
+          playPluckedString(ctx, melNote, now, beatSec * 2.1, baseVol * 0.78, { brightness: 2600, vibrato: barStep % 2 === 0 });
+          playPluckedString(ctx, chord[barStep % chord.length] * 2, now + beatSec * 0.5, beatSec * 1.3, baseVol * 0.32, { brightness: 1800 });
+          if (barStep === 0) playSoftDrum(ctx, now, baseVol * 0.48, 125, 58);
+          if (barStep === 2) playExpressiveLead(ctx, melNote, now, beatSec * 1.9, baseVol * 0.44, 'flute');
+          break;
+        }
+        case 'korean_haegeum': {
+          // 거문고 깊은 저음 + 해금 노래하는 선율
+          playPluckedString(ctx, chord[barStep % chord.length], now, beatSec * 1.9, baseVol * 0.55, { brightness: 1350, vibrato: true });
+          if (barStep === 0 || barStep === 2) {
+            playExpressiveLead(ctx, melNote, now, beatSec * 1.85, baseVol * 0.42, 'bowed');
+          }
+          if (barStep === 3) playChimeBell(ctx, melNote, now, baseVol * 0.22);
+          break;
+        }
+        case 'korean_herbal': {
+          // 다온 사상의학: 청아한 대금 + 맑은 가야금 아르페지오 + 옥빛 풍경
+          playPluckedString(ctx, melNote, now, beatSec * 1.8, baseVol * 0.65, { brightness: 2900, vibrato: barStep === 0 });
+          if (barStep === 0 || barStep === 2) {
+            playExpressiveLead(ctx, melNote, now + 0.04, beatSec * 1.7, baseVol * 0.42, 'flute');
+          }
+          if (barStep === 1 || barStep === 3) {
+            playChimeBell(ctx, chord[(barStep + 1) % chord.length] * 2, now, baseVol * 0.24);
+          }
+          break;
+        }
+        case 'chinese_guzheng': {
+          // 서연 손금: 고쟁(Guzheng) 유려한 글리산도 + 얼후(Erhu) 몽환 선율
+          playPluckedString(ctx, melNote, now, beatSec * 2.0, baseVol * 0.72, { brightness: 3100, vibrato: true, harmonicRatio: 3 });
+          if (barStep === 0) {
+            // Cascading 3-note guzheng ornament flourish
+            [0, 1, 2].forEach(k => {
+              playPluckedString(ctx, chord[k] * 2, now + k * 0.065, beatSec * 1.4, baseVol * 0.34, { brightness: 2800 });
+            });
+          }
+          if (barStep === 2) {
+            playExpressiveLead(ctx, melNote * 0.5, now, beatSec * 1.9, baseVol * 0.40, 'bowed');
+          }
+          break;
+        }
+        case 'western_harp': {
+          // 스텔라 별자리: 콘서트 하프 8분음표 아르페지오 + 첼레스타 별빛 벨
+          const arp1 = chord[barStep % chord.length] * 2;
+          const arp2 = chord[(barStep + 1) % chord.length] * 2;
+          playPluckedString(ctx, arp1, now, beatSec * 2.2, baseVol * 0.60, { brightness: 2500 });
+          playPluckedString(ctx, arp2, now + beatSec * 0.5, beatSec * 1.8, baseVol * 0.45, { brightness: 2300 });
+          if (barStep === 0 || barStep === 2) playChimeBell(ctx, melNote * 0.5, now, baseVol * 0.34);
+          break;
+        }
+        case 'western_waltz': {
+          // 셀레네 타로: 서양 바로크 3/4 왈츠 하프시코드 + 첼로
+          const waltzStep = step % 3;
+          if (waltzStep === 0) {
+            playSoftDrum(ctx, now, baseVol * 0.34, 98, 45);
+            playPluckedString(ctx, chord[0], now, beatSec * 1.8, baseVol * 0.58, { brightness: 1900 });
+          } else {
+            playPluckedString(ctx, chord[1] * 2, now, beatSec * 0.9, baseVol * 0.36, { brightness: 3200, harmonicRatio: 3 });
+            playPluckedString(ctx, chord[2] * 2, now + 0.02, beatSec * 0.9, baseVol * 0.30, { brightness: 3000 });
+          }
+          playPluckedString(ctx, melNote, now, beatSec * 1.5, baseVol * 0.52, { brightness: 2900, harmonicRatio: 2 });
+          break;
+        }
+        case 'kpop_ep': {
+          // 루미 혈액형: 발랄한 K-Pop 시티팝 EP + 반짝 오르골 + 경쾌한 리듬
+          playPluckedString(ctx, melNote, now, beatSec * 1.2, baseVol * 0.64, { brightness: 3200 });
+          if (barStep === 0 || barStep === 2) playSoftDrum(ctx, now, baseVol * 0.52, 130, 50);
+          if (barStep === 1 || barStep === 3) playChimeBell(ctx, chord[3], now, baseVol * 0.25);
+          break;
+        }
+        default: {
+          // 하린 MBTI: 모던 서울 로파이 어쿠스틱 카페
+          playPluckedString(ctx, melNote, now, beatSec * 1.6, baseVol * 0.58, { brightness: 1750 });
+          if (barStep === 0) playSoftDrum(ctx, now, baseVol * 0.42, 105, 44);
+          if (barStep === 2) playPluckedString(ctx, chord[2] * 2, now + beatSec * 0.5, beatSec * 1.2, baseVol * 0.35, { brightness: 1500 });
+          break;
+        }
+      }
     }
 
     function setTrack(key) {
@@ -2542,36 +2752,12 @@
       currentKey = targetKey;
       started = true;
 
-      stopPad();
       if (timer) { clearInterval(timer); timer = null; }
-
       const track = BGM_TRACKS[targetKey];
-      const now = ctx.currentTime;
-
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.setValueAtTime(Math.min(900, track.filterHz * 0.8), now);
-
-      padGain = ctx.createGain();
-      padGain.gain.setValueAtTime(0.0001, now);
-      padGain.gain.linearRampToValueAtTime(Math.min(0.14, (track.vol || 0.12) * 0.65), now + 1.1);
-
-      filter.connect(padGain);
-      padGain.connect(masterGain);
-
-      padOscs = track.drone.map((f, i) => {
-        const o = ctx.createOscillator();
-        o.type = track.padWave;
-        o.frequency.setValueAtTime(f, now);
-        o.detune.setValueAtTime(i === 0 ? -4 : 5, now);
-        o.connect(filter);
-        o.start(now);
-        return o;
-      });
-
+      const stepMs = Math.round((60 / (track.bpm || 80)) * 1000);
       stepIdx = 0;
-      setTimeout(() => playPluck(track), 160);
-      timer = setInterval(() => playPluck(track), track.tempoMs);
+      setTimeout(() => playStep(track), 120);
+      timer = setInterval(() => playStep(track), stepMs);
       syncMute();
     }
 
@@ -2580,7 +2766,7 @@
       if (!masterGain || !ctx) return;
       const now = ctx.currentTime;
       masterGain.gain.cancelScheduledValues(now);
-      masterGain.gain.setTargetAtTime(isAudible() ? 1.0 : 0.0001, now, 0.12);
+      masterGain.gain.setTargetAtTime(isAudible() ? 1.0 : 0.0001, now, 0.14);
     }
 
     function setMuted(muted) {
@@ -2928,7 +3114,7 @@
       const tBlink = isMini ? petBlinkTextures[idx] : blinkTextures[idx];
       if (tOpen) charMaterial.uniforms.uTexOpen.value = tOpen;
       if (tBlink) charMaterial.uniforms.uTexBlink.value = tBlink;
-      charMaterial.uniforms.uUvOffsetY.value = isMini ? cfg.pet.uvOffsetY : cfg.uvOffsetY;
+      charMaterial.uniforms.uUvOffsetY.value = isMini ? (cfg.pet.uvOffsetY ?? 0.08) : (cfg.uvOffsetY ?? 0.10);
     }
 
     if (particleSystem) particleSystem.material.color.setHex(cfg.particleColor);
@@ -3066,21 +3252,54 @@
 
   /* ==================== 8-CHARACTER YOUTHFUL CRISP VOICE ENGINE (TTS) ==================== */
   // 모든 8명 캐릭터는 어리고 생기 있는 여성 캐릭터 — 루미(혈액형)의 밝은 톤을 기준으로
-  // 각 캐릭터마다 늘어지지 않고(rate >= 1.09) 또렷하며 개성 있는 보이스 컬러 부여
+  // 각 캐릭터마다 늘어지지 않고(rate >= 1.09) 또렷하며 개성 있는 보이스 컬러 + 인사말/대기 멘트 부여
   const CHARACTER_VOICE_PROFILES = {
-    saju:   { label: '연화 · 맑고 또렷한 명리 톤',     pitch: 1.18, rate: 1.11 },
-    blood:  { label: '루미 · 발랄 통통 튀는 기준 톤',  pitch: 1.32, rate: 1.18 },
-    zodiac: { label: '스텔라 · 청아한 별빛 소녀 톤',   pitch: 1.24, rate: 1.13 },
-    tarot:  { label: '셀레네 · 가볍고 영롱한 신비 톤', pitch: 1.16, rate: 1.09 },
-    mbti:   { label: '하린 · 똑 부러진 하이텐션 톤',   pitch: 1.28, rate: 1.20 },
-    face:   { label: '아린 · 영리하고 상큼한 명랑 톤', pitch: 1.21, rate: 1.14 },
-    palm:   { label: '서연 · 시원시원 경쾌한 톤',      pitch: 1.26, rate: 1.17 },
-    sasang: { label: '다온 · 싱그럽고 명쾌한 한의 톤', pitch: 1.29, rate: 1.16 }
+    saju: {
+      label: '연화 · 맑고 또렷한 명리 톤', pitch: 1.18, rate: 1.12,
+      greet: '어서 와! 운명상점 주인 연화야. 생년월일시를 알려주면 사주와 신살을 자세히 풀어줄게!',
+      wait: '잠깐만 기다려줘! 옥구슬로 사주 원국과 신살을 정밀하게 읽고 있어!'
+    },
+    blood: {
+      label: '루미 · 발랄 통통 튀는 기준 톤', pitch: 1.32, rate: 1.18,
+      greet: '안녕! 루미야! 혈액형 궁합 바로 확인해 볼까?',
+      wait: '잠시만 기다려줘! 두 사람의 두근두근 혈액형 케미를 계산 중이야!'
+    },
+    zodiac: {
+      label: '스텔라 · 청아한 별빛 소녀 톤', pitch: 1.24, rate: 1.13,
+      greet: '반가워! 별자리 점성술사 스텔라야. 오늘의 별빛 운세를 봐줄게!',
+      wait: '잠깐만 기다려줘! 밤하늘 별자리 배치를 읽어오는 중이야!'
+    },
+    tarot: {
+      label: '셀레네 · 가볍고 영롱한 신비 톤', pitch: 1.16, rate: 1.10,
+      greet: '안녕, 타로 리더 셀레네야. 마음이 끌리는 카드를 한 장 골라봐!',
+      wait: '잠시만 기다려줘! 타로 카드에 담긴 운명의 메시지를 해석하고 있어!'
+    },
+    mbti: {
+      label: '하린 · 똑 부러진 하이텐션 톤', pitch: 1.28, rate: 1.20,
+      greet: '하이! 엠비티아이 상담사 하린이야! 찰떡 궁합을 분석해 줄게!',
+      wait: '잠깐만 기다려줘! 두 사람 성격 유형의 케미를 꼼꼼히 분석 중이야!'
+    },
+    face: {
+      label: '아린 · 영리하고 상큼한 명랑 톤', pitch: 1.21, rate: 1.14,
+      greet: '안녕! 청동거울 관상가 아린이야. 얼굴 사진을 올려주면 관상을 봐줄게!',
+      wait: '잠시만 기다려줘! 청동거울로 이목구비와 미래 배우자 인상까지 살펴보는 중이야!'
+    },
+    palm: {
+      label: '서연 · 시원시원 경쾌한 톤', pitch: 1.26, rate: 1.17,
+      greet: '반가워! 손금가 서연이야. 손바닥을 펼쳐주면 운명선을 읽어줄게!',
+      wait: '잠깐만 기다려줘! 황금 돋보기로 생명선과 재물선을 꼼꼼히 보고 있어!'
+    },
+    sasang: {
+      label: '다온 · 싱그럽고 명쾌한 한의 톤', pitch: 1.29, rate: 1.16,
+      greet: '안녕! 사상의학 한의사 다온이야. 네 체질과 신체 특징을 딱 알려줄게!',
+      wait: '잠시만 기다려줘! 사상체질과 신체 특징을 정밀하게 분석하고 있어!'
+    }
   };
 
   const voiceEngine = {
     speaking: false,
     cachedVoices: [],
+    speakTimer: null,
     refreshVoices() {
       if (!('speechSynthesis' in window)) return [];
       this.cachedVoices = window.speechSynthesis.getVoices() || [];
@@ -3090,10 +3309,8 @@
       const voices = this.cachedVoices.length ? this.cachedVoices : this.refreshVoices();
       const koVoices = voices.filter(v => (v.lang || '').toLowerCase().startsWith('ko'));
       if (!koVoices.length) return null;
-      // Prefer young/clear female Korean voices (exclude obvious male names)
       const femalePref = koVoices.filter(v => !/minsu|injeong|male|남|hyunsu|bongjin|gookmin/i.test(v.name));
       const pool = femalePref.length ? femalePref : koVoices;
-      // Prioritize Google 한국의 / Yuna / Sora / SunHi / Heami while rotating gently if multiple exist
       const sorted = [...pool].sort((a, b) => {
         const score = (n) => /google|yuna|sora|sunhi|heami|seoyeon/i.test(n) ? 10 : 1;
         return score(b.name) - score(a.name);
@@ -3101,6 +3318,7 @@
       return sorted[charIdx % sorted.length] || sorted[0];
     },
     stop() {
+      if (this.speakTimer) { clearTimeout(this.speakTimer); this.speakTimer = null; }
       if ('speechSynthesis' in window) {
         try { window.speechSynthesis.cancel(); } catch (_) {}
       }
@@ -3113,18 +3331,14 @@
     },
     speak(rawText, charIdOverride = null) {
       if (!state.voiceEnabled) return;
-      if (!('speechSynthesis' in window)) {
-        showToast('이 브라우저에서는 음성 합성을 지원하지 않아요.');
-        return;
-      }
+      if (!('speechSynthesis' in window)) return;
       const clean = String(rawText || '')
         .replace(/<[^>]+>/g, ' ')
-        .replace(/\*\*|\[|\]|✦|✨|🌿|🌸|🐎|🎨|🪡|🐯|⚡|🌹|🔮|🌀|🌟|🛡️|⚔️|♥|♡|★|☆|📷|🖼️|☀️|🌳|🔥|💧|📜|💡|💙|🍀|💍|🪞|✋/g, ' ')
+        .replace(/\*\*|\[|\]|✦|✨|🌿|🌸|🐎|🎨|🪡|🐯|⚡|🌹|🔮|🌀|🌟|🛡️|⚔️|♥|♡|★|☆|📷|🖼️|☀️|🌳|🔥|💧|📜|💡|💙|🍀|💍|🪞|✋|🗣️/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
       if (!clean) return;
 
-      this.stop();
       const idx = charIdOverride
         ? Math.max(0, CHARACTERS.findIndex(c => c.id === charIdOverride))
         : state.currentIdx;
@@ -3132,29 +3346,60 @@
       const profile = CHARACTER_VOICE_PROFILES[charObj.id] || CHARACTER_VOICE_PROFILES.blood;
       const isMini = state.modelMode === 'mini' && !!charObj.pet;
 
-      const utter = new SpeechSynthesisUtterance(clean.slice(0, 480));
-      utter.lang = 'ko-KR';
-      // Ensure young & non-dragging crisp voice for every character (extra cute boost in mini-pet mode)
-      utter.pitch = Math.min(1.52, profile.pitch + (isMini ? 0.11 : 0));
-      utter.rate = Math.min(1.30, profile.rate + (isMini ? 0.04 : 0));
-      utter.volume = 0.96;
+      const needDelay = window.speechSynthesis.speaking || window.speechSynthesis.pending;
+      this.stop();
+      try { window.speechSynthesis.resume(); } catch (_) {}
 
-      const voice = this.pickKoreanFemaleVoice(idx);
-      if (voice) utter.voice = voice;
+      const fire = () => {
+        const utter = new SpeechSynthesisUtterance(clean.slice(0, 480));
+        utter.lang = 'ko-KR';
+        utter.pitch = Math.min(1.52, profile.pitch + (isMini ? 0.11 : 0));
+        utter.rate = Math.min(1.30, profile.rate + (isMini ? 0.04 : 0));
+        utter.volume = 1.0;
 
-      utter.onstart = () => {
-        this.speaking = true;
-        const btn = document.getElementById('btn-voice-speak');
-        if (btn) {
-          btn.textContent = '⏹ 멈춤';
-          btn.classList.add('bg-emerald-500/35', 'border-emerald-300');
-        }
+        const voice = this.pickKoreanFemaleVoice(idx);
+        if (voice) utter.voice = voice;
+
+        utter.onstart = () => {
+          this.speaking = true;
+          const btn = document.getElementById('btn-voice-speak');
+          if (btn) {
+            btn.textContent = '⏹ 멈춤';
+            btn.classList.add('bg-emerald-500/35', 'border-emerald-300');
+          }
+        };
+        utter.onend = () => this.stop();
+        utter.onerror = () => this.stop();
+        try {
+          window.speechSynthesis.resume();
+          window.speechSynthesis.speak(utter);
+        } catch (_) {}
       };
-      utter.onend = () => this.stop();
-      utter.onerror = () => this.stop();
-      try { window.speechSynthesis.speak(utter); } catch (_) {}
+
+      // Chromium bug workaround: wait 55ms after cancel() so the new utterance is never silently dropped
+      if (needDelay) {
+        this.speakTimer = setTimeout(fire, 55);
+      } else {
+        fire();
+      }
+    },
+    speakGreet(charIdx) {
+      const c = CHARACTERS[charIdx];
+      if (!c) return;
+      if (state.modelMode === 'mini' && c.pet) {
+        const line = (c.pet.lines && c.pet.lines[0]) || `${c.pet.name}야! 반가워!`;
+        this.speak(line, c.id);
+      } else {
+        const prof = CHARACTER_VOICE_PROFILES[c.id];
+        this.speak(prof ? prof.greet : (c.lines[0] || ''), c.id);
+      }
+    },
+    speakWait(charId) {
+      const prof = CHARACTER_VOICE_PROFILES[charId];
+      if (prof && prof.wait) this.speak(prof.wait, charId);
     }
   };
+  window.voiceEngine = voiceEngine;
   if ('speechSynthesis' in window) {
     window.speechSynthesis.onvoiceschanged = () => voiceEngine.refreshVoices();
     voiceEngine.refreshVoices();
@@ -3652,6 +3897,7 @@
       bgmEngine.setMuted(false);
     }
     playChimeSound(720);
+    setTimeout(() => { if (typeof voiceEngine !== 'undefined') voiceEngine.speakGreet(0); }, 420);
     setTimeout(() => {
       if (openingOverlay.classList.contains('hidden-seq')) {
         try { openingVideo.currentTime = 0; } catch (e) {}
@@ -3751,60 +3997,33 @@
   const openingWhisper = document.getElementById('opening-whisper');
 
 
-  // Auto-connect root /opening.mp4 (or any root .mp4 served by backend) without race condition
-  state.serverOpeningReady = false;
-  const serverOpeningProbe = (location.protocol.startsWith('http'))
-    ? fetch('/opening.mp4', { method: 'HEAD', cache: 'no-store' }).then(r => {
-        if (r.ok && !state.customVideoUrl) {
-          state.serverOpeningReady = true;
-          openingVideo.src = '/opening.mp4';
-          openingVideo.load();
-          prepareOpeningVideo('운명상점 오프닝 영상', false);
-        }
-        return r.ok;
-      }).catch(() => false)
-    : Promise.resolve(false);
-
-  async function startOpeningSequence() {
-    if (openingPlaying) return;
-    if (!state.customVideoUrl && !state.serverOpeningReady) {
-      await Promise.race([serverOpeningProbe, new Promise(res => setTimeout(res, 1200))]);
+  // Relative ./opening.mp4 works across GitHub Pages, Render, localhost, and local file://!
+  // Never await HEAD/fetch before play() so the browser user-gesture token stays intact.
+  state.serverOpeningReady = true;
+  let openingFallbackTried = false;
+  openingVideo.addEventListener('loadeddata', () => {
+    state.serverOpeningReady = true;
+    openingVideo.classList.add('playing');
+  });
+  openingVideo.addEventListener('error', () => {
+    if (state.customVideoUrl) return;
+    if (!openingFallbackTried && location.protocol.startsWith('http')) {
+      openingFallbackTried = true;
+      openingVideo.src = '/opening.mp4';
+      openingVideo.load();
+    } else {
+      state.serverOpeningReady = false;
+      openingVideo.classList.remove('playing');
     }
+  });
+  if (!state.customVideoUrl && !openingVideo.getAttribute('src')) {
+    openingVideo.src = '../opening.mp4';
+  }
+  openingVideo.preload = 'auto';
+  openingVideo.playsInline = true;
+  openingVideo.loop = false;
 
-    const hasOpeningVid = !!(state.customVideoUrl || state.serverOpeningReady);
-    if (hasOpeningVid) {
-      openingPlaying = true;
-      playKnockSound();
-      // Pause ambient BGM briefly so the opening video's own door & chime audio shines cleanly
-      if (typeof bgmEngine !== 'undefined' && bgmEngine.setMuted) bgmEngine.setMuted(true);
-      knockArea.style.opacity = '0';
-      knockArea.style.pointerEvents = 'none';
-      openingHeader.style.opacity = '0';
-      openingVignette.style.opacity = '0';
-      openingFadeTriggered = false;
-      openingPlayStartedAt = Date.now();
-      openingVideo.classList.add('playing');
-      openingVideo.playsInline = true;
-      openingVideo.loop = false;
-      try { openingVideo.pause(); openingVideo.currentTime = 0; } catch (_) {}
-      openingVideo.muted = false;
-      const p = openingVideo.play();
-      if (p && typeof p.catch === 'function') {
-        p.catch(() => {
-          openingVideo.muted = true;
-          openingVideo.play().catch(() => {
-            openingPlaying = false;
-            knockArea.style.opacity = '1';
-            knockArea.style.pointerEvents = 'auto';
-            openingHeader.style.opacity = '1';
-            showToast('영상을 다시 한 번 터치해 재생해 주세요 🎬');
-          });
-        });
-      }
-      return;
-    }
-
-    // Bespoke Cinematic Interactive Opening Sequence
+  function runFallbackPosterOpening() {
     openingPlaying = true;
     playKnockSound();
     if (openingRipple) {
@@ -3830,6 +4049,47 @@
     setTimeout(() => {
       finishOpening();
     }, 2450);
+  }
+
+  function startOpeningSequence() {
+    if (openingPlaying) return;
+
+    const hasOpeningVid = !!(state.customVideoUrl || state.serverOpeningReady);
+    if (hasOpeningVid) {
+      openingPlaying = true;
+      playKnockSound();
+      if (typeof bgmEngine !== 'undefined' && bgmEngine.setMuted) bgmEngine.setMuted(true);
+      knockArea.style.opacity = '0';
+      knockArea.style.pointerEvents = 'none';
+      openingHeader.style.opacity = '0';
+      openingVignette.style.opacity = '0';
+      openingFadeTriggered = false;
+      openingPlayStartedAt = Date.now();
+      openingVideo.classList.add('playing');
+      openingVideo.playsInline = true;
+      openingVideo.loop = false;
+      if (!openingVideo.currentSrc && !openingVideo.src) {
+        openingVideo.src = '../opening.mp4';
+      }
+      try { openingVideo.currentTime = 0; } catch (_) {}
+      openingVideo.muted = false;
+      // Call play() synchronously inside the click handler so mobile/desktop browsers allow full playback!
+      const p = openingVideo.play();
+      if (p && typeof p.catch === 'function') {
+        p.catch(() => {
+          openingVideo.muted = true;
+          openingVideo.play().catch(() => {
+            // Only fall back to poster animation if the video file genuinely cannot play
+            openingPlaying = false;
+            openingVideo.classList.remove('playing');
+            runFallbackPosterOpening();
+          });
+        });
+      }
+      return;
+    }
+
+    runFallbackPosterOpening();
   }
 
   function replayOpening() {
@@ -3921,6 +4181,7 @@
       showToast(`${char.tabName} 미니 캐릭터는 공사중이에요 🚧 (혈액형·별자리·타로 펫 완성!)`);
     } else {
       showToast(isMini ? `무료 미니 펫 (${char.pet.name})으로 전환했어요 ✨` : `유료 마스터 (${char.name})로 전환했어요 ✨`);
+      if (typeof voiceEngine !== 'undefined') voiceEngine.speakGreet(state.currentIdx);
     }
   }
 
@@ -3946,7 +4207,10 @@
     updateCharacterLabels();
     showCharacter3D(wrapped);
     contentSheet.scrollTo({ top: 0, behavior: 'smooth' });
-    if (!silent) playSwipeSound();
+    if (!silent) {
+      playSwipeSound();
+      if (typeof voiceEngine !== 'undefined') voiceEngine.speakGreet(wrapped);
+    }
   }
 
   // ---- TRUE THREE.JS 3D CRYSTAL ORB (RIGID SPHERE, ZERO MORPHING, REAL 3D ROLLING!) ----
@@ -5055,385 +5319,6 @@ ${sinsalRichList}
         b.className = `blood-me-btn py-1.5 rounded-lg text-xs ${active ? 'font-extrabold border-2 border-rose-500 bg-rose-500 text-white shadow-sm' : 'font-bold border border-pink-300 bg-pink-50 text-rose-900'}`;
       });
     
-  /* ==================== SASANG MEDICINE (사상의학 도감 + 체질 진단 + 전신 AI) ==================== */
-  const SASANG_DB = {
-    taeyang: {
-      key: 'taeyang',
-      name: '태양인(太陽人)',
-      shortName: '태양인',
-      emoji: '☀️',
-      organs: '폐대간소(肺大肝小) — 폐·호흡·발산 기운 강함 / 간·흡수·하체 기운 약함',
-      ratio: '한국인 약 1~3% · 희귀 카리스마형',
-      tagline: '넓은 시야와 독창적 카리스마로 시대를 앞서가는 혁신가 체질',
-      bodySummary: '목덜미(용두)와 상체 윗부분이 굵고 발달한 반면, 허리와 하체가 비교적 가늘고 날렵한 역삼각형 실루엣이 특징입니다.',
-      bodyDetails: [
-        '목덜미·어깨선: 목이 굵고 튼실하며 뒤통수와 상체 위쪽의 기세가 힘차게 살아 있습니다.',
-        '가슴·허리·하체: 상체에 비해 허리가 가늘고 엉덩이가 작으며, 다리 힘이 약해 오래 서 있거나 걷기보다 앉아 있는 자세가 편합니다.',
-        '얼굴 인상: 이마가 넓고 눈빛이 강렬하며 턱선이 날렵해 첫인상부터 카리스마와 개성이 또렷합니다.',
-        '체온·땀 패턴: 열기가 위로 잘 뻗어 오르는 편이라 시원하고 담백한 기운을 좋아하며, 소변량이 시원하게 잘 나올 때 컨디션이 최상입니다.'
-      ],
-      personality: '결단력과 추진력이 뛰어나고 남이 가지 않은 길을 개척하는 리더십이 강합니다. 사교적이고 시원시원하지만, 지나치게 흥분하거나 화를 내면 기운이 위로 치솟아 피로해지기 쉬우므로 차분한 호흡과 여유가 중요합니다.',
-      goodFoods: '메밀, 냉면, 새우, 조개, 게, 해삼, 붕어, 포도, 감, 앵두, 키위, 다래, 솔잎차, 오가피차, 담백한 해산물과 채소',
-      badFoods: '기름진 육류, 맵고 자극적인 음식, 술, 인삼, 녹용, 꿀 등 열을 과하게 올리는 보양식',
-      exercise: '하체 근력을 천천히 길러주는 스쿼트·런지·자전거 타기, 그리고 상체 열기를 내려주는 복식호흡과 요가',
-      color: '#fbbf24'
-    },
-    taeeum: {
-      key: 'taeeum',
-      name: '태음인(太陰人)',
-      shortName: '태음인',
-      emoji: '🌳',
-      organs: '간대폐소(肝大肺小) — 간·흡수·저장 기운 강함 / 폐·호흡·발산 기운 약함',
-      ratio: '한국인 약 40~50% · 듬직한 대들보형',
-      tagline: '넓은 포용력과 뚝심으로 큰 결실을 맺는 듬직한 대기만성 체질',
-      bodySummary: '허리둘레와 복부·골격이 굵고 튼실하며 전체적으로 안정감 있고 육중한 중심이 잡힌 체형이 특징입니다.',
-      bodyDetails: [
-        '허리·복부: 허리 부위가 굵고 튼튼하게 발달해 서 있는 자세가 매우 안정적이며, 에너지 저장 능력이 뛰어납니다.',
-        '어깨·목선: 목덜미가 비교적 가늘거나 부드럽고, 상체보다 몸통 중심과 하체가 탄탄하게 받쳐주는 형태입니다.',
-        '얼굴 인상: 이목구비가 큼직하고 선이 굵으며, 볼과 턱선에 여유가 있어 신뢰감 있고 푸근한 인상을 줍니다.',
-        '체온·땀 패턴: 모공이 잘 열리고 **땀을 시원하게 흘릴수록 몸이 개운해지는 체질**입니다. 땀이 안 나고 순환이 막히면 쉽게 붓고 체중이 늘기 쉽습니다.'
-      ],
-      personality: '인내심과 끈기가 대단하고 한 번 맡은 일은 끝까지 해내는 신뢰의 아이콘입니다. 겉으로는 차분해 보여도 속정이 깊고 의리가 강하며, 새로운 변화에 발을 내디딜 때 과감히 움직이면 큰 성취를 이룹니다.',
-      goodFoods: '소고기, 콩, 두부, 율무, 도라지, 더덕, 무, 연근, 버섯, 배, 밤, 호두, 잣, 은행, 오미자차, 칡차',
-      badFoods: '돼지고기·닭고기 과다 섭취, 밀가루 튀김, 과음, 야식 및 과식 습관',
-      exercise: '땀을 흠뻑 흘리며 심폐 순환을 열어주는 빠른 걷기, 러닝, 등산, 수영, 인터벌 유산소 운동',
-      color: '#34d399'
-    },
-    soyang: {
-      key: 'soyang',
-      name: '소양인(少陽人)',
-      shortName: '소양인',
-      emoji: '🔥',
-      organs: '비대신소(脾大腎小) — 비위·소화·열기 강함 / 신장·하초·수분 기운 약함',
-      ratio: '한국인 약 30~35% · 쾌활한 열정형',
-      tagline: '명쾌한 순발력과 시원한 추진력으로 주변을 밝히는 에너지 체질',
-      bodySummary: '가슴(흉부)과 상체가 탄탄하게 발달하고 엉덩이·하체가 슬림하며 걸음걸이가 가볍고 경쾌한 체형이 특징입니다.',
-      bodyDetails: [
-        '가슴·어깨: 흉곽과 어깨선이 시원하게 펴져 있고 상체에 탄력이 있어 활동적이고 날렵한 실루엣을 보입니다.',
-        '엉덩이·하체: 상체에 비해 골반과 엉덩이가 콤팩트하고 다리가 길고 가늘어 걸음이 빠르고 경쾌합니다.',
-        '얼굴 인상: 턱이 뾰족하거나 갸름하고 눈매가 또렷하며 표정 변화가 풍부해 총명하고 세련된 인상을 줍니다.',
-        '체온·땀 패턴: 소화력이 좋고 몸에 열이 많아 시원한 음료를 즐기며, 상체 열기를 식히고 하체 수분을 보충할 때 피부와 컨디션이 빛납니다.'
-      ],
-      personality: '판단이 빠르고 솔직담백하며 새로운 일에 거침없이 도전하는 매력의 소유자입니다. 봉사 정신과 정의감이 강해 인기가 많지만, 조급해지기 쉬우므로 마무리 단계에서 한 박자 여유를 챙기면 완벽합니다.',
-      goodFoods: '돼지고기, 오리고기, 보리, 팥, 녹두, 오이, 배추, 상추, 수박, 참외, 딸기, 바나나, 산수유차, 구기자차, 결명자차',
-      badFoods: '닭고기, 염소고기, 인삼, 홍삼, 꿀, 생강, 고추 등 지나치게 뜨겁고 매운 음식',
-      exercise: '상체 열을 내리고 하체·코어를 단단히 채워주는 필라테스, 스쿼트, 하체 웨이트, 시원한 스트레칭과 명상',
-      color: '#fb7185'
-    },
-    soeum: {
-      key: 'soeum',
-      name: '소음인(少陰人)',
-      shortName: '소음인',
-      emoji: '💧',
-      organs: '신대비소(腎大脾小) — 신장·하체·섬세함 강함 / 비위·소화·체온 기운 약함',
-      ratio: '한국인 약 20~25% · 섬세한 지혜형',
-      tagline: '세밀한 기획력과 단정한 품격으로 깊은 신뢰를 쌓는 지혜 체질',
-      bodySummary: '어깨와 상체가 아담하고 부드러운 반면, 골반과 엉덩이·하체가 균형 있게 발달한 안정적인 실루엣이 특징입니다.',
-      bodyDetails: [
-        '상체·어깨: 어깨선이 좁고 부드러우며 전체적으로 아담하고 단정한 비율을 지니고 있습니다.',
-        '골반·하체: 상체에 비해 엉덩이와 허벅지가 탄탄하게 중심을 잡아 주어 오래 앉아 집중하는 힘이 뛰어납니다.',
-        '얼굴 인상: 이목구비가 오밀조밀하고 선이 고우며, 눈빛이 차분하고 지적인 분위기를 풍깁니다.',
-        '체온·땀 패턴: 손발과 아랫배가 차가워지기 쉽고 소화기가 섬세합니다. **땀을 지나치게 많이 빼면 기운이 떨어지므로** 몸을 따뜻하게 유지하는 것이 핵심입니다.'
-      ],
-      personality: '꼼꼼하고 분석적이며 한 번 정한 목표를 차근차근 완성하는 완벽주의적 매력이 있습니다. 타인의 감정을 세심히 배려해 깊은 우정과 사랑을 쌓으며, 지나친 걱정을 내려놓고 자신감을 가질수록 큰 복이 열립니다.',
-      goodFoods: '닭고기, 삼계탕, 찹쌀, 감자, 시금치, 양배추, 파, 마늘, 생강, 사과, 귤, 복숭아, 대추차, 인삼차, 꿀차, 따뜻한 국물 요리',
-      badFoods: '찬 음료, 아이스크림, 생채소 과다, 돼지고기 기름진 부위, 보리, 밀가루 찬 음식',
-      exercise: '과도한 땀 배출을 피하면서 체온을 부드럽게 올리는 요가, 가벼운 조깅, 코어 근력 운동, 따뜻한 반신욕',
-      color: '#38bdf8'
-    }
-  };
-
-  function buildSasangDetailedHtml(typeKey, opts = {}) {
-    const info = SASANG_DB[typeKey] || SASANG_DB.soyang;
-    const scoreBadge = opts.score ? `AI 체질 일치도 ${opts.score}%` : info.ratio;
-    const modeTitle = opts.fromPhoto ? `📷 AI 전신 분석 판별 결과` : `🌿 선택한 사상체질 상세 분석`;
-    const bodyListHtml = info.bodyDetails.map(line => {
-      const [head, ...rest] = line.split(':');
-      return `<div class="rounded-xl bg-black/30 border border-emerald-300/20 px-3 py-2 text-[11.5px] leading-relaxed">
-        <span class="font-extrabold text-amber-200">▸ ${escapeHtmlSafe(head)}</span>
-        <span class="text-emerald-50/95">: ${formatRichReadingHtml(rest.join(':').trim(), 'emerald').replace(/<div class="rich-reading"><div class="rich-sec"><p class="rich-p">|<\/p><\/div><\/div>/g, '')}</span>
-      </div>`;
-    }).join('');
-
-    const fallbackFull = `[${info.name} 핵심 진단 및 장부(臟腑) 원리]
-**${info.name}**은 이제마 선생의 동의수세보원에서 **${info.organs}**의 구조를 타고난 체질입니다. ${info.tagline}으로, 자신의 장부 강약에 맞춰 생활 리듬을 조율할 때 에너지와 매력이 가장 환하게 빛납니다.
-
-[전신 신체 · 해부학적 특징 상세 해설]
-${opts.bodyFeatures ? opts.bodyFeatures + '\n' : ''}**${info.name}**의 대표적 외형은 ${info.bodySummary} 평소 체온과 땀의 흐름, 피로가 쌓이는 부위를 잘 관찰하면 내 몸이 보내는 건강 신호를 누구보다 빠르게 알아챌 수 있습니다.
-
-[기질 · 성격 및 대인관계 강점]
-${info.personality}
-
-[맞춤 식습관 · 추천 운동 · 양생 가이드]
-${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는 **${info.goodFoods}**을 적극 추천하며, **${info.badFoods}**은 과하지 않게 조절하는 것이 좋습니다. 운동은 **${info.exercise}**처럼 체질의 순환을 돕는 루틴을 꾸준히 이어가 보세요!`;
-
-    const voiceSummary = `안녕, 다온이야! 분석 결과는 ${info.name}! ${info.bodySummary} ${info.tagline}이야!`;
-
-    return {
-      info,
-      fallbackFull,
-      html: `
-        <div class="text-left space-y-3">
-          <div class="flex items-center justify-between gap-2">
-            <span class="font-bold text-emerald-200 text-xs">${modeTitle}</span>
-            <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/25 text-emerald-100 border border-emerald-300/45 font-bold">${scoreBadge}</span>
-          </div>
-
-          <div class="rounded-2xl p-3.5 bg-gradient-to-br from-emerald-950/90 to-teal-950/80 border border-amber-300/50 space-y-1.5">
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="text-[10px] font-bold text-amber-300">당신의 사상체질</div>
-                <div class="font-serif-kr text-lg font-extrabold text-white mt-0.5">${info.emoji} ${info.name}</div>
-              </div>
-              ${renderVoiceReadBtn(voiceSummary, 'sasang', '🗣️ 다온 보이스')}
-            </div>
-            <div class="text-[11px] font-semibold text-emerald-200">${info.organs}</div>
-            <p class="text-[11.5px] text-amber-50/90 leading-relaxed pt-1">${info.bodySummary}</p>
-          </div>
-
-          <div class="space-y-1.5">
-            <div class="text-xs font-extrabold text-amber-200 flex items-center gap-1.5"><span>🧬</span><span>${info.shortName} 상세 신체 특징 (부위별 분석)</span></div>
-            ${bodyListHtml}
-          </div>
-
-          <div class="grid grid-cols-1 gap-2">
-            <div class="rounded-xl bg-emerald-500/10 border border-emerald-300/30 p-2.5 text-[11.5px] leading-relaxed">
-              <div class="font-bold text-emerald-300 mb-0.5">🥗 이로운 맞춤 음식</div>
-              <div class="text-emerald-50/95">${info.goodFoods}</div>
-            </div>
-            <div class="rounded-xl bg-rose-500/10 border border-rose-300/30 p-2.5 text-[11.5px] leading-relaxed">
-              <div class="font-bold text-rose-300 mb-0.5">⚠️ 줄이면 좋은 음식</div>
-              <div class="text-rose-50/95">${info.badFoods}</div>
-            </div>
-            <div class="rounded-xl bg-sky-500/10 border border-sky-300/30 p-2.5 text-[11.5px] leading-relaxed">
-              <div class="font-bold text-sky-300 mb-0.5">🏃 맞춤 추천 운동</div>
-              <div class="text-sky-50/95">${info.exercise}</div>
-            </div>
-          </div>
-
-          <div class="rounded-xl bg-white/5 border border-emerald-300/35 p-3 space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-bold text-amber-200">✨ 다온의 심층 사상의학 종합 풀이</span>
-              <div id="sasang-voice-detail-wrap">${renderVoiceReadBtn(opts.analysis || fallbackFull, 'sasang', '🗣️ 풀이 듣기')}</div>
-            </div>
-            <div id="sasang-llm-box">${formatRichReadingHtml(opts.analysis || fallbackFull, 'emerald')}</div>
-          </div>
-          ${renderShareActionBar('sasang', '내 사상체질 결과 공유하기')}
-        </div>
-      `
-    };
-  }
-
-  // Render Sasang Encyclopedia (사상의학 도감)
-  let activeSasangGuideKey = 'taeyang';
-  function renderSasangGuide(key = 'taeyang') {
-    activeSasangGuideKey = key;
-    const grid = document.getElementById('sasang-guide-grid');
-    const card = document.getElementById('sasang-guide-card');
-    if (!grid || !card) return;
-    const keys = ['taeyang', 'taeeum', 'soyang', 'soeum'];
-    grid.innerHTML = keys.map(k => {
-      const it = SASANG_DB[k];
-      const act = k === key;
-      return `<button type="button" data-sg-key="${k}" class="py-2 px-1 rounded-xl text-center transition ${act ? 'bg-emerald-500/40 border border-amber-300/75 text-white font-extrabold shadow' : 'bg-white/5 border border-emerald-300/25 text-emerald-100/80 font-semibold'}">
-        <div class="text-base leading-none">${it.emoji}</div>
-        <div class="text-[11px] mt-1">${it.shortName}</div>
-      </button>`;
-    }).join('');
-    grid.querySelectorAll('[data-sg-key]').forEach(btn => {
-      btn.addEventListener('click', () => renderSasangGuide(btn.dataset.sgKey));
-    });
-
-    const info = SASANG_DB[key];
-    card.innerHTML = `
-      <div class="flex items-center justify-between border-b border-emerald-300/25 pb-2">
-        <div>
-          <div class="font-serif-kr text-base font-extrabold text-white">${info.emoji} ${info.name}</div>
-          <div class="text-[10.5px] text-amber-200 font-semibold mt-0.5">${info.ratio}</div>
-        </div>
-        ${renderVoiceReadBtn(`${info.name} 도감 안내! ${info.bodySummary} ${info.tagline}`, 'sasang', '🗣️ 듣기')}
-      </div>
-      <div class="rounded-lg bg-emerald-950/70 border border-emerald-400/30 px-2.5 py-2 text-[11px] text-emerald-100">
-        <strong class="text-amber-200">장부 특징:</strong> ${info.organs}
-      </div>
-      <div class="space-y-1.5">
-        <div class="text-[11px] font-bold text-amber-200">🧬 주요 신체적 특징</div>
-        ${info.bodyDetails.map(d => `<div class="text-[11px] text-slate-100 leading-relaxed pl-2 border-l-2 border-emerald-400/50">${d}</div>`).join('')}
-      </div>
-      <div class="text-[11px] leading-relaxed text-emerald-50/90"><strong class="text-sky-300">✦ 기질·성격:</strong> ${info.personality}</div>
-      <div class="grid grid-cols-1 gap-1.5 pt-1 text-[11px]">
-        <div class="bg-emerald-500/10 rounded-lg px-2.5 py-1.5"><strong class="text-emerald-300">🥗 좋은 음식:</strong> ${info.goodFoods}</div>
-        <div class="bg-rose-500/10 rounded-lg px-2.5 py-1.5"><strong class="text-rose-300">⚠️ 피할 음식:</strong> ${info.badFoods}</div>
-        <div class="bg-sky-500/10 rounded-lg px-2.5 py-1.5"><strong class="text-sky-300">🏃 추천 운동:</strong> ${info.exercise}</div>
-      </div>
-    `;
-  }
-
-  // Bind Sasang Sub-Tabs (진단 vs 도감)
-  document.querySelectorAll('.sasang-tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tab = btn.dataset.sasangTab;
-      document.querySelectorAll('.sasang-tab-btn').forEach(b => {
-        const act = b.dataset.sasangTab === tab;
-        b.className = `sasang-tab-btn py-1.5 rounded-lg text-xs font-bold transition ${act ? 'bg-emerald-500/40 text-white border border-emerald-300/50' : 'text-emerald-200/80'}`;
-      });
-      document.getElementById('sasang-tab-analyze')?.classList.toggle('hidden', tab !== 'analyze');
-      document.getElementById('sasang-tab-guide')?.classList.toggle('hidden', tab !== 'guide');
-      if (tab === 'guide') renderSasangGuide(activeSasangGuideKey);
-    });
-  });
-
-  // Bind Known vs Unknown(Photo) Mode
-  function setSasangMode(mode) {
-    state.sasangMode = mode;
-    const isKnown = mode === 'known';
-    document.getElementById('sasang-known-box')?.classList.toggle('hidden', !isKnown);
-    document.getElementById('sasang-photo-box')?.classList.toggle('hidden', isKnown);
-    const bKnown = document.getElementById('btn-sasang-mode-known');
-    const bPhoto = document.getElementById('btn-sasang-mode-photo');
-    if (bKnown) bKnown.className = `py-2 px-2 rounded-xl text-[11.5px] font-bold transition ${isKnown ? 'bg-emerald-500/35 text-white border border-emerald-300/60' : 'bg-white/5 text-emerald-200/85 border border-emerald-300/25'}`;
-    if (bPhoto) bPhoto.className = `py-2 px-2 rounded-xl text-[11.5px] font-bold transition ${!isKnown ? 'bg-emerald-500/35 text-white border border-emerald-300/60' : 'bg-white/5 text-emerald-200/85 border border-emerald-300/25'}`;
-  }
-  document.getElementById('btn-sasang-mode-known')?.addEventListener('click', () => setSasangMode('known'));
-  document.getElementById('btn-sasang-mode-photo')?.addEventListener('click', () => setSasangMode('photo'));
-
-  // Bind 4 constitution selection buttons
-  document.querySelectorAll('.sasang-type-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      state.sasangType = btn.dataset.sasangType;
-      document.querySelectorAll('.sasang-type-btn').forEach(b => {
-        const act = b.dataset.sasangType === state.sasangType;
-        b.className = `sasang-type-btn py-2.5 px-2.5 rounded-xl text-left transition ${act ? 'bg-emerald-500/35 border border-amber-300/70 shadow' : 'bg-white/5 border border-emerald-300/25 hover:border-amber-300/60'}`;
-      });
-    });
-  });
-
-  // Known Constitution Analysis Run
-  document.getElementById('btn-run-sasang-known')?.addEventListener('click', () => {
-    const typeKey = state.sasangType || 'soyang';
-    const q = (document.getElementById('sasang-known-question')?.value || '').trim();
-    const resEl = document.getElementById('sasang-inline-result');
-    const built = buildSasangDetailedHtml(typeKey, { fromPhoto: false });
-    resEl.innerHTML = built.html;
-    rigPhys.flinchElapsed = 0.0;
-    rigPhys.happyTimer = 1.1;
-    playChimeSound(720);
-    speechBubble.innerHTML = `${built.info.emoji} ${built.info.name} 체질의 신체 특징과 맞춤 양생법을 모두 펼쳐 드렸어요! 🌿`;
-    voiceEngine.speak(`${built.info.name} 체질이시군요! ${built.info.bodySummary}`, 'sasang');
-    registerSharePayload('sasang', {
-      category: '사상의학 체질 분석', title: built.info.name,
-      scoreText: built.info.shortName, subtitle: built.info.organs,
-      summary: built.info.bodySummary, tip: `추천 음식: ${built.info.goodFoods.slice(0, 48)}`,
-      bg1: '#123d32', bg2: '#071411', accent: '#6ee7b7'
-    });
-    askGeminiFortune('sasang', '사상의학', `사용자 선택 사상체질: ${built.info.name} (${built.info.organs}). 신체 특징: ${built.info.bodySummary}`, q, built.fallbackFull, state.userName || '방문자').then(txt => {
-      const box = document.getElementById('sasang-llm-box');
-      if (box) box.innerHTML = formatRichReadingHtml(txt, 'emerald');
-      const vWrap = document.getElementById('sasang-voice-detail-wrap');
-      if (vWrap) vWrap.innerHTML = renderVoiceReadBtn(txt, 'sasang', '🗣️ 풀이 듣기');
-    });
-  });
-
-  // Full-Body Camera & Upload Bindings for Sasang
-  document.getElementById('btn-sasang-camera')?.addEventListener('click', () => openCameraFor('sasang'));
-  document.getElementById('btn-sasang-upload')?.addEventListener('click', () => document.getElementById('input-sasang-upload').click());
-  bindFilePicker('input-sasang-upload', 'sasang');
-  bindFilePicker('input-sasang-camera', 'sasang');
-
-  // Full-Body AI Vision Reading for Sasang
-  document.getElementById('btn-run-sasang-vision')?.addEventListener('click', async () => {
-    const imgData = state.sasangImgBase64;
-    const resEl = document.getElementById('sasang-inline-result');
-    const question = (document.getElementById('sasang-photo-question')?.value || '').trim();
-    if (!imgData) {
-      showToast('먼저 전신 사진을 촬영하거나 업로드해 주세요 📷');
-      return;
-    }
-    rigPhys.flinchElapsed = 0.0;
-    rigPhys.happyTimer = 1.2;
-    playChimeSound(740);
-
-    const imgHash = hashImageStr(imgData);
-    const keys = ['taeyang', 'taeeum', 'soyang', 'soeum'];
-    const fallbackKey = keys[imgHash % 4];
-    const fallbackScore = 82 + (imgHash % 15);
-
-    if (state.liveApiEnabled && state.apiBaseUrl) {
-      resEl.innerHTML = `<div class="py-4 text-emerald-200 animate-pulse">🌿 AI가 전신 사진의 상·하체 비율과 골격을 분석해 사상체질을 판별하는 중…</div>`;
-      try {
-        const base = state.apiBaseUrl.replace(/\/$/, '');
-        const resp = await fetch(`${base}/api/vision?_t=${Date.now()}`, {
-          method: 'POST',
-          cache: 'no-store',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_id: state.currentUser ? state.currentUser.id : null,
-            character_id: 'sasang',
-            image_base64: imgData,
-            user_name: state.userName || '방문자',
-            question
-          })
-        });
-        if (!resp.ok) throw new Error('Vision API Error');
-        const data = await resp.json();
-        const detectedKey = SASANG_DB[data.sasang_key] ? data.sasang_key : fallbackKey;
-        const dynScore = Number.isFinite(data.score) ? data.score : fallbackScore;
-        const built = buildSasangDetailedHtml(detectedKey, {
-          fromPhoto: true,
-          score: dynScore,
-          bodyFeatures: data.body_features || '',
-          healthDiet: data.health_diet || '',
-          analysis: data.analysis || ''
-        });
-        resEl.innerHTML = built.html;
-        speechBubble.innerHTML = `전신 분석 완료! 당신은 ${built.info.emoji} ${built.info.name} 체질이에요! (${dynScore}% 일치) 🌿`;
-        voiceEngine.speak(`전신 분석 완료! 당신의 사상체질은 ${built.info.name}이에요! ${built.info.bodySummary}`, 'sasang');
-        registerSharePayload('sasang', {
-          category: 'AI 전신 사상체질', title: built.info.name,
-          scoreText: `${dynScore}%`, subtitle: built.info.organs,
-          summary: (data.body_features || built.info.bodySummary).slice(0, 140),
-          tip: `추천 음식: ${built.info.goodFoods.slice(0, 48)}`,
-          bg1: '#123d32', bg2: '#071411', accent: '#6ee7b7'
-        });
-        saveLocalHistoryOnly('사상의학', question || '전신 사진 AI 판별', `${built.info.name} (${dynScore}%) · ${built.info.bodySummary.slice(0, 70)}`, `[${built.info.name} · ${dynScore}%]\n${data.analysis || built.fallbackFull}`, dynScore);
-        return;
-      } catch (_) {
-        showToast('서버 응답 대기 — 사상체질 프리뷰 분석으로 먼저 보여드립니다 🌿');
-      }
-    }
-
-    const built = buildSasangDetailedHtml(fallbackKey, {
-      fromPhoto: true,
-      score: fallbackScore,
-      bodyFeatures: `전신 실루엣의 어깨·가슴·허리·골반 비율을 분석한 결과, **${SASANG_DB[fallbackKey].name}** 특유의 체형 밸런스가 뚜렷하게 확인되었습니다.`
-    });
-    resEl.innerHTML = built.html;
-    speechBubble.innerHTML = `전신 분석 완료! 당신은 ${built.info.emoji} ${built.info.name} 체질이에요! 🌿`;
-    voiceEngine.speak(`전신 분석 완료! 당신은 ${built.info.name} 체질이에요! ${built.info.bodySummary}`, 'sasang');
-    registerSharePayload('sasang', {
-      category: 'AI 전신 사상체질', title: built.info.name,
-      scoreText: `${fallbackScore}%`, subtitle: built.info.organs,
-      summary: built.info.bodySummary, tip: `추천 음식: ${built.info.goodFoods.slice(0, 48)}`,
-      bg1: '#123d32', bg2: '#071411', accent: '#6ee7b7'
-    });
-    saveFortuneRecord('사상의학', question || '전신 사진 판별', `${built.info.name} (${fallbackScore}%)`, fallbackScore, built.fallbackFull);
-  });
-
-  renderSasangGuide('taeyang');
-
-  /* ==================== VOICE CONTROLS WIRING (HEADER + SETTINGS + SPEECH BUBBLE) ==================== */
-  function syncVoiceToggleUI() {
-    const btn = document.getElementById('btn-toggle-voice');
-    if (!btn) return;
-    btn.textContent = state.voiceEnabled ? '켜짐' : '꺼짐';
-    btn.className = state.voiceEnabled
-      ? 'px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/30 text-emerald-100 border border-emerald-400/60 min-w-[72px]'
-      : 'px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-700 text-slate-200 border border-white/15 min-w-[72px]';
-  }
-  document.getElementById('btn-toggle-voice')?.addEventListener('click', () => {
-    state.voiceEnabled = !state.voiceEnabled;
-    if (!state.voiceEnabled) voiceEngine.stop();
-    syncVoiceToggleUI();
     showToast(state.voiceEnabled ? '캐릭터 보이스가 켜졌어요 🗣️' : '캐릭터 보이스가 꺼졌어요 🔇');
   });
   document.getElementById('btn-voice-speak')?.addEventListener('click', () => {
@@ -6413,6 +6298,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
 
   /* ==================== DB RECORDING + OLLAMA CHAT & VISION ENGINE ==================== */
   async function askGeminiFortune(charId, category, details, question, fallbackText, subjectName = '') {
+    if (typeof voiceEngine !== 'undefined' && state.voiceEnabled) voiceEngine.speakWait(charId);
     const uid = state.currentUser ? state.currentUser.id : null;
     const uname = (subjectName && subjectName.trim()) || (state.userName && state.userName.trim()) || (state.currentUser && state.currentUser.name) || '방문자';
     if (state.liveApiEnabled && state.apiBaseUrl) {
@@ -7156,6 +7042,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
     rigPhys.flinchElapsed = 0.0;
     rigPhys.happyTimer = 1.1;
     playChimeSound(isFace ? 640 : 720);
+    if (typeof voiceEngine !== 'undefined' && state.voiceEnabled) voiceEngine.speakWait(target);
 
     const imgHash = hashImageStr(imgData);
     const spGender = state.spouseGender || 'M';
@@ -7847,6 +7734,503 @@ ${pp.txt}`);
   syncSettingsUI();
   initThreeScene();
   initOrb3D();
+  /* ==================== SASANG MEDICINE (사상의학 도감 + 체질 진단 + 전신 AI) ==================== */
+  const SASANG_DB = {
+    taeyang: {
+      key: 'taeyang',
+      name: '태양인(太陽人)',
+      shortName: '태양인',
+      emoji: '☀️',
+      organs: '폐대간소(肺大肝小) — 폐·호흡·발산 기운 강함 / 간·흡수·하체 기운 약함',
+      ratio: '한국인 약 1~3% · 희귀 카리스마형',
+      tagline: '넓은 시야와 독창적 카리스마로 시대를 앞서가는 혁신가 체질',
+      bodySummary: '목덜미(용두)와 상체 윗부분이 굵고 발달한 반면, 허리와 하체가 비교적 가늘고 날렵한 역삼각형 실루엣이 특징입니다.',
+      bodyDetails: [
+        '목덜미·어깨선: 목이 굵고 튼실하며 뒤통수와 상체 위쪽의 기세가 힘차게 살아 있습니다.',
+        '가슴·허리·하체: 상체에 비해 허리가 가늘고 엉덩이가 작으며, 다리 힘이 약해 오래 서 있거나 걷기보다 앉아 있는 자세가 편합니다.',
+        '얼굴 인상: 이마가 넓고 눈빛이 강렬하며 턱선이 날렵해 첫인상부터 카리스마와 개성이 또렷합니다.',
+        '체온·땀 패턴: 열기가 위로 잘 뻗어 오르는 편이라 시원하고 담백한 기운을 좋아하며, 소변량이 시원하게 잘 나올 때 컨디션이 최상입니다.'
+      ],
+      personality: '결단력과 추진력이 뛰어나고 남이 가지 않은 길을 개척하는 리더십이 강합니다. 사교적이고 시원시원하지만, 지나치게 흥분하거나 화를 내면 기운이 위로 치솟아 피로해지기 쉬우므로 차분한 호흡과 여유가 중요합니다.',
+      goodFoods: '메밀, 냉면, 새우, 조개, 게, 해삼, 붕어, 포도, 감, 앵두, 키위, 다래, 솔잎차, 오가피차, 담백한 해산물과 채소',
+      badFoods: '기름진 육류, 맵고 자극적인 음식, 술, 인삼, 녹용, 꿀 등 열을 과하게 올리는 보양식',
+      exercise: '하체 근력을 천천히 길러주는 스쿼트·런지·자전거 타기, 그리고 상체 열기를 내려주는 복식호흡과 요가',
+      color: '#fbbf24'
+    },
+    taeeum: {
+      key: 'taeeum',
+      name: '태음인(太陰人)',
+      shortName: '태음인',
+      emoji: '🌳',
+      organs: '간대폐소(肝大肺小) — 간·흡수·저장 기운 강함 / 폐·호흡·발산 기운 약함',
+      ratio: '한국인 약 40~50% · 듬직한 대들보형',
+      tagline: '넓은 포용력과 뚝심으로 큰 결실을 맺는 듬직한 대기만성 체질',
+      bodySummary: '허리둘레와 복부·골격이 굵고 튼실하며 전체적으로 안정감 있고 육중한 중심이 잡힌 체형이 특징입니다.',
+      bodyDetails: [
+        '허리·복부: 허리 부위가 굵고 튼튼하게 발달해 서 있는 자세가 매우 안정적이며, 에너지 저장 능력이 뛰어납니다.',
+        '어깨·목선: 목덜미가 비교적 가늘거나 부드럽고, 상체보다 몸통 중심과 하체가 탄탄하게 받쳐주는 형태입니다.',
+        '얼굴 인상: 이목구비가 큼직하고 선이 굵으며, 볼과 턱선에 여유가 있어 신뢰감 있고 푸근한 인상을 줍니다.',
+        '체온·땀 패턴: 모공이 잘 열리고 **땀을 시원하게 흘릴수록 몸이 개운해지는 체질**입니다. 땀이 안 나고 순환이 막히면 쉽게 붓고 체중이 늘기 쉽습니다.'
+      ],
+      personality: '인내심과 끈기가 대단하고 한 번 맡은 일은 끝까지 해내는 신뢰의 아이콘입니다. 겉으로는 차분해 보여도 속정이 깊고 의리가 강하며, 새로운 변화에 발을 내디딜 때 과감히 움직이면 큰 성취를 이룹니다.',
+      goodFoods: '소고기, 콩, 두부, 율무, 도라지, 더덕, 무, 연근, 버섯, 배, 밤, 호두, 잣, 은행, 오미자차, 칡차',
+      badFoods: '돼지고기·닭고기 과다 섭취, 밀가루 튀김, 과음, 야식 및 과식 습관',
+      exercise: '땀을 흠뻑 흘리며 심폐 순환을 열어주는 빠른 걷기, 러닝, 등산, 수영, 인터벌 유산소 운동',
+      color: '#34d399'
+    },
+    soyang: {
+      key: 'soyang',
+      name: '소양인(少陽人)',
+      shortName: '소양인',
+      emoji: '🔥',
+      organs: '비대신소(脾大腎小) — 비위·소화·열기 강함 / 신장·하초·수분 기운 약함',
+      ratio: '한국인 약 30~35% · 쾌활한 열정형',
+      tagline: '명쾌한 순발력과 시원한 추진력으로 주변을 밝히는 에너지 체질',
+      bodySummary: '가슴(흉부)과 상체가 탄탄하게 발달하고 엉덩이·하체가 슬림하며 걸음걸이가 가볍고 경쾌한 체형이 특징입니다.',
+      bodyDetails: [
+        '가슴·어깨: 흉곽과 어깨선이 시원하게 펴져 있고 상체에 탄력이 있어 활동적이고 날렵한 실루엣을 보입니다.',
+        '엉덩이·하체: 상체에 비해 골반과 엉덩이가 콤팩트하고 다리가 길고 가늘어 걸음이 빠르고 경쾌합니다.',
+        '얼굴 인상: 턱이 뾰족하거나 갸름하고 눈매가 또렷하며 표정 변화가 풍부해 총명하고 세련된 인상을 줍니다.',
+        '체온·땀 패턴: 소화력이 좋고 몸에 열이 많아 시원한 음료를 즐기며, 상체 열기를 식히고 하체 수분을 보충할 때 피부와 컨디션이 빛납니다.'
+      ],
+      personality: '판단이 빠르고 솔직담백하며 새로운 일에 거침없이 도전하는 매력의 소유자입니다. 봉사 정신과 정의감이 강해 인기가 많지만, 조급해지기 쉬우므로 마무리 단계에서 한 박자 여유를 챙기면 완벽합니다.',
+      goodFoods: '돼지고기, 오리고기, 보리, 팥, 녹두, 오이, 배추, 상추, 수박, 참외, 딸기, 바나나, 산수유차, 구기자차, 결명자차',
+      badFoods: '닭고기, 염소고기, 인삼, 홍삼, 꿀, 생강, 고추 등 지나치게 뜨겁고 매운 음식',
+      exercise: '상체 열을 내리고 하체·코어를 단단히 채워주는 필라테스, 스쿼트, 하체 웨이트, 시원한 스트레칭과 명상',
+      color: '#fb7185'
+    },
+    soeum: {
+      key: 'soeum',
+      name: '소음인(少陰人)',
+      shortName: '소음인',
+      emoji: '💧',
+      organs: '신대비소(腎大脾小) — 신장·하체·섬세함 강함 / 비위·소화·체온 기운 약함',
+      ratio: '한국인 약 20~25% · 섬세한 지혜형',
+      tagline: '세밀한 기획력과 단정한 품격으로 깊은 신뢰를 쌓는 지혜 체질',
+      bodySummary: '어깨와 상체가 아담하고 부드러운 반면, 골반과 엉덩이·하체가 균형 있게 발달한 안정적인 실루엣이 특징입니다.',
+      bodyDetails: [
+        '상체·어깨: 어깨선이 좁고 부드러우며 전체적으로 아담하고 단정한 비율을 지니고 있습니다.',
+        '골반·하체: 상체에 비해 엉덩이와 허벅지가 탄탄하게 중심을 잡아 주어 오래 앉아 집중하는 힘이 뛰어납니다.',
+        '얼굴 인상: 이목구비가 오밀조밀하고 선이 고우며, 눈빛이 차분하고 지적인 분위기를 풍깁니다.',
+        '체온·땀 패턴: 손발과 아랫배가 차가워지기 쉽고 소화기가 섬세합니다. **땀을 지나치게 많이 빼면 기운이 떨어지므로** 몸을 따뜻하게 유지하는 것이 핵심입니다.'
+      ],
+      personality: '꼼꼼하고 분석적이며 한 번 정한 목표를 차근차근 완성하는 완벽주의적 매력이 있습니다. 타인의 감정을 세심히 배려해 깊은 우정과 사랑을 쌓으며, 지나친 걱정을 내려놓고 자신감을 가질수록 큰 복이 열립니다.',
+      goodFoods: '닭고기, 삼계탕, 찹쌀, 감자, 시금치, 양배추, 파, 마늘, 생강, 사과, 귤, 복숭아, 대추차, 인삼차, 꿀차, 따뜻한 국물 요리',
+      badFoods: '찬 음료, 아이스크림, 생채소 과다, 돼지고기 기름진 부위, 보리, 밀가루 찬 음식',
+      exercise: '과도한 땀 배출을 피하면서 체온을 부드럽게 올리는 요가, 가벼운 조깅, 코어 근력 운동, 따뜻한 반신욕',
+      color: '#38bdf8'
+    }
+  };
+
+
+  function renderSasangBodySvg(key) {
+    const specs = {
+      taeyang: {
+        accent: '#fbbf24',
+        glow: 'rgba(251, 191, 36, 0.28)',
+        badge: '상체·목덜미 발달 / 하체 슬림 (역삼각형)',
+        focusZone: { cx: 60, cy: 52, rx: 34, ry: 18, label: '발달 부위: 목덜미·상체' },
+        // Broad neck & shoulders, tapering strongly down to narrow hips and thin legs
+        bodyPath: 'M48,34 L72,34 Q95,38 97,52 L91,82 L82,82 L84,56 L77,58 L71,94 L68,144 L61,144 L60,104 L59,104 L58,144 L51,144 L48,94 L43,58 L36,56 L38,82 L29,82 L23,52 Q25,38 48,34 Z',
+        bars: [
+          { name: '목·상체', pct: 95, c: '#fbbf24' },
+          { name: '가슴·흉부', pct: 78, c: '#fcd34d' },
+          { name: '허리·복부', pct: 50, c: '#94a3b8' },
+          { name: '골반·하체', pct: 42, c: '#64748b' }
+        ]
+      },
+      taeeum: {
+        accent: '#34d399',
+        glow: 'rgba(52, 211, 153, 0.28)',
+        badge: '허리·복부·골격 튼실 (안정적 중심형)',
+        focusZone: { cx: 60, cy: 84, rx: 32, ry: 20, label: '발달 부위: 허리·복부' },
+        // Moderate shoulders, sturdy wide waist/abdomen & solid grounded legs
+        bodyPath: 'M53,34 L67,34 Q86,38 89,52 L88,88 L80,88 L81,58 L77,60 Q85,78 82,98 L77,144 L66,144 L62,106 L58,106 L54,144 L43,144 L38,98 Q35,78 43,60 L39,58 L40,88 L32,88 L31,52 Q34,38 53,34 Z',
+        bars: [
+          { name: '목·상체', pct: 64, c: '#94a3b8' },
+          { name: '가슴·흉부', pct: 78, c: '#6ee7b7' },
+          { name: '허리·복부', pct: 96, c: '#34d399' },
+          { name: '골반·하체', pct: 84, c: '#10b981' }
+        ]
+      },
+      soyang: {
+        accent: '#fb7185',
+        glow: 'rgba(251, 113, 133, 0.28)',
+        badge: '가슴·흉부 탄탄 / 엉덩이·하체 날렵형',
+        focusZone: { cx: 60, cy: 62, rx: 32, ry: 16, label: '발달 부위: 가슴·흉부' },
+        // Lifted athletic chest & shoulders, slim waist, compact hips and long slender legs
+        bodyPath: 'M52,34 L68,34 Q91,39 93,54 L88,84 L80,84 L81,58 L78,61 Q79,72 72,88 L68,144 L61,144 L60,100 L59,100 L58,144 L51,144 L48,88 Q41,72 42,61 L39,58 L40,84 L32,84 L27,54 Q29,39 52,34 Z',
+        bars: [
+          { name: '목·상체', pct: 78, c: '#fda4af' },
+          { name: '가슴·흉부', pct: 95, c: '#fb7185' },
+          { name: '허리·복부', pct: 62, c: '#94a3b8' },
+          { name: '골반·하체', pct: 48, c: '#64748b' }
+        ]
+      },
+      soeum: {
+        accent: '#38bdf8',
+        glow: 'rgba(56, 189, 248, 0.28)',
+        badge: '상체 아담 / 골반·하체 안정 발달형',
+        focusZone: { cx: 60, cy: 102, rx: 32, ry: 20, label: '발달 부위: 골반·하체' },
+        // Petite narrow shoulders & upper torso, widening gracefully to balanced hips & sturdy thighs
+        bodyPath: 'M54,35 L66,35 Q81,40 82,53 L80,82 L73,82 L74,58 L71,60 Q72,74 82,96 L76,144 L65,144 L61,106 L59,106 L55,144 L44,144 L38,96 Q48,74 49,60 L46,58 L47,82 L40,82 L38,53 Q39,40 54,35 Z',
+        bars: [
+          { name: '목·상체', pct: 50, c: '#64748b' },
+          { name: '가슴·흉부', pct: 58, c: '#94a3b8' },
+          { name: '허리·복부', pct: 68, c: '#7dd3fc' },
+          { name: '골반·하체', pct: 94, c: '#38bdf8' }
+        ]
+      }
+    };
+    const s = specs[key] || specs.soyang;
+    return `
+      <div class="rounded-xl bg-gradient-to-br from-black/55 to-emerald-950/45 border border-emerald-300/30 p-3">
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <span class="text-[11px] font-extrabold text-amber-200">🧍 체형 미리보기 (사상의학 실루엣)</span>
+          <span class="text-[9.5px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-emerald-100 border border-white/15">${s.badge}</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="w-[104px] h-[140px] shrink-0 rounded-xl bg-black/50 border border-white/10 flex items-center justify-center relative overflow-hidden">
+            <svg viewBox="0 0 120 156" class="w-full h-full">
+              <defs>
+                <radialGradient id="sgGlow_${key}" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="${s.accent}" stop-opacity="0.55" />
+                  <stop offset="100%" stop-color="${s.accent}" stop-opacity="0" />
+                </radialGradient>
+              </defs>
+              <!-- Grid guides -->
+              <line x1="60" y1="8" x2="60" y2="148" stroke="rgba(255,255,255,0.12)" stroke-dasharray="3 3" />
+              <line x1="16" y1="50" x2="104" y2="50" stroke="rgba(255,255,255,0.08)" />
+              <line x1="16" y1="84" x2="104" y2="84" stroke="rgba(255,255,255,0.08)" />
+              <line x1="16" y1="104" x2="104" y2="104" stroke="rgba(255,255,255,0.08)" />
+              <!-- Highlighted constitution focus zone -->
+              <ellipse cx="${s.focusZone.cx}" cy="${s.focusZone.cy}" rx="${s.focusZone.rx}" ry="${s.focusZone.ry}" fill="url(#sgGlow_${key})" />
+              <ellipse cx="${s.focusZone.cx}" cy="${s.focusZone.cy}" rx="${s.focusZone.rx * 0.85}" ry="${s.focusZone.ry * 0.85}" fill="none" stroke="${s.accent}" stroke-width="1.3" stroke-dasharray="3 2.5" opacity="0.85" />
+              <!-- Head -->
+              <circle cx="60" cy="21" r="10.5" fill="rgba(236,253,245,0.22)" stroke="${s.accent}" stroke-width="1.7" />
+              <!-- Body silhouette -->
+              <path d="${s.bodyPath}" fill="rgba(236,253,245,0.18)" stroke="${s.accent}" stroke-width="1.8" stroke-linejoin="round" />
+            </svg>
+          </div>
+          <div class="flex-1 space-y-2">
+            <div class="text-[10.5px] font-bold px-2 py-1 rounded-lg bg-white/5 border border-white/10" style="color:${s.accent}">
+              ✦ ${s.focusZone.label}
+            </div>
+            <div class="space-y-1.5">
+              ${s.bars.map(b => `
+                <div class="space-y-0.5">
+                  <div class="flex items-center justify-between text-[10px]">
+                    <span class="text-slate-200 font-semibold">${b.name}</span>
+                    <span class="font-bold" style="color:${b.c}">${b.pct}%</span>
+                  </div>
+                  <div class="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-500" style="width:${b.pct}%; background:${b.c}"></div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function buildSasangDetailedHtml(typeKey, opts = {}) {
+    const info = SASANG_DB[typeKey] || SASANG_DB.soyang;
+    const scoreBadge = opts.score ? `AI 체질 일치도 ${opts.score}%` : info.ratio;
+    const modeTitle = opts.fromPhoto ? `📷 AI 전신 분석 판별 결과` : `🌿 선택한 사상체질 상세 분석`;
+    const bodyListHtml = info.bodyDetails.map(line => {
+      const [head, ...rest] = line.split(':');
+      return `<div class="rounded-xl bg-black/30 border border-emerald-300/20 px-3 py-2 text-[11.5px] leading-relaxed">
+        <span class="font-extrabold text-amber-200">▸ ${escapeHtmlSafe(head)}</span>
+        <span class="text-emerald-50/95">: ${formatRichReadingHtml(rest.join(':').trim(), 'emerald').replace(/<div class="rich-reading"><div class="rich-sec"><p class="rich-p">|<\/p><\/div><\/div>/g, '')}</span>
+      </div>`;
+    }).join('');
+
+    const fallbackFull = `[${info.name} 핵심 진단 및 장부(臟腑) 원리]
+**${info.name}**은 이제마 선생의 동의수세보원에서 **${info.organs}**의 구조를 타고난 체질입니다. ${info.tagline}으로, 자신의 장부 강약에 맞춰 생활 리듬을 조율할 때 에너지와 매력이 가장 환하게 빛납니다.
+
+[전신 신체 · 해부학적 특징 상세 해설]
+${opts.bodyFeatures ? opts.bodyFeatures + '\n' : ''}**${info.name}**의 대표적 외형은 ${info.bodySummary} 평소 체온과 땀의 흐름, 피로가 쌓이는 부위를 잘 관찰하면 내 몸이 보내는 건강 신호를 누구보다 빠르게 알아챌 수 있습니다.
+
+[기질 · 성격 및 대인관계 강점]
+${info.personality}
+
+[맞춤 식습관 · 추천 운동 · 양생 가이드]
+${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는 **${info.goodFoods}**을 적극 추천하며, **${info.badFoods}**은 과하지 않게 조절하는 것이 좋습니다. 운동은 **${info.exercise}**처럼 체질의 순환을 돕는 루틴을 꾸준히 이어가 보세요!`;
+
+    const voiceSummary = `안녕, 다온이야! 분석 결과는 ${info.name}! ${info.bodySummary} ${info.tagline}이야!`;
+
+    return {
+      info,
+      fallbackFull,
+      html: `
+        <div class="text-left space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <span class="font-bold text-emerald-200 text-xs">${modeTitle}</span>
+            <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/25 text-emerald-100 border border-emerald-300/45 font-bold">${scoreBadge}</span>
+          </div>
+
+          <div class="rounded-2xl p-3.5 bg-gradient-to-br from-emerald-950/90 to-teal-950/80 border border-amber-300/50 space-y-1.5">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-[10px] font-bold text-amber-300">당신의 사상체질</div>
+                <div class="font-serif-kr text-lg font-extrabold text-white mt-0.5">${info.emoji} ${info.name}</div>
+              </div>
+              ${renderVoiceReadBtn(voiceSummary, 'sasang', '🗣️ 다온 보이스')}
+            </div>
+            <div class="text-[11px] font-semibold text-emerald-200">${info.organs}</div>
+            <p class="text-[11.5px] text-amber-50/90 leading-relaxed pt-1">${info.bodySummary}</p>
+          </div>
+
+          ${renderSasangBodySvg(info.key)}
+
+          <div class="space-y-1.5">
+            <div class="text-xs font-extrabold text-amber-200 flex items-center gap-1.5"><span>🧬</span><span>${info.shortName} 상세 신체 특징 (부위별 분석)</span></div>
+            ${bodyListHtml}
+          </div>
+
+          <div class="grid grid-cols-1 gap-2">
+            <div class="rounded-xl bg-emerald-500/10 border border-emerald-300/30 p-2.5 text-[11.5px] leading-relaxed">
+              <div class="font-bold text-emerald-300 mb-0.5">🥗 이로운 맞춤 음식</div>
+              <div class="text-emerald-50/95">${info.goodFoods}</div>
+            </div>
+            <div class="rounded-xl bg-rose-500/10 border border-rose-300/30 p-2.5 text-[11.5px] leading-relaxed">
+              <div class="font-bold text-rose-300 mb-0.5">⚠️ 줄이면 좋은 음식</div>
+              <div class="text-rose-50/95">${info.badFoods}</div>
+            </div>
+            <div class="rounded-xl bg-sky-500/10 border border-sky-300/30 p-2.5 text-[11.5px] leading-relaxed">
+              <div class="font-bold text-sky-300 mb-0.5">🏃 맞춤 추천 운동</div>
+              <div class="text-sky-50/95">${info.exercise}</div>
+            </div>
+          </div>
+
+          <div class="rounded-xl bg-white/5 border border-emerald-300/35 p-3 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-amber-200">✨ 다온의 심층 사상의학 종합 풀이</span>
+              <div id="sasang-voice-detail-wrap">${renderVoiceReadBtn(opts.analysis || fallbackFull, 'sasang', '🗣️ 풀이 듣기')}</div>
+            </div>
+            <div id="sasang-llm-box">${formatRichReadingHtml(opts.analysis || fallbackFull, 'emerald')}</div>
+          </div>
+          ${renderShareActionBar('sasang', '내 사상체질 결과 공유하기')}
+        </div>
+      `
+    };
+  }
+
+  // Render Sasang Encyclopedia (사상의학 도감)
+  let activeSasangGuideKey = 'taeyang';
+  function renderSasangGuide(key = 'taeyang') {
+    activeSasangGuideKey = key;
+    const grid = document.getElementById('sasang-guide-grid');
+    const card = document.getElementById('sasang-guide-card');
+    if (!grid || !card) return;
+    const keys = ['taeyang', 'taeeum', 'soyang', 'soeum'];
+    grid.innerHTML = keys.map(k => {
+      const it = SASANG_DB[k];
+      const act = k === key;
+      return `<button type="button" data-sg-key="${k}" class="py-2 px-1 rounded-xl text-center transition ${act ? 'bg-emerald-500/40 border border-amber-300/75 text-white font-extrabold shadow' : 'bg-white/5 border border-emerald-300/25 text-emerald-100/80 font-semibold'}">
+        <div class="text-base leading-none">${it.emoji}</div>
+        <div class="text-[11px] mt-1">${it.shortName}</div>
+      </button>`;
+    }).join('');
+    grid.querySelectorAll('[data-sg-key]').forEach(btn => {
+      btn.addEventListener('click', () => renderSasangGuide(btn.dataset.sgKey));
+    });
+
+    const info = SASANG_DB[key];
+    card.innerHTML = `
+      <div class="flex items-center justify-between border-b border-emerald-300/25 pb-2">
+        <div>
+          <div class="font-serif-kr text-base font-extrabold text-white">${info.emoji} ${info.name}</div>
+          <div class="text-[10.5px] text-amber-200 font-semibold mt-0.5">${info.ratio}</div>
+        </div>
+        ${renderVoiceReadBtn(`${info.name} 도감 안내! ${info.bodySummary} ${info.tagline}`, 'sasang', '🗣️ 듣기')}
+      </div>
+      <div class="rounded-lg bg-emerald-950/70 border border-emerald-400/30 px-2.5 py-2 text-[11px] text-emerald-100">
+        <strong class="text-amber-200">장부 특징:</strong> ${info.organs}
+      </div>
+      ${renderSasangBodySvg(info.key)}
+      <div class="space-y-1.5">
+        <div class="text-[11px] font-bold text-amber-200">🧬 주요 신체적 특징</div>
+        ${info.bodyDetails.map(d => `<div class="text-[11px] text-slate-100 leading-relaxed pl-2 border-l-2 border-emerald-400/50">${d}</div>`).join('')}
+      </div>
+      <div class="text-[11px] leading-relaxed text-emerald-50/90"><strong class="text-sky-300">✦ 기질·성격:</strong> ${info.personality}</div>
+      <div class="grid grid-cols-1 gap-1.5 pt-1 text-[11px]">
+        <div class="bg-emerald-500/10 rounded-lg px-2.5 py-1.5"><strong class="text-emerald-300">🥗 좋은 음식:</strong> ${info.goodFoods}</div>
+        <div class="bg-rose-500/10 rounded-lg px-2.5 py-1.5"><strong class="text-rose-300">⚠️ 피할 음식:</strong> ${info.badFoods}</div>
+        <div class="bg-sky-500/10 rounded-lg px-2.5 py-1.5"><strong class="text-sky-300">🏃 추천 운동:</strong> ${info.exercise}</div>
+      </div>
+    `;
+  }
+
+  // Bind Sasang Sub-Tabs (진단 vs 도감)
+  document.querySelectorAll('.sasang-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.sasangTab;
+      document.querySelectorAll('.sasang-tab-btn').forEach(b => {
+        const act = b.dataset.sasangTab === tab;
+        b.className = `sasang-tab-btn py-1.5 rounded-lg text-xs font-bold transition ${act ? 'bg-emerald-500/40 text-white border border-emerald-300/50' : 'text-emerald-200/80'}`;
+      });
+      document.getElementById('sasang-tab-analyze')?.classList.toggle('hidden', tab !== 'analyze');
+      document.getElementById('sasang-tab-guide')?.classList.toggle('hidden', tab !== 'guide');
+      if (tab === 'guide') renderSasangGuide(activeSasangGuideKey);
+    });
+  });
+
+  // Bind Known vs Unknown(Photo) Mode
+  function setSasangMode(mode) {
+    state.sasangMode = mode;
+    const isKnown = mode === 'known';
+    document.getElementById('sasang-known-box')?.classList.toggle('hidden', !isKnown);
+    document.getElementById('sasang-photo-box')?.classList.toggle('hidden', isKnown);
+    const bKnown = document.getElementById('btn-sasang-mode-known');
+    const bPhoto = document.getElementById('btn-sasang-mode-photo');
+    if (bKnown) bKnown.className = `py-2 px-2 rounded-xl text-[11.5px] font-bold transition ${isKnown ? 'bg-emerald-500/35 text-white border border-emerald-300/60' : 'bg-white/5 text-emerald-200/85 border border-emerald-300/25'}`;
+    if (bPhoto) bPhoto.className = `py-2 px-2 rounded-xl text-[11.5px] font-bold transition ${!isKnown ? 'bg-emerald-500/35 text-white border border-emerald-300/60' : 'bg-white/5 text-emerald-200/85 border border-emerald-300/25'}`;
+  }
+  document.getElementById('btn-sasang-mode-known')?.addEventListener('click', () => setSasangMode('known'));
+  document.getElementById('btn-sasang-mode-photo')?.addEventListener('click', () => setSasangMode('photo'));
+
+  // Bind 4 constitution selection buttons
+  document.querySelectorAll('.sasang-type-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      state.sasangType = btn.dataset.sasangType;
+      document.querySelectorAll('.sasang-type-btn').forEach(b => {
+        const act = b.dataset.sasangType === state.sasangType;
+        b.className = `sasang-type-btn py-2.5 px-2.5 rounded-xl text-left transition ${act ? 'bg-emerald-500/35 border border-amber-300/70 shadow' : 'bg-white/5 border border-emerald-300/25 hover:border-amber-300/60'}`;
+      });
+    });
+  });
+
+  // Known Constitution Analysis Run
+  document.getElementById('btn-run-sasang-known')?.addEventListener('click', () => {
+    const typeKey = state.sasangType || 'soyang';
+    const q = (document.getElementById('sasang-known-question')?.value || '').trim();
+    const resEl = document.getElementById('sasang-inline-result');
+    const built = buildSasangDetailedHtml(typeKey, { fromPhoto: false });
+    resEl.innerHTML = built.html;
+    rigPhys.flinchElapsed = 0.0;
+    rigPhys.happyTimer = 1.1;
+    playChimeSound(720);
+    speechBubble.innerHTML = `${built.info.emoji} ${built.info.name} 체질의 신체 특징과 맞춤 양생법을 모두 펼쳐 드렸어요! 🌿`;
+    voiceEngine.speak(`${built.info.name} 체질이시군요! ${built.info.bodySummary}`, 'sasang');
+    registerSharePayload('sasang', {
+      category: '사상의학 체질 분석', title: built.info.name,
+      scoreText: built.info.shortName, subtitle: built.info.organs,
+      summary: built.info.bodySummary, tip: `추천 음식: ${built.info.goodFoods.slice(0, 48)}`,
+      bg1: '#123d32', bg2: '#071411', accent: '#6ee7b7'
+    });
+    askGeminiFortune('sasang', '사상의학', `사용자 선택 사상체질: ${built.info.name} (${built.info.organs}). 신체 특징: ${built.info.bodySummary}`, q, built.fallbackFull, state.userName || '방문자').then(txt => {
+      const box = document.getElementById('sasang-llm-box');
+      if (box) box.innerHTML = formatRichReadingHtml(txt, 'emerald');
+      const vWrap = document.getElementById('sasang-voice-detail-wrap');
+      if (vWrap) vWrap.innerHTML = renderVoiceReadBtn(txt, 'sasang', '🗣️ 풀이 듣기');
+    });
+  });
+
+  // Full-Body Camera & Upload Bindings for Sasang
+  document.getElementById('btn-sasang-camera')?.addEventListener('click', () => openCameraFor('sasang'));
+  document.getElementById('btn-sasang-upload')?.addEventListener('click', () => document.getElementById('input-sasang-upload').click());
+  bindFilePicker('input-sasang-upload', 'sasang');
+  bindFilePicker('input-sasang-camera', 'sasang');
+
+  // Full-Body AI Vision Reading for Sasang
+  document.getElementById('btn-run-sasang-vision')?.addEventListener('click', async () => {
+    const imgData = state.sasangImgBase64;
+    const resEl = document.getElementById('sasang-inline-result');
+    const question = (document.getElementById('sasang-photo-question')?.value || '').trim();
+    if (!imgData) {
+      showToast('먼저 전신 사진을 촬영하거나 업로드해 주세요 📷');
+      return;
+    }
+    rigPhys.flinchElapsed = 0.0;
+    rigPhys.happyTimer = 1.2;
+    playChimeSound(740);
+
+    const imgHash = hashImageStr(imgData);
+    const keys = ['taeyang', 'taeeum', 'soyang', 'soeum'];
+    const fallbackKey = keys[imgHash % 4];
+    const fallbackScore = 82 + (imgHash % 15);
+
+    if (state.liveApiEnabled && state.apiBaseUrl) {
+      resEl.innerHTML = `<div class="py-4 text-emerald-200 animate-pulse">🌿 AI가 전신 사진의 상·하체 비율과 골격을 분석해 사상체질을 판별하는 중…</div>`;
+    if (typeof voiceEngine !== 'undefined' && state.voiceEnabled) voiceEngine.speakWait('sasang');
+      try {
+        const base = state.apiBaseUrl.replace(/\/$/, '');
+        const resp = await fetch(`${base}/api/vision?_t=${Date.now()}`, {
+          method: 'POST',
+          cache: 'no-store',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: state.currentUser ? state.currentUser.id : null,
+            character_id: 'sasang',
+            image_base64: imgData,
+            user_name: state.userName || '방문자',
+            question
+          })
+        });
+        if (!resp.ok) throw new Error('Vision API Error');
+        const data = await resp.json();
+        const detectedKey = SASANG_DB[data.sasang_key] ? data.sasang_key : fallbackKey;
+        const dynScore = Number.isFinite(data.score) ? data.score : fallbackScore;
+        const built = buildSasangDetailedHtml(detectedKey, {
+          fromPhoto: true,
+          score: dynScore,
+          bodyFeatures: data.body_features || '',
+          healthDiet: data.health_diet || '',
+          analysis: data.analysis || ''
+        });
+        resEl.innerHTML = built.html;
+        speechBubble.innerHTML = `전신 분석 완료! 당신은 ${built.info.emoji} ${built.info.name} 체질이에요! (${dynScore}% 일치) 🌿`;
+        voiceEngine.speak(`전신 분석 완료! 당신의 사상체질은 ${built.info.name}이에요! ${built.info.bodySummary}`, 'sasang');
+        registerSharePayload('sasang', {
+          category: 'AI 전신 사상체질', title: built.info.name,
+          scoreText: `${dynScore}%`, subtitle: built.info.organs,
+          summary: (data.body_features || built.info.bodySummary).slice(0, 140),
+          tip: `추천 음식: ${built.info.goodFoods.slice(0, 48)}`,
+          bg1: '#123d32', bg2: '#071411', accent: '#6ee7b7'
+        });
+        saveLocalHistoryOnly('사상의학', question || '전신 사진 AI 판별', `${built.info.name} (${dynScore}%) · ${built.info.bodySummary.slice(0, 70)}`, `[${built.info.name} · ${dynScore}%]\n${data.analysis || built.fallbackFull}`, dynScore);
+        return;
+      } catch (_) {
+        showToast('서버 응답 대기 — 사상체질 프리뷰 분석으로 먼저 보여드립니다 🌿');
+      }
+    }
+
+    const built = buildSasangDetailedHtml(fallbackKey, {
+      fromPhoto: true,
+      score: fallbackScore,
+      bodyFeatures: `전신 실루엣의 어깨·가슴·허리·골반 비율을 분석한 결과, **${SASANG_DB[fallbackKey].name}** 특유의 체형 밸런스가 뚜렷하게 확인되었습니다.`
+    });
+    resEl.innerHTML = built.html;
+    speechBubble.innerHTML = `전신 분석 완료! 당신은 ${built.info.emoji} ${built.info.name} 체질이에요! 🌿`;
+    voiceEngine.speak(`전신 분석 완료! 당신은 ${built.info.name} 체질이에요! ${built.info.bodySummary}`, 'sasang');
+    registerSharePayload('sasang', {
+      category: 'AI 전신 사상체질', title: built.info.name,
+      scoreText: `${fallbackScore}%`, subtitle: built.info.organs,
+      summary: built.info.bodySummary, tip: `추천 음식: ${built.info.goodFoods.slice(0, 48)}`,
+      bg1: '#123d32', bg2: '#071411', accent: '#6ee7b7'
+    });
+    saveFortuneRecord('사상의학', question || '전신 사진 판별', `${built.info.name} (${fallbackScore}%)`, fallbackScore, built.fallbackFull);
+  });
+
+  renderSasangGuide('taeyang');
+
+  /* ==================== VOICE CONTROLS WIRING (HEADER + SETTINGS + SPEECH BUBBLE) ==================== */
+  function syncVoiceToggleUI() {
+    const btn = document.getElementById('btn-toggle-voice');
+    if (!btn) return;
+    btn.textContent = state.voiceEnabled ? '켜짐' : '꺼짐';
+    btn.className = state.voiceEnabled
+      ? 'px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/30 text-emerald-100 border border-emerald-400/60 min-w-[72px]'
+      : 'px-3.5 py-1.5 rounded-full text-xs font-bold bg-slate-700 text-slate-200 border border-white/15 min-w-[72px]';
+  }
+  document.getElementById('btn-toggle-voice')?.addEventListener('click', () => {
+    state.voiceEnabled = !state.voiceEnabled;
+    if (!state.voiceEnabled) voiceEngine.stop();
+    syncVoiceToggleUI();
+
   goToCharacter(0, true);
   renderBloodResult(false);
   renderZodiacDaily(false);

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fortune-shop-pwa-v1';
+const CACHE_NAME = 'fortune-shop-pwa-v2';
 const CORE_ASSETS = ['/', '/manifest.json', '/icon-192.png', '/icon-512.png', '/og-preview.jpg'];
 
 self.addEventListener('install', (e) => {
@@ -14,7 +14,7 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
-  if (url.pathname.startsWith('/api/') || e.request.method !== 'GET') return;
+  if (url.pathname.startsWith('/api/') || url.pathname.endsWith('.mp4') || e.request.method !== 'GET') return;
   e.respondWith(
     fetch(e.request).then((res) => {
       if (res && res.status === 200 && url.origin === self.location.origin) {
