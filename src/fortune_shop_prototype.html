@@ -1918,6 +1918,67 @@
     </div>
   </div>
 
+
+  <!-- ==================== DESTINY PLUS & REWARDED UNLOCK DRAWER ==================== -->
+  <div id="plus-paywall-drawer" class="drawer-backdrop" role="dialog" aria-modal="true" aria-label="운명플러스 및 이용권 안내">
+    <div class="drawer-sheet space-y-3 overflow-y-auto max-h-[85vh]">
+      <div class="w-10 h-1 bg-white/25 rounded-full mx-auto"></div>
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-[10px] font-bold tracking-wider text-amber-300 uppercase">Destiny Plus &amp; Pass</div>
+          <h3 id="paywall-title" class="font-serif-kr text-base font-bold text-[#fae6b8]">✨ 운명플러스 · 심층 리딩 열기</h3>
+        </div>
+        <button id="btn-close-paywall" type="button" class="w-8 h-8 rounded-full bg-white/10 text-white/80 flex items-center justify-center">✕</button>
+      </div>
+
+      <div id="paywall-status-bar" class="flex items-center justify-between rounded-xl bg-white/5 border border-[#e6c67c]/30 px-3 py-2 text-[11px]">
+        <span class="text-slate-300">현재 등급: <strong id="paywall-plan-label" class="text-amber-200">무료 회원</strong></span>
+        <span class="text-slate-300">복주머니: <strong id="paywall-ticket-label" class="text-emerald-300">0회</strong></span>
+      </div>
+
+      <!-- Option 1: Rewarded Ad Free Unlock (shown when triggered by a gated deep feature) -->
+      <div id="paywall-reward-box" class="hidden rounded-2xl bg-gradient-to-r from-emerald-900/60 to-teal-900/50 border border-emerald-300/55 p-3.5 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-extrabold text-emerald-100">🎬 짧은 광고 보고 이번 1회 무료 열기</span>
+          <span class="px-2 py-0.5 rounded-full bg-emerald-400/25 text-emerald-100 text-[10px] font-bold">0원</span>
+        </div>
+        <p id="paywall-feature-desc" class="text-[11px] text-emerald-50/85 leading-relaxed">짧은 영상 광고를 시청하면 선택한 심층 풀이를 바로 무료로 확인하실 수 있어요.</p>
+        <button id="btn-paywall-watch-ad" type="button" class="w-full py-2.5 rounded-xl text-xs font-extrabold bg-emerald-500 hover:bg-emerald-400 text-[#071a14] shadow active:scale-95 transition">
+          🎬 광고 보고 바로 무료로 열기
+        </button>
+      </div>
+
+      <!-- Option 2: Destiny Plus Monthly Subscription -->
+      <div class="rounded-2xl bg-gradient-to-br from-[#2a1f4d] via-[#1c2848] to-[#122a27] border-2 border-[#e6c67c]/75 p-4 space-y-2 shadow-lg">
+        <div class="flex items-center justify-between">
+          <span class="px-2 py-0.5 rounded-full bg-amber-400 text-[#1a130b] text-[10px] font-extrabold">BEST · 추천</span>
+          <span class="text-sm font-extrabold text-[#fde68a]">월 3,900원</span>
+        </div>
+        <div class="font-serif-kr text-base font-extrabold text-white">👑 운명플러스 정기구독</div>
+        <ul class="text-[11px] text-slate-200 space-y-1 leading-relaxed">
+          <li>✓ 하단 배너 · 전면 · 보상형 <strong>모든 광고 완전 제거</strong></li>
+          <li>✓ 9인 마스터 심층 풀이 · 24문항 MBTI · 전신 사상체질 · 꿈해몽 무제한</li>
+          <li>✓ 관상 미래 배우자 28종 정밀 매칭 &amp; 1:1 캐릭터 무제한 대화</li>
+        </ul>
+        <button id="btn-buy-plus" type="button" class="w-full mt-1 py-2.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-[#e6c67c] to-[#f5dfa0] text-[#1a140d] shadow active:scale-95 transition">
+          👑 운명플러스 시작하기 (Google Play)
+        </button>
+      </div>
+
+      <!-- Option 3: 5-Ticket Single Pass -->
+      <div class="rounded-2xl bg-white/5 border border-white/15 p-3.5 space-y-2">
+        <div class="flex items-center justify-between">
+          <div class="text-xs font-extrabold text-white">🧧 복주머니 5회 이용권 (단건)</div>
+          <span class="text-xs font-extrabold text-sky-300">1,500원</span>
+        </div>
+        <p class="text-[11px] text-slate-300 leading-relaxed">구독이 부담스럽다면 광고 시청 없이 심층 풀이를 5회 바로 열 수 있는 단건 이용권이에요.</p>
+        <button id="btn-buy-tickets" type="button" class="w-full py-2 rounded-xl text-xs font-bold bg-sky-500/25 hover:bg-sky-500/35 border border-sky-300/50 text-sky-100 active:scale-95 transition">
+          🧧 복주머니 5회 충전하기
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== CONSUMER SETTINGS DRAWER (3D/2D + BGM + SFX) ==================== -->
   <div id="settings-drawer" class="drawer-backdrop" role="dialog" aria-modal="true">
     <div class="drawer-sheet space-y-3 overflow-y-auto">
@@ -1958,6 +2019,14 @@
             <div class="text-[10.5px] text-slate-400">캐릭터별 젊고 경쾌한 음성 대사 읽기 켜기 · 끄기</div>
           </div>
           <button id="btn-toggle-voice" type="button" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/30 text-emerald-100 border border-emerald-400/60 min-w-[72px]">켜짐</button>
+        </div>
+
+        <div class="flex items-center justify-between bg-gradient-to-r from-amber-500/20 to-emerald-500/20 border border-amber-300/45 rounded-xl p-3.5">
+          <div>
+            <div class="text-xs font-bold text-[#fae8bf]">👑 운명플러스 · 이용권 관리</div>
+            <div class="text-[10.5px] text-slate-300">광고 제거 및 심층 풀이 무제한 패스 확인</div>
+          </div>
+          <button id="btn-open-plus-from-settings" type="button" class="px-3 py-1.5 rounded-full text-xs font-bold bg-[#e6c67c] text-[#1a140d] shadow active:scale-95 transition shrink-0">열기</button>
         </div>
 
         <div class="flex items-center justify-between bg-gradient-to-r from-[#154d48]/40 to-[#2e1f4d]/40 border border-[#e6c67c]/35 rounded-xl p-3.5">
@@ -4146,9 +4215,127 @@
   };
   window.DestinyAds = DestinyAds;
   document.getElementById('btn-admob-remove-hint')?.addEventListener('click', () => {
-    showToast('운명플러스 구독 시 모든 광고가 제거되고 심층 풀이가 무제한 열립니다 ✨');
+    openPlusPaywall('', null);
   });
 
+
+  /* ==================== DESTINY PLUS PAYWALL & REWARDED AD GATE ==================== */
+  const paywallDrawer = document.getElementById('plus-paywall-drawer');
+  let pendingRewardCallback = null;
+
+  function syncPaywallUI() {
+    const planEl = document.getElementById('paywall-plan-label');
+    const tickEl = document.getElementById('paywall-ticket-label');
+    if (planEl) planEl.textContent = state.isPlus ? '👑 운명플러스 (광고 제거)' : '무료 회원';
+    if (tickEl) tickEl.textContent = `${state.ticketCount || 0}회`;
+    if (typeof DestinyAds !== 'undefined') DestinyAds.syncBannerVisibility();
+  }
+
+  function openPlusPaywall(featureLabel = '', onUnlocked = null) {
+    pendingRewardCallback = typeof onUnlocked === 'function' ? onUnlocked : null;
+    syncPaywallUI();
+    const rewardBox = document.getElementById('paywall-reward-box');
+    const featDesc = document.getElementById('paywall-feature-desc');
+    if (rewardBox) rewardBox.classList.toggle('hidden', !pendingRewardCallback);
+    if (featDesc && featureLabel) {
+      featDesc.textContent = `짧은 영상 광고를 시청하면 [${featureLabel}]을(를) 바로 무료로 확인하실 수 있어요.`;
+    }
+    paywallDrawer?.classList.add('open');
+  }
+
+  // Gate helper: Plus users pass instantly, ticket holders can auto-consume 1 ticket, free users choose Rewarded Ad or Plus!
+  async function requireDeepAccess(featureLabel, onProceed) {
+    if (state.isPlus) {
+      onProceed();
+      return;
+    }
+    if ((state.ticketCount || 0) > 0) {
+      state.ticketCount = Math.max(0, state.ticketCount - 1);
+      syncPaywallUI();
+      if (state.currentUser && state.currentUser.id && state.apiBaseUrl) {
+        fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/user/consume-ticket`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: state.currentUser.id, feature: featureLabel })
+        }).catch(() => {});
+      }
+      showToast(`🧧 복주머니 1회 사용! (남은 횟수: ${state.ticketCount}회)`);
+      onProceed();
+      return;
+    }
+    openPlusPaywall(featureLabel, onProceed);
+  }
+
+  document.getElementById('btn-close-paywall')?.addEventListener('click', () => {
+    pendingRewardCallback = null;
+    paywallDrawer?.classList.remove('open');
+  });
+  paywallDrawer?.addEventListener('click', (e) => {
+    if (e.target === paywallDrawer) {
+      pendingRewardCallback = null;
+      paywallDrawer.classList.remove('open');
+    }
+  });
+
+  document.getElementById('btn-paywall-watch-ad')?.addEventListener('click', () => {
+    const cb = pendingRewardCallback;
+    pendingRewardCallback = null;
+    paywallDrawer?.classList.remove('open');
+    if (typeof DestinyAds !== 'undefined') {
+      DestinyAds.showRewarded(() => {
+        showToast('✨ 보상 확인 완료! 심층 풀이를 열어드릴게요');
+        if (typeof cb === 'function') cb();
+      });
+    } else if (typeof cb === 'function') {
+      cb();
+    }
+  });
+
+  async function handleStorePurchase(productId) {
+    // In native Capacitor Android app, bridge to Google Play Billing / RevenueCat plugin if present
+    if (window.Capacitor?.Plugins?.Purchases?.purchasePackage) {
+      try {
+        await window.Capacitor.Plugins.Purchases.purchasePackage({ productId });
+      } catch (_) {
+        showToast('결제가 취소되었어요.');
+        return;
+      }
+    }
+    if (state.currentUser && state.currentUser.id && state.apiBaseUrl) {
+      try {
+        const r = await fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/user/purchase`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: state.currentUser.id, product_id: productId })
+        });
+        if (r.ok) {
+          const d = await r.json();
+          state.isPlus = !!d.is_plus;
+          state.ticketCount = Number(d.ticket_count || 0);
+        }
+      } catch (_) {}
+    } else {
+      // Preview / guest mode local activation
+      if (productId === 'destiny_plus_monthly') state.isPlus = true;
+      else state.ticketCount = (state.ticketCount || 0) + 5;
+    }
+    syncPaywallUI();
+    if (state.isPlus && typeof DestinyAds !== 'undefined') DestinyAds.hideBanner();
+    showToast(productId === 'destiny_plus_monthly' ? '👑 운명플러스가 활성화되었습니다! 모든 광고가 제거되었어요.' : '🧧 복주머니 5회가 충전되었습니다!');
+    const cb = pendingRewardCallback;
+    pendingRewardCallback = null;
+    paywallDrawer?.classList.remove('open');
+    if (typeof cb === 'function') cb();
+  }
+
+  document.getElementById('btn-buy-plus')?.addEventListener('click', () => handleStorePurchase('destiny_plus_monthly'));
+  document.getElementById('btn-buy-tickets')?.addEventListener('click', () => handleStorePurchase('destiny_tickets_5'));
+  document.getElementById('btn-open-plus-from-settings')?.addEventListener('click', () => {
+    document.getElementById('settings-drawer')?.classList.remove('open');
+    openPlusPaywall('', null);
+  });
+
+  syncPaywallUI();
   DestinyAds.init();
   DestinyAds.syncUserEntitlement();
   goToCharacter(0, true);
@@ -6732,7 +6919,7 @@ ${sinsalRichList}
   }
 
   document.getElementById('btn-open-mbti-test')?.addEventListener('click', () => startMbtiQuiz('basic'));
-  document.getElementById('btn-open-mbti-deep')?.addEventListener('click', () => startMbtiQuiz('deep'));
+  document.getElementById('btn-open-mbti-deep')?.addEventListener('click', () => requireDeepAccess('MBTI 24문항 심층 테스트', () => startMbtiQuiz('deep')));
 
   /* ==================== DB RECORDING + OLLAMA CHAT & VISION ENGINE ==================== */
   async function askGeminiFortune(charId, category, details, question, fallbackText, subjectName = '') {

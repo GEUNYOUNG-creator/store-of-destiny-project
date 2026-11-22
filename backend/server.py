@@ -850,6 +850,48 @@ async def get_user_entitlement(user_id: Optional[str] = None):
     except Exception:
         return {"plan": "free", "is_plus": False, "plus_expires_at": "", "ticket_count": 0}
 
+
+class PurchaseRequest(BaseModel):
+    user_id: str
+    product_id: str  # 'destiny_plus_monthly' or 'destiny_tickets_5'
+    purchase_token: Optional[str] = ""
+
+class TicketConsumeRequest(BaseModel):
+    user_id: str
+    feature: Optional[str] = "deep_reading"
+
+@app.post("/api/user/purchase")
+async def record_user_purchase(req: PurchaseRequest):
+    if not req.user_id:
+        raise HTTPException(status_code=400, detail="로그인이 필요합니다.")
+    row = db_execute("SELECT plan, plus_expires_at, ticket_count FROM users WHERE id = ?", (req.user_id,), fetch="one")
+    if not row:
+        raise HTTPException(status_code=404, detail="사용자를 찾을 수 없습니다.")
+    if req.product_id == "destiny_plus_monthly":
+        exp = (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=30)).isoformat(timespec="seconds")
+        db_execute("UPDATE users SET plan = 'plus', plus_expires_at = ? WHERE id = ?", (exp, req.user_id))
+        return {"ok": True, "plan": "plus", "is_plus": True, "plus_expires_at": exp, "ticket_count": int(row.get("ticket_count") or 0)}
+    elif req.product_id == "destiny_tickets_5":
+        new_cnt = int(row.get("ticket_count") or 0) + 5
+        db_execute("UPDATE users SET ticket_count = ? WHERE id = ?", (new_cnt, req.user_id))
+        return {"ok": True, "plan": row.get("plan") or "free", "is_plus": (row.get("plan") == "plus"), "plus_expires_at": row.get("plus_expires_at") or "", "ticket_count": new_cnt}
+    raise HTTPException(status_code=400, detail="알 수 없는 상품입니다.")
+
+@app.post("/api/user/consume-ticket")
+async def consume_user_ticket(req: TicketConsumeRequest):
+    if not req.user_id:
+        return {"ok": False, "ticket_count": 0}
+    row = db_execute("SELECT plan, ticket_count FROM users WHERE id = ?", (req.user_id,), fetch="one")
+    if not row:
+        return {"ok": False, "ticket_count": 0}
+    if (row.get("plan") or "").lower() == "plus":
+        return {"ok": True, "is_plus": True, "ticket_count": int(row.get("ticket_count") or 0)}
+    cur = int(row.get("ticket_count") or 0)
+    if cur <= 0:
+        return {"ok": False, "is_plus": False, "ticket_count": 0}
+    db_execute("UPDATE users SET ticket_count = ? WHERE id = ?", (cur - 1, req.user_id))
+    return {"ok": True, "is_plus": False, "ticket_count": cur - 1}
+
 @app.get("/src/assets/spouses/{filename}")
 def serve_spouse_portrait(filename: str):
     safe = os.path.basename(filename)
