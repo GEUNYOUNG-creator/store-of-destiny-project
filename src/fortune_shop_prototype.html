@@ -2050,7 +2050,7 @@
       <!-- Logged-out View -->
       <div id="auth-logged-out" class="space-y-3">
         <div class="rounded-xl bg-white/5 border border-[#e6c67c]/30 p-3 text-xs text-slate-200 leading-relaxed">
-          소셜 계정으로 로그인하면 내가 본 <strong>사주·타로·관상·손금·궁합 기록</strong>이 DB에 저장되어 언제든 다시 열어볼 수 있어요.
+          소셜 계정으로 로그인하면 내가 본 <strong>사주·타로·관상·손금·사상체질·꿈해몽 기록</strong>이 내 계정에 안전하게 보관되어 언제든 다시 열어볼 수 있어요.
         </div>
 
         <div>
@@ -2074,7 +2074,7 @@
           <span class="text-xs font-extrabold text-[#fae8bf]">👑 운명플러스 · 이용권 관리</span>
           <span class="text-[10.5px] font-bold text-emerald-200">광고 제거 · 무제한 ›</span>
         </button>
-        <div id="auth-db-badge" class="text-[10.5px] text-emerald-300/85 text-center pt-0.5">DB 저장소 상태 확인 중…</div>
+        <div id="auth-db-badge" class="text-[10.5px] text-emerald-300/85 text-center pt-0.5">계정 저장소 연결 확인 중…</div>
       </div>
 
       <!-- Logged-in View & Saved DB History -->
@@ -2096,7 +2096,7 @@
         </button>
 
         <div class="flex items-center justify-between">
-          <div class="text-xs font-bold text-[#fae6b8]">📜 내가 본 운세 기록 (DB 저장)</div>
+          <div class="text-xs font-bold text-[#fae6b8]">📜 내가 본 운세 기록</div>
           <button id="btn-refresh-my-history" type="button" class="text-[10.5px] text-amber-200/80 hover:text-amber-100">새로고침 ↻</button>
         </div>
 
@@ -4333,7 +4333,7 @@
   syncPaywallUI();
   DestinyAds.init();
   DestinyAds.syncUserEntitlement();
-  goToCharacter(0, true);
+  goToCharacter(state.currentIdx || 0, true);
     openingOverlay.classList.add('hidden-seq');
     if (state.bgmEnabled !== false && typeof bgmEngine !== 'undefined' && bgmEngine.setMuted) {
       bgmEngine.setMuted(false);
@@ -8138,7 +8138,7 @@ ${pp.txt}`);
       authLoggedOut.classList.add('hidden');
       authLoggedIn.classList.remove('hidden');
       authUserName.textContent = user.name;
-      authUserProvider.textContent = user.provider === 'kakao' ? '카카오톡 계정 연동됨' : (user.provider === 'email' ? `이메일 계정 (${user.email || 'DB'})` : 'Google 계정 연동됨');
+      authUserProvider.textContent = user.provider === 'kakao' ? '카카오톡 계정 연동됨' : (user.provider === 'email' ? `이메일 계정 (${user.email || '연동됨'})` : 'Google 계정 연동됨');
       authUserAvatar.textContent = user.name.slice(0, 1);
       loadMyFortuneHistory();
     } else {
@@ -8206,6 +8206,10 @@ ${pp.txt}`);
         if (cfgR.ok) {
           const cfg = await cfgR.json();
           if ((provider === 'google' && cfg.google_ready) || (provider === 'kakao' && cfg.kakao_ready)) {
+            try {
+              sessionStorage.setItem('fortune_skip_opening', '1');
+              sessionStorage.setItem('fortune_return_idx', String(state.currentIdx || 0));
+            } catch (_) {}
             window.location.href = `${base}/api/auth/${provider}`;
             return;
           }
@@ -8219,7 +8223,7 @@ ${pp.txt}`);
           const d = await demoR.json();
           if (d.user) {
             applyLoggedInUser(d.user);
-            showToast(`${d.user.name}님 환영해요! 운세 기록이 DB에 저장됩니다 ✨`);
+            showToast(`${d.user.name}님 환영해요! 운세 기록이 안전하게 보관됩니다 ✨`);
             return;
           }
         }
@@ -8269,7 +8273,7 @@ ${pp.txt}`);
         if (d.token) { try { localStorage.setItem('fortune_shop_token', d.token); } catch (e) {} }
         if (d.user) {
           applyLoggedInUser(d.user);
-          showToast(mode === 'register' ? `${d.user.name}님 회원가입 및 DB 연동 완료 ✨` : `${d.user.name}님 환영합니다 ✨`);
+          showToast(mode === 'register' ? `${d.user.name}님 회원가입 완료 ✨` : `${d.user.name}님 환영합니다 ✨`);
           return;
         }
       } catch (e) {}
@@ -8287,13 +8291,13 @@ ${pp.txt}`);
         const r = await fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/auth/config`);
         if (r.ok) {
           const c = await r.json();
-          const dbLabel = c.db === 'postgresql' ? '🟢 PostgreSQL 영구 DB 연결됨' : '🟡 SQLite DB 연결됨 (DATABASE_URL 설정 시 영구 저장)';
+          const dbLabel = c.db === 'postgresql' ? '🟢 내 운세 기록 영구 보관 연결됨' : '🟢 내 운세 기록 보관소 연결됨';
           el.textContent = dbLabel;
           return;
         }
       } catch (e) {}
     }
-    el.textContent = '✨ 미리보기 모드 (Render 배포 시 DB 자동 연결)';
+    el.textContent = '✨ 계정 연동 준비 완료';
   }
 
   document.getElementById('btn-login-google').addEventListener('click', () => handleSocialLogin('google'));
@@ -8306,20 +8310,46 @@ ${pp.txt}`);
       fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/auth/logout?token=${encodeURIComponent(tok)}`, { method: 'POST' }).catch(() => {});
     }
     try { localStorage.removeItem('fortune_shop_token'); } catch (e) {}
+    state.isPlus = false;
+    state.ticketCount = 0;
     applyLoggedInUser(null);
+    if (typeof syncPaywallUI === 'function') syncPaywallUI();
+    authDrawer?.classList.remove('open');
     showToast('로그아웃되었습니다');
   });
   document.getElementById('btn-refresh-my-history').addEventListener('click', loadMyFortuneHistory);
 
+  function skipOpeningToCurrentTab() {
+    let returnIdx = 0;
+    try {
+      const savedIdx = parseInt(sessionStorage.getItem('fortune_return_idx') || '0', 10);
+      if (Number.isFinite(savedIdx) && savedIdx >= 0 && savedIdx < CHARACTERS.length) returnIdx = savedIdx;
+      sessionStorage.removeItem('fortune_skip_opening');
+    } catch (_) {}
+    if (openingOverlay) {
+      openingOverlay.classList.add('hidden-seq');
+      try { openingVideo.pause(); } catch (_) {}
+    }
+    goToCharacter(returnIdx, true);
+  }
+
   async function restoreSessionOnBoot() {
     const params = new URLSearchParams(window.location.search);
     const token = params.get('auth_token');
+    let shouldSkipOpening = !!token;
+    try {
+      if (sessionStorage.getItem('fortune_skip_opening') === '1') shouldSkipOpening = true;
+    } catch (_) {}
+    if (shouldSkipOpening) {
+      skipOpeningToCurrentTab();
+    }
     if (token && state.apiBaseUrl) {
       try {
         const r = await fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/auth/me?token=${encodeURIComponent(token)}`);
         if (r.ok) {
           const d = await r.json();
           if (d.user) {
+            try { localStorage.setItem('fortune_shop_token', token); } catch (_) {}
             applyLoggedInUser(d.user);
             window.history.replaceState({}, document.title, window.location.pathname);
             showToast(`${d.user.name}님 환영합니다 ✨`);
