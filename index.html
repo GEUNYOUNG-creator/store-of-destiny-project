@@ -3448,20 +3448,41 @@
         this.speakBrowserFallback(clean, idx, charObj, profile, isMini, seq);
       }, 50);
     },
+    playStudioClip(charId, kind = 'greet') {
+      if (!state.voiceEnabled) return;
+      const cid = charId || (CHARACTERS[state.currentIdx]?.id || 'saju');
+      const isMini = state.modelMode === 'mini' && !!(CHARACTERS[state.currentIdx]?.pet);
+      this.stop();
+      const seq = this.reqSeq;
+      const url = `./src/assets/voices/${cid}_${kind}.mp3`;
+      const audio = new Audio(url);
+      audio.volume = 1.0;
+      // Subtle youthful lift for mini-pet mode while keeping studio clarity
+      if (isMini) {
+        audio.preservesPitch = false;
+        audio.playbackRate = 1.12;
+      }
+      this.currentAudio = audio;
+      audio.onplay = () => { if (seq === this.reqSeq) this.setSpeakingUI(true); };
+      audio.onended = () => { if (seq === this.reqSeq) this.setSpeakingUI(false); };
+      audio.onerror = () => {
+        if (seq !== this.reqSeq) return;
+        const prof = CHARACTER_VOICE_PROFILES[cid];
+        const fallbackLine = kind === 'wait' ? prof?.wait : prof?.greet;
+        if (fallbackLine) this.speak(fallbackLine, cid);
+      };
+      audio.play().catch(() => {
+        if (seq === this.reqSeq) this.setSpeakingUI(false);
+      });
+    },
     speakGreet(charIdx) {
       const c = CHARACTERS[charIdx];
       if (!c) return;
-      if (state.modelMode === 'mini' && c.pet) {
-        const line = (c.pet.lines && c.pet.lines[0]) || `${c.pet.name}야! 반가워!`;
-        this.speak(line, c.id);
-      } else {
-        const prof = CHARACTER_VOICE_PROFILES[c.id];
-        this.speak(prof ? prof.greet : (c.lines[0] || ''), c.id);
-      }
+      this.playStudioClip(c.id, 'greet');
     },
     speakWait(charId) {
-      const prof = CHARACTER_VOICE_PROFILES[charId];
-      if (prof && prof.wait) this.speak(prof.wait, charId);
+      const cid = charId || (CHARACTERS[state.currentIdx]?.id || 'saju');
+      this.playStudioClip(cid, 'wait');
     }
   };
   window.voiceEngine = voiceEngine;
@@ -5368,7 +5389,6 @@ ${sinsalRichList}
       const q = (document.getElementById('blood-question')?.value || '').trim();
       const box = document.getElementById('blood-inline-result');
       const bloodFallback = `[두 사람의 혈액형 케미 분석]\n**${meName}님(${state.bloodMe}형)**과 **${youName}님(${state.bloodYou}형)**의 혈액형 궁합은 **${res.score}% (${res.tag})**입니다! ${res.text}\n\n[일상 속 설렘 & 데이트 시너지]\n함께 시간을 보낼수록 서로에게 없는 매력에 끌리며 자연스럽게 웃음이 많아지는 조합이에요. 작은 칭찬과 **솔직한 감정 표현**을 아끼지 않을수록 관계가 빠르게 단단해집니다.\n\n[루미의 관계 유지 비법]\n가끔 템포 차이가 느껴질 때는 서운함을 쌓아두지 말고 **${res.tip}**을 꼭 기억해 주세요. 이 한 가지만 지켜도 오래오래 설레는 최강 짝꿍이 될 거예요!`;
-      voiceEngine.speak(`${meName}님과 ${youName}님 궁합은 ${res.score}퍼센트! ${res.tag} 조합이야!`, 'blood');
       askGeminiFortune('blood', '혈액형 궁합', `${meName}님(${state.bloodMe}형)과 ${youName}님(${state.bloodYou}형)의 혈액형 궁합 (${res.score}%, ${res.tag}). 반드시 "${meName}님과 ${youName}님의 혈액형 궁합은"으로 시작해 풀이해 주세요.`, q, bloodFallback, `${meName}·${youName}`).then(txt => {
         const richBox = document.getElementById('blood-rich-box');
         if (richBox) richBox.innerHTML = formatRichReadingHtml(txt, 'pink');
@@ -6199,7 +6219,6 @@ ${sinsalRichList}
       const q = (document.getElementById('mbti-question')?.value || '').trim();
       const box = document.getElementById('mbti-inline-result');
       const mbtiFallback = `[성격 유형 & 인지기능 궁합 분석]\n**${meName}님(${res.a})**과 **${youName}님(${res.b})**의 MBTI 궁합은 **${res.score}점 (${res.grade})**입니다. ${res.summary}\n\n[대화 스타일 & 감정 충전 포인트]\n에너지 방향과 판단 기준의 차이를 틀림이 아닌 **상호 보완의 매력**으로 바라볼 때 시너지가 극대화됩니다. 서로가 지쳤을 때 필요한 충전 방식을 미리 공유해 두면 오해가 절반 이하로 줄어들어요.\n\n[하린의 실전 관계 처방]\n두 분에게 가장 효과적인 황금 습관은 **${res.tip}**입니다. 작은 배려를 말로 표현할수록 오래도록 편안하고 단단한 관계로 성장합니다.`;
-      voiceEngine.speak(`${meName}님과 ${youName}님의 엠비티아이 궁합은 ${res.score}점! ${res.grade} 조합이에요!`, 'mbti');
       askGeminiFortune('mbti', 'MBTI 궁합', `${meName}님(${res.a})과 ${youName}님(${res.b})의 MBTI 궁합 (${res.score}점, ${res.grade}). 반드시 "${meName}님과 ${youName}님의 MBTI 궁합은"으로 시작해 풀이해 주세요.`, q, mbtiFallback, `${meName}·${youName}`).then(txt => {
         const richBox = document.getElementById('mbti-rich-box');
         if (richBox) richBox.innerHTML = formatRichReadingHtml(txt, 'sky');
@@ -8278,19 +8297,18 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       state.voiceEnabled = true;
       syncVoiceToggleUI();
     }
-    const curText = speechBubble?.textContent || '';
     const char = CHARACTERS[state.currentIdx];
     const prof = CHARACTER_VOICE_PROFILES[char.id];
-    voiceEngine.speak(curText, char.id);
-    if (prof) showToast(`🗣️ ${prof.label}`);
+    voiceEngine.playStudioClip(char.id, 'greet');
+    if (prof) showToast(`🎙️ ${prof.label} (스튜디오 보이스)`);
   });
   speechBubble?.addEventListener('click', () => {
     if (state.voiceEnabled) {
-      setTimeout(() => {
-        const curText = speechBubble?.textContent || '';
-        const char = CHARACTERS[state.currentIdx];
-        if (curText && char) voiceEngine.speak(curText, char.id);
-      }, 60);
+      const char = CHARACTERS[state.currentIdx];
+      if (char) {
+        const kind = (state.speechIdx[state.currentIdx] % 2 === 0) ? 'greet' : 'wait';
+        voiceEngine.playStudioClip(char.id, kind);
+      }
     }
   });
   syncVoiceToggleUI();

@@ -809,6 +809,15 @@ def serve_og():
     p = os.path.join(os.path.dirname(__file__), "..", "og-preview.jpg")
     return FileResponse(p, media_type="image/jpeg")
 
+
+@app.get("/src/assets/voices/{filename}")
+def serve_character_voice(filename: str):
+    safe = os.path.basename(filename)
+    p = os.path.join(os.path.dirname(__file__), "..", "src", "assets", "voices", safe)
+    if not os.path.exists(p):
+        raise HTTPException(status_code=404, detail="Voice file not found")
+    return FileResponse(p, media_type="audio/mpeg")
+
 @app.get("/opening.mp4")
 def serve_opening_video():
     return FileResponse(os.path.join(os.path.dirname(__file__), "..", "opening.mp4"), media_type="video/mp4")
