@@ -3250,56 +3250,60 @@
   ];
 
 
-  /* ==================== 8-CHARACTER YOUTHFUL CRISP VOICE ENGINE (TTS) ==================== */
-  // 모든 8명 캐릭터는 어리고 생기 있는 여성 캐릭터 — 루미(혈액형)의 밝은 톤을 기준으로
-  // 각 캐릭터마다 늘어지지 않고(rate >= 1.09) 또렷하며 개성 있는 보이스 컬러 + 인사말/대기 멘트 부여
+  /* ==================== 8-CHARACTER STUDIO NEURAL VOICE ENGINE (/api/tts + NATURAL FALLBACK) ==================== */
+  // 1순위: 서버 Neural 한국어 여성 성우 MP3 (/api/tts — 선희·서현·지민·유진 4인 성우 + 캐릭터별 미세 튜닝)
+  // 2순위(오프라인 폴백): 자연스러운 피치 범위(1.01~1.12)의 Web Speech API (로봇/다람쥐 왜곡 원천 차단)
   const CHARACTER_VOICE_PROFILES = {
     saju: {
-      label: '연화 · 맑고 또렷한 명리 톤', pitch: 1.18, rate: 1.12,
-      greet: '어서 와! 운명상점 주인 연화야. 생년월일시를 알려주면 사주와 신살을 자세히 풀어줄게!',
-      wait: '잠깐만 기다려줘! 옥구슬로 사주 원국과 신살을 정밀하게 읽고 있어!'
+      label: '연화 · 맑고 또렷한 명리 톤', pitch: 1.03, rate: 1.05,
+      greet: '어서 와요! 운명상점 주인 연화예요. 생년월일시를 알려주시면 사주와 신살을 자세히 풀어드릴게요.',
+      wait: '잠깐만 기다려 주세요. 옥구슬로 사주 원국과 신살을 정밀하게 읽고 있어요.'
     },
     blood: {
-      label: '루미 · 발랄 통통 튀는 기준 톤', pitch: 1.32, rate: 1.18,
-      greet: '안녕! 루미야! 혈액형 궁합 바로 확인해 볼까?',
-      wait: '잠시만 기다려줘! 두 사람의 두근두근 혈액형 케미를 계산 중이야!'
+      label: '루미 · 발랄 통통 튀는 기준 톤', pitch: 1.12, rate: 1.11,
+      greet: '안녕! 루미야! 두근두근 혈액형 궁합 바로 확인해 볼까?',
+      wait: '잠시만 기다려 줘! 두 사람의 혈액형 케미를 계산 중이야!'
     },
     zodiac: {
-      label: '스텔라 · 청아한 별빛 소녀 톤', pitch: 1.24, rate: 1.13,
-      greet: '반가워! 별자리 점성술사 스텔라야. 오늘의 별빛 운세를 봐줄게!',
-      wait: '잠깐만 기다려줘! 밤하늘 별자리 배치를 읽어오는 중이야!'
+      label: '스텔라 · 청아한 별빛 소녀 톤', pitch: 1.08, rate: 1.07,
+      greet: '반가워요! 별자리 점성술사 스텔라예요. 오늘의 별빛 운세를 읽어드릴게요.',
+      wait: '잠깐만 기다려 주세요. 밤하늘 별자리 배치를 읽어오는 중이에요.'
     },
     tarot: {
-      label: '셀레네 · 가볍고 영롱한 신비 톤', pitch: 1.16, rate: 1.10,
-      greet: '안녕, 타로 리더 셀레네야. 마음이 끌리는 카드를 한 장 골라봐!',
-      wait: '잠시만 기다려줘! 타로 카드에 담긴 운명의 메시지를 해석하고 있어!'
+      label: '셀레네 · 영롱하고 맑은 신비 톤', pitch: 1.01, rate: 1.03,
+      greet: '안녕하세요, 타로 리더 셀레네예요. 마음이 끌리는 카드를 한 장 골라보세요.',
+      wait: '잠시만 기다려 주세요. 타로 카드에 담긴 운명의 메시지를 해석하고 있어요.'
     },
     mbti: {
-      label: '하린 · 똑 부러진 하이텐션 톤', pitch: 1.28, rate: 1.20,
-      greet: '하이! 엠비티아이 상담사 하린이야! 찰떡 궁합을 분석해 줄게!',
-      wait: '잠깐만 기다려줘! 두 사람 성격 유형의 케미를 꼼꼼히 분석 중이야!'
+      label: '하린 · 똑 부러진 하이텐션 톤', pitch: 1.10, rate: 1.12,
+      greet: '하이! 엠비티아이 상담사 하린이에요! 찰떡 궁합을 시원하게 분석해 줄게요!',
+      wait: '잠깐만 기다려 주세요! 두 분 성격 유형의 케미를 꼼꼼히 분석 중이에요!'
     },
     face: {
-      label: '아린 · 영리하고 상큼한 명랑 톤', pitch: 1.21, rate: 1.14,
-      greet: '안녕! 청동거울 관상가 아린이야. 얼굴 사진을 올려주면 관상을 봐줄게!',
-      wait: '잠시만 기다려줘! 청동거울로 이목구비와 미래 배우자 인상까지 살펴보는 중이야!'
+      label: '아린 · 영리하고 상큼한 명랑 톤', pitch: 1.05, rate: 1.08,
+      greet: '안녕! 청동거울 관상가 아린이에요. 얼굴 사진을 올려주시면 관상을 봐드릴게요!',
+      wait: '잠시만 기다려 주세요. 청동거울로 이목구비와 미래 배우자 인상까지 살펴보는 중이에요.'
     },
     palm: {
-      label: '서연 · 시원시원 경쾌한 톤', pitch: 1.26, rate: 1.17,
-      greet: '반가워! 손금가 서연이야. 손바닥을 펼쳐주면 운명선을 읽어줄게!',
-      wait: '잠깐만 기다려줘! 황금 돋보기로 생명선과 재물선을 꼼꼼히 보고 있어!'
+      label: '서연 · 시원시원 경쾌한 톤', pitch: 1.09, rate: 1.10,
+      greet: '반가워요! 손금가 서연이에요. 손바닥을 펼쳐주시면 운명선을 읽어드릴게요!',
+      wait: '잠깐만 기다려 주세요! 황금 돋보기로 생명선과 재물선을 꼼꼼히 보고 있어요.'
     },
     sasang: {
-      label: '다온 · 싱그럽고 명쾌한 한의 톤', pitch: 1.29, rate: 1.16,
-      greet: '안녕! 사상의학 한의사 다온이야. 네 체질과 신체 특징을 딱 알려줄게!',
-      wait: '잠시만 기다려줘! 사상체질과 신체 특징을 정밀하게 분석하고 있어!'
+      label: '다온 · 싱그럽고 명쾌한 한의 톤', pitch: 1.11, rate: 1.09,
+      greet: '안녕! 사상의학 한의사 다온이에요. 태양·태음·소양·소음 중 당신의 체질과 신체 특징을 알려드릴게요!',
+      wait: '잠시만 기다려 주세요! 사상체질과 신체 특징을 정밀하게 분석하고 있어요.'
     }
   };
 
   const voiceEngine = {
     speaking: false,
     cachedVoices: [],
+    audioCache: new Map(),
+    currentAudio: null,
+    abortCtrl: null,
     speakTimer: null,
+    reqSeq: 0,
     refreshVoices() {
       if (!('speechSynthesis' in window)) return [];
       this.cachedVoices = window.speechSynthesis.getVoices() || [];
@@ -3309,34 +3313,87 @@
       const voices = this.cachedVoices.length ? this.cachedVoices : this.refreshVoices();
       const koVoices = voices.filter(v => (v.lang || '').toLowerCase().startsWith('ko'));
       if (!koVoices.length) return null;
-      const femalePref = koVoices.filter(v => !/minsu|injeong|male|남|hyunsu|bongjin|gookmin/i.test(v.name));
+      const femalePref = koVoices.filter(v => !/minsu|injeong|male|남|hyunsu|bongjin|gookmin|injoon/i.test(v.name));
       const pool = femalePref.length ? femalePref : koVoices;
+      // Strongly prefer Microsoft Online Natural / Google 한국의 / Apple Yuna & Sora
       const sorted = [...pool].sort((a, b) => {
-        const score = (n) => /google|yuna|sora|sunhi|heami|seoyeon/i.test(n) ? 10 : 1;
+        const score = (n) => {
+          if (/natural|online|sunhi|seohyeon|jimin|yujin/i.test(n)) return 30;
+          if (/google|yuna|sora/i.test(n)) return 20;
+          if (/heami/i.test(n)) return 5;
+          return 1;
+        };
         return score(b.name) - score(a.name);
       });
-      return sorted[charIdx % sorted.length] || sorted[0];
+      return sorted[charIdx % Math.min(sorted.length, 4)] || sorted[0];
     },
-    stop() {
-      if (this.speakTimer) { clearTimeout(this.speakTimer); this.speakTimer = null; }
-      if ('speechSynthesis' in window) {
-        try { window.speechSynthesis.cancel(); } catch (_) {}
-      }
-      this.speaking = false;
+    setSpeakingUI(on) {
+      this.speaking = on;
       const btn = document.getElementById('btn-voice-speak');
-      if (btn) {
+      if (!btn) return;
+      if (on) {
+        btn.textContent = '⏹ 멈춤';
+        btn.classList.add('bg-emerald-500/35', 'border-emerald-300');
+      } else {
         btn.textContent = '🗣️ 보이스';
         btn.classList.remove('bg-emerald-500/35', 'border-emerald-300');
       }
     },
-    speak(rawText, charIdOverride = null) {
+    stop() {
+      this.reqSeq++;
+      if (this.speakTimer) { clearTimeout(this.speakTimer); this.speakTimer = null; }
+      if (this.abortCtrl) { try { this.abortCtrl.abort(); } catch (_) {} this.abortCtrl = null; }
+      if (this.currentAudio) {
+        try {
+          this.currentAudio.pause();
+          this.currentAudio.currentTime = 0;
+        } catch (_) {}
+        this.currentAudio = null;
+      }
+      if ('speechSynthesis' in window) {
+        try { window.speechSynthesis.cancel(); } catch (_) {}
+      }
+      this.setSpeakingUI(false);
+    },
+    playBlobUrl(blobUrl, seq) {
+      if (seq !== this.reqSeq) return;
+      const audio = new Audio(blobUrl);
+      audio.volume = 1.0;
+      this.currentAudio = audio;
+      audio.onplay = () => { if (seq === this.reqSeq) this.setSpeakingUI(true); };
+      audio.onended = () => { if (seq === this.reqSeq) this.setSpeakingUI(false); };
+      audio.onerror = () => { if (seq === this.reqSeq) this.setSpeakingUI(false); };
+      audio.play().catch(() => {
+        if (seq === this.reqSeq) this.setSpeakingUI(false);
+      });
+    },
+    speakBrowserFallback(clean, idx, charObj, profile, isMini, seq) {
+      if (seq !== this.reqSeq || !('speechSynthesis' in window)) return;
+      try { window.speechSynthesis.resume(); } catch (_) {}
+      const utter = new SpeechSynthesisUtterance(clean.slice(0, 340));
+      utter.lang = 'ko-KR';
+      // Keep pitch in natural non-robotic range (1.00 ~ 1.18) so browser TTS never sounds chipmunk/garbled
+      utter.pitch = Math.min(1.18, profile.pitch + (isMini ? 0.06 : 0));
+      utter.rate = Math.min(1.16, profile.rate + (isMini ? 0.03 : 0));
+      utter.volume = 1.0;
+      const voice = this.pickKoreanFemaleVoice(idx);
+      if (voice) utter.voice = voice;
+      utter.onstart = () => { if (seq === this.reqSeq) this.setSpeakingUI(true); };
+      utter.onend = () => { if (seq === this.reqSeq) this.setSpeakingUI(false); };
+      utter.onerror = () => { if (seq === this.reqSeq) this.setSpeakingUI(false); };
+      try {
+        window.speechSynthesis.resume();
+        window.speechSynthesis.speak(utter);
+      } catch (_) {}
+    },
+    async speak(rawText, charIdOverride = null) {
       if (!state.voiceEnabled) return;
-      if (!('speechSynthesis' in window)) return;
       const clean = String(rawText || '')
         .replace(/<[^>]+>/g, ' ')
-        .replace(/\*\*|\[|\]|✦|✨|🌿|🌸|🐎|🎨|🪡|🐯|⚡|🌹|🔮|🌀|🌟|🛡️|⚔️|♥|♡|★|☆|📷|🖼️|☀️|🌳|🔥|💧|📜|💡|💙|🍀|💍|🪞|✋|🗣️/g, ' ')
+        .replace(/\*\*|\[|\]|✦|✨|🌿|🌸|🐎|🎨|🪡|🐯|⚡|🌹|🔮|🌀|🌟|🛡️|⚔️|♥|♡|★|☆|📷|🖼️|☀️|🌳|🔥|💧|📜|💡|💙|🍀|💍|🪞|✋|🗣️|🧍|🥗|⚠️|🏃|🧬/g, ' ')
         .replace(/\s+/g, ' ')
-        .trim();
+        .trim()
+        .slice(0, 340);
       if (!clean) return;
 
       const idx = charIdOverride
@@ -3346,42 +3403,50 @@
       const profile = CHARACTER_VOICE_PROFILES[charObj.id] || CHARACTER_VOICE_PROFILES.blood;
       const isMini = state.modelMode === 'mini' && !!charObj.pet;
 
-      const needDelay = window.speechSynthesis.speaking || window.speechSynthesis.pending;
       this.stop();
-      try { window.speechSynthesis.resume(); } catch (_) {}
+      const seq = this.reqSeq;
 
-      const fire = () => {
-        const utter = new SpeechSynthesisUtterance(clean.slice(0, 480));
-        utter.lang = 'ko-KR';
-        utter.pitch = Math.min(1.52, profile.pitch + (isMini ? 0.11 : 0));
-        utter.rate = Math.min(1.30, profile.rate + (isMini ? 0.04 : 0));
-        utter.volume = 1.0;
-
-        const voice = this.pickKoreanFemaleVoice(idx);
-        if (voice) utter.voice = voice;
-
-        utter.onstart = () => {
-          this.speaking = true;
-          const btn = document.getElementById('btn-voice-speak');
-          if (btn) {
-            btn.textContent = '⏹ 멈춤';
-            btn.classList.add('bg-emerald-500/35', 'border-emerald-300');
-          }
-        };
-        utter.onend = () => this.stop();
-        utter.onerror = () => this.stop();
+      // 1. Try high-quality Neural TTS from backend (/api/tts) with instant client cache
+      if (state.liveApiEnabled && state.apiBaseUrl) {
+        const cacheKey = `${charObj.id}|${isMini ? 1 : 0}|${clean}`;
+        if (this.audioCache.has(cacheKey)) {
+          this.playBlobUrl(this.audioCache.get(cacheKey), seq);
+          return;
+        }
         try {
-          window.speechSynthesis.resume();
-          window.speechSynthesis.speak(utter);
-        } catch (_) {}
-      };
-
-      // Chromium bug workaround: wait 55ms after cancel() so the new utterance is never silently dropped
-      if (needDelay) {
-        this.speakTimer = setTimeout(fire, 55);
-      } else {
-        fire();
+          const ctrl = new AbortController();
+          this.abortCtrl = ctrl;
+          const timeoutId = setTimeout(() => ctrl.abort(), 4500);
+          const resp = await fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/tts`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ character_id: charObj.id, text: clean, is_mini: isMini }),
+            signal: ctrl.signal
+          });
+          clearTimeout(timeoutId);
+          if (seq !== this.reqSeq) return;
+          if (resp.ok) {
+            const blob = await resp.blob();
+            if (seq !== this.reqSeq) return;
+            const blobUrl = URL.createObjectURL(blob);
+            if (this.audioCache.size > 80) {
+              const firstKey = this.audioCache.keys().next().value;
+              URL.revokeObjectURL(this.audioCache.get(firstKey));
+              this.audioCache.delete(firstKey);
+            }
+            this.audioCache.set(cacheKey, blobUrl);
+            this.playBlobUrl(blobUrl, seq);
+            return;
+          }
+        } catch (_) {
+          if (seq !== this.reqSeq) return;
+        }
       }
+
+      // 2. Fallback to clean natural-range browser Web Speech API
+      this.speakTimer = setTimeout(() => {
+        this.speakBrowserFallback(clean, idx, charObj, profile, isMini, seq);
+      }, 50);
     },
     speakGreet(charIdx) {
       const c = CHARACTERS[charIdx];
@@ -8087,7 +8152,6 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
     rigPhys.happyTimer = 1.1;
     playChimeSound(720);
     speechBubble.innerHTML = `${built.info.emoji} ${built.info.name} 체질의 신체 특징과 맞춤 양생법을 모두 펼쳐 드렸어요! 🌿`;
-    voiceEngine.speak(`${built.info.name} 체질이시군요! ${built.info.bodySummary}`, 'sasang');
     registerSharePayload('sasang', {
       category: '사상의학 체질 분석', title: built.info.name,
       scoreText: built.info.shortName, subtitle: built.info.organs,

@@ -15,7 +15,7 @@ from urllib.parse import urlencode
 from typing import Optional
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse, Response
 from pydantic import BaseModel
 import httpx
 
@@ -696,6 +696,63 @@ async def generate_spouse_portrait(req: SpousePortraitRequest):
             except Exception:
                 continue
     return {"generated": False, "reason": "image_model_unavailable"}
+
+
+# ==================== NEURAL KOREAN VOICE TTS (/api/tts) ====================
+class TTSRequest(BaseModel):
+    character_id: str = "saju"
+    text: str
+    is_mini: Optional[bool] = False
+
+# 8인 전원 어리고 늘어지지 않는 자연스러운 한국어 뉴럴 여성 보이스 (Microsoft Neural)
+TTS_VOICE_MAP = {
+    "saju":   {"voice": "ko-KR-SunHiNeural",    "rate": "+5%",  "pitch": "+3Hz"},   # 연화: 맑고 또렷한 명리 톤
+    "blood":  {"voice": "ko-KR-SeoHyeonNeural", "rate": "+10%", "pitch": "+6Hz"},   # 루미: 발랄 통통 튀는 기준 톤
+    "zodiac": {"voice": "ko-KR-YuJinNeural",    "rate": "+6%",  "pitch": "+5Hz"},   # 스텔라: 청아한 별빛 소녀 톤
+    "tarot":  {"voice": "ko-KR-YuJinNeural",    "rate": "+3%",  "pitch": "-1Hz"},   # 셀레네: 영롱하고 맑은 신비 톤
+    "mbti":   {"voice": "ko-KR-JiMinNeural",    "rate": "+11%", "pitch": "+4Hz"},   # 하린: 똑 부러진 하이텐션 톤
+    "face":   {"voice": "ko-KR-JiMinNeural",    "rate": "+6%",  "pitch": "+1Hz"},   # 아린: 영리하고 상큼한 명랑 톤
+    "palm":   {"voice": "ko-KR-SeoHyeonNeural", "rate": "+8%",  "pitch": "+2Hz"},   # 서연: 시원시원 경쾌한 톤
+    "sasang": {"voice": "ko-KR-SunHiNeural",    "rate": "+8%",  "pitch": "+7Hz"},   # 다온: 싱그럽고 명쾌한 한의 톤
+}
+_TTS_CACHE = {}
+
+@app.post("/api/tts")
+async def synthesize_character_tts(req: TTSRequest):
+    text = (req.text or "").strip()[:360]
+    if not text:
+        raise HTTPException(status_code=400, detail="텍스트가 비어 있습니다.")
+    cfg = TTS_VOICE_MAP.get(req.character_id, TTS_VOICE_MAP["blood"])
+    voice = cfg["voice"]
+    rate = cfg["rate"]
+    pitch = cfg["pitch"]
+    if req.is_mini:
+        # 미니 펫 모드: 좀 더 귀엽고 경쾌하게
+        base_hz = int(pitch.replace("Hz", "").replace("+", ""))
+        base_rate = int(rate.replace("%", "").replace("+", ""))
+        pitch = f"{base_hz + 7:+d}Hz"
+        rate = f"{min(20, base_rate + 5):+d}%"
+
+    cache_key = (voice, rate, pitch, text)
+    if cache_key in _TTS_CACHE:
+        return Response(content=_TTS_CACHE[cache_key], media_type="audio/mpeg")
+
+    try:
+        import edge_tts
+        communicate = edge_tts.Communicate(text=text, voice=voice, rate=rate, pitch=pitch)
+        chunks = []
+        async for chunk in communicate.stream():
+            if chunk["type"] == "audio":
+                chunks.append(chunk["data"])
+        audio_bytes = b"".join(chunks)
+        if not audio_bytes:
+            raise RuntimeError("Empty TTS audio")
+        if len(_TTS_CACHE) > 160:
+            _TTS_CACHE.clear()
+        _TTS_CACHE[cache_key] = audio_bytes
+        return Response(content=audio_bytes, media_type="audio/mpeg")
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=f"Neural TTS unavailable: {e}")
 
 @app.post("/api/history")
 def save_history(rec: HistoryRecord):
