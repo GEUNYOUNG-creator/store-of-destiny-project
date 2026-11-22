@@ -3346,24 +3346,42 @@
     const hlClass = hlClassMap[theme] || 'rich-hl-gold';
     const titleClass = `theme-${theme}`;
 
-    const autoKeywords = [
+    const coralKeywords = [
       '도화살', '역마살', '화개살', '천을귀인', '현침살', '백호대살', '괴강살',
       '홍염살', '귀문관살', '원진살', '문창귀인', '천덕귀인', '양인살',
-      '태양인', '태음인', '소양인', '소음인', '폐대간소', '간대폐소', '비대신소', '신대비소'
+      '태양인', '태음인', '소양인', '소음인', '폐대간소', '간대폐소', '비대신소', '신대비소',
+      '주의 포인트', '주의할 점', '갈등 포인트', '피해야 할'
+    ];
+    const positiveKeywords = [
+      '행운 키워드', '개운법', '황금 습관', '핵심 열쇠', '재물운', '연애운', '귀인운', '전환점', '최고의 시너지'
     ];
 
     function decorateInline(text) {
       let safe = escapeHtmlSafe(text);
-      // 1. Highlight **important points**
+      // 1. **important points** -> primary vivid theme highlight
       safe = safe.replace(/\*\*([^*]+)\*\*/g, `<span class="rich-hl ${hlClass}">$1</span>`);
-      // 2. Highlight key traditional terms not already wrapped
-      autoKeywords.forEach(kw => {
+      // 2. Scores & percentages (e.g., 94%, 88점) -> bright gold highlight if not already wrapped
+      safe = safe.replace(/(?<![\w>])(\d{2,3}(?:%|점))(?![\w<])/g, (m, g1, offset, full) => {
+        const before = full.slice(Math.max(0, offset - 35), offset);
+        if (before.includes('rich-hl') && !before.includes('</span>')) return m;
+        return `<span class="rich-hl rich-hl-gold">${g1}</span>`;
+      });
+      // 3. Special traditional/caution terms -> coral highlight
+      coralKeywords.forEach(kw => {
         const re = new RegExp(`(?<!>)(${kw}(?:\\([^)]+\\))?)`, 'g');
         safe = safe.replace(re, (m, g1, offset, full) => {
-          // Skip if inside an already opened span
           const before = full.slice(Math.max(0, offset - 35), offset);
           if (before.includes('rich-hl') && !before.includes('</span>')) return m;
           return `<span class="rich-hl rich-hl-coral">${g1}</span>`;
+        });
+      });
+      // 4. Lucky/positive fortune terms -> mint-emerald highlight
+      positiveKeywords.forEach(kw => {
+        const re = new RegExp(`(?<!>)(${kw})`, 'g');
+        safe = safe.replace(re, (m, g1, offset, full) => {
+          const before = full.slice(Math.max(0, offset - 35), offset);
+          if (before.includes('rich-hl') && !before.includes('</span>')) return m;
+          return `<span class="rich-hl rich-hl-emerald">${g1}</span>`;
         });
       });
       return safe;
@@ -3372,7 +3390,6 @@
     const normalized = String(rawText || '').replace(/\r\n/g, '\n').trim();
     if (!normalized) return '';
 
-    // Split by [Section Title] headings or blank lines
     const lines = normalized.split('\n');
     const sections = [];
     let current = { title: '', paras: [] };
@@ -3380,21 +3397,21 @@
     for (const line of lines) {
       const trimmed = line.trim();
       if (!trimmed) continue;
-      const headingMatch = trimmed.match(/^\[([^\]]+)\]\s*(.*)$/);
+      // Support both [Title] and ### Title headings from AI
+      const headingMatch = trimmed.match(/^(?:\[([^\]]+)\]|#{2,3}\s+(.+))\s*(.*)$/);
       if (headingMatch) {
+        const hTitle = (headingMatch[1] || headingMatch[2] || '').replace(/\*\*/g, '').trim();
+        const rest = (headingMatch[3] || '').trim();
         if (current.title || current.paras.length) sections.push(current);
-        current = { title: headingMatch[1].trim(), paras: [] };
-        if (headingMatch[2] && headingMatch[2].trim()) {
-          current.paras.push(headingMatch[2].trim());
-        }
+        current = { title: hTitle, paras: [] };
+        if (rest) current.paras.push(rest);
       } else {
-        current.paras.push(trimmed);
+        current.paras.push(trimmed.replace(/^[-•*]\s+/, '▸ '));
       }
     }
     if (current.title || current.paras.length) sections.push(current);
 
     if (sections.length === 1 && !sections[0].title && sections[0].paras.length === 1) {
-      // Break long single block cleanly into sentences every 2 sentences for scannability
       const sents = sections[0].paras[0].split(/(?<=[.!?다요죠])\s+/).filter(Boolean);
       const grouped = [];
       for (let i = 0; i < sents.length; i += 2) {
@@ -3404,7 +3421,7 @@
     }
 
     return `<div class="rich-reading">${sections.map(sec => `
-      <div class="rich-sec">
+      <div class="rich-sec" style="border-left: 3px solid ${theme === 'pink' ? '#f472b6' : theme === 'violet' ? '#c084fc' : theme === 'sky' ? '#38bdf8' : theme === 'emerald' ? '#34d399' : '#fbbf24'};">
         ${sec.title ? `<div class="rich-sec-title ${titleClass}"><span>✦</span><span>${escapeHtmlSafe(sec.title)}</span></div>` : ''}
         ${sec.paras.map(p => `<p class="rich-p">${decorateInline(p)}</p>`).join('')}
       </div>
@@ -4921,17 +4938,25 @@ ${sinsalRichList}
         <p class="text-xs text-slate-100 leading-relaxed">${harmonySummary}</p>
       </div>
 
-      <div class="bg-white/5 border border-rose-300/35 rounded-xl p-3.5">
-        <div class="text-xs font-bold text-rose-200 mb-1">✨ 연화의 AI 심층 사주 궁합</div>
-        <p id="saju-compat-llm-box" class="text-xs text-slate-100 leading-relaxed whitespace-pre-line">연화가 두 사람의 사주 인연과 궁합을 풀이하고 있습니다…</p>
+      <div class="bg-white/5 border border-rose-300/35 rounded-xl p-3.5 space-y-2">
+        <div class="text-xs font-bold text-rose-200">✨ 연화의 심층 사주 궁합 풀이</div>
+        <div id="saju-compat-llm-box" class="text-xs text-slate-100 leading-relaxed">연화가 두 사람의 사주 인연과 궁합을 풀이하고 있습니다…</div>
       </div>
     `);
 
     const q = (document.getElementById('saju-question')?.value || '').trim();
+    const compatFallback = `[두 사람의 오행 · 일간 궁합 핵심]
+**${me.name}님(${myData.ilgan.title})**과 **${pName}님(${pData.ilgan.title})**의 사주 궁합 점수는 **${score}점**입니다. ${harmonySummary}
+
+[연애 텐션 & 감정 교감 포인트]
+**${me.name}님**의 주력 오행(**${myData.dominant}**)과 **${pName}님**의 주력 오행(**${pData.dominant}**)이 만나 서로에게 자연스러운 끌림과 보완 에너지를 만들어냅니다. 함께 목표를 세우고 일상을 공유할수록 **연애운과 신뢰도**가 빠르게 깊어지는 인연이에요.
+
+[갈등 예방법 & 오래가는 관계 비결]
+서로 다른 기질이 부딪힐 때는 승부를 가리기보다 **하루만 감정을 식히고 부드럽게 대화하는 습관**이 핵심 열쇠입니다. 상대의 장점을 말로 자주 표현해 주면 두 분의 인연이 **귀인운**처럼 든든한 평생 파트너십으로 이어집니다.`;
     const details = `[나] ${me.name}(${myGender}, ${myCheck.displayDate}, ${myData.animal}띠, 일간:${myData.ilgan.title}, 주력오행:${myData.dominant}, 신살:${myData.sinsalTags[0].label}) vs [상대] ${pName}(${pGender}, ${partnerCheck.displayDate}, ${pData.animal}띠, 일간:${pData.ilgan.title}, 주력오행:${pData.dominant}, 신살:${pData.sinsalTags[0].label}), 궁합점수:${score}점`;
-    askGeminiFortune('saju', '사주 궁합', details, q || '두 사람의 연애·결혼 궁합과 오래 잘 지내는 비결이 궁금해요', harmonySummary, `${me.name}·${pName}`).then(txt => {
+    askGeminiFortune('saju', '사주 궁합', details, q || '두 사람의 연애·결혼 궁합과 오래 잘 지내는 비결이 궁금해요', compatFallback, `${me.name}·${pName}`).then(txt => {
       const el = document.getElementById('saju-compat-llm-box');
-      if (el) el.textContent = txt;
+      if (el) el.innerHTML = formatRichReadingHtml(txt, 'pink');
     });
   });
 
@@ -5284,7 +5309,7 @@ ${sinsalRichList}
         <div class="font-bold text-sm text-violet-100">${z.symbol} ${z.name} <span class="text-[11px] font-normal text-violet-300">(${z.el} · 수호성 ${z.ruler})</span></div>
         <span class="text-xs text-amber-300 font-bold">★★★★☆</span>
       </div>
-      <p class="text-xs text-violet-100/90 leading-relaxed mb-2.5">${z.msg}</p>
+      <div id="zodiac-daily-rich" class="mb-2.5">${formatRichReadingHtml(`[오늘의 ${z.name} 별빛 총운]\n**${z.name}(${z.el} 원소 · 수호성 ${z.ruler})**의 하늘에 맑은 기운이 흐르고 있습니다. ${z.msg}\n\n[연애 · 대인관계 & 재물 흐름]\n오늘은 **솔직하고 여유 있는 표현**이 주변의 호감과 **귀인운**을 끌어당깁니다. 일이나 금전에서는 성급한 결정보다 **핵심 한 가지에 집중**할 때 기대 이상의 보람과 성과가 따라와요.\n\n[스텔라의 오늘 행운 가이드]\n행운 컬러 **${z.color}**와 럭키 아이템 **${z.item}**, 행운 숫자 **${z.num}**을 가볍게 챙겨 보세요. 작은 기분 전환이 오늘 하루의 **전환점**이 되어줄 거예요!`, 'violet')}</div>
       <div class="grid grid-cols-3 gap-1.5 text-center text-[11px]">
         <div class="bg-violet-500/15 rounded-lg py-1.5 px-1 border border-violet-300/20">
           <div class="text-violet-300 text-[10px]">행운 컬러</div>
@@ -5314,9 +5339,10 @@ ${sinsalRichList}
       speechBubble.innerHTML = `${z.name}의 별빛이 아주 선명해! 오늘 행운 아이템은 ${z.item}야 ★`;
       const q = (document.getElementById('zodiac-question')?.value || '').trim();
       const box = document.getElementById('zodiac-inline-result');
-      askGeminiFortune('zodiac', '별자리 운세', `${z.name} (${z.el} 원소, 수호성 ${z.ruler})`, q, z.msg).then(txt => {
-        const p = box.querySelector('p');
-        if (p) p.textContent = txt;
+      const zodiacFallback = `[오늘의 ${z.name} 별빛 총운]\n**${z.name}(${z.el} 원소 · 수호성 ${z.ruler})**의 기운이 선명하게 빛나는 하루입니다. ${z.msg}\n\n[연애 · 인간관계 흐름]\n가까운 사람과의 가벼운 대화 속에 **반가운 기회와 설렘**이 숨어 있습니다. 먼저 따뜻한 안부를 건네면 **연애운과 대인 호감도**가 자연스럽게 상승해요.\n\n[재물 · 일/학업 에너지]\n오늘은 여러 일을 동시에 벌이기보다 **가장 중요한 핵심 과제**에 에너지를 집중할 때 완성도가 확 올라갑니다. 오후 시간대에 좋은 아이디어와 **재물운**의 실마리가 열립니다.\n\n[스텔라의 오늘 개운 가이드]\n행운 컬러 **${z.color}** 포인트와 **${z.item}**, 숫자 **${z.num}**을 곁에 두어 보세요. 저녁에는 좋아하는 음악으로 마음을 가볍게 비워주면 내일의 행운까지 이어집니다!`;
+      askGeminiFortune('zodiac', '별자리 운세', `${z.name} (${z.el} 원소, 수호성 ${z.ruler}, 행운컬러 ${z.color}, 럭키아이템 ${z.item})`, q, zodiacFallback).then(txt => {
+        const rEl = document.getElementById('zodiac-daily-rich');
+        if (rEl) rEl.innerHTML = formatRichReadingHtml(txt, 'violet');
       });
     }
   }
@@ -5328,8 +5354,8 @@ ${sinsalRichList}
         <div class="text-xs font-bold text-violet-100">${res.a.symbol} ${res.a.name} × ${res.b.symbol} ${res.b.name}</div>
         <span class="text-base font-extrabold text-amber-300">${res.score}점</span>
       </div>
-      <div class="text-xs font-bold text-fuchsia-300 mb-1.5">✦ ${res.title}</div>
-      <p class="text-xs text-violet-100/90 leading-relaxed">${res.desc}</p>
+      <div class="text-xs font-bold text-fuchsia-300 mb-2">✦ ${res.title}</div>
+      <div id="zodiac-match-rich" class="mb-2.5">${formatRichReadingHtml(`[성좌 원소 공명 분석]\n**${res.a.name}(${res.a.el})**와 **${res.b.name}(${res.b.el})**의 궁합 점수는 **${res.score}점**으로, **${res.title}**의 에너지가 흐릅니다. ${res.desc}\n\n[연애 호흡 & 관계 업그레이드 비결]\n서로의 수호성(**${res.a.ruler}** × **${res.b.ruler}**)이 만들어내는 템포 차이를 존중할수록 **최고의 시너지**가 발휘됩니다. 함께 새로운 장소를 여행하거나 취미를 공유하면 **연애운**이 더욱 눈부시게 빛나요!`, 'violet')}</div>
       ${renderShareActionBar('zodiac_match', '성좌 궁합 공유')}
     `;
     registerSharePayload('zodiac_match', {
@@ -5345,9 +5371,10 @@ ${sinsalRichList}
       speechBubble.innerHTML = `${res.a.name}와 ${res.b.name}의 별자리 궁합은 ${res.score}점! 정말 반짝여 ✨`;
       const q = (document.getElementById('zodiac-question')?.value || '').trim();
       const box = document.getElementById('zodiac-inline-result');
-      askGeminiFortune('zodiac', '별자리 궁합', `${res.a.name}(${res.a.el})와 ${res.b.name}(${res.b.el}) 궁합 ${res.score}점 (${res.title})`, q, res.desc).then(txt => {
-        const p = box.querySelector('p');
-        if (p) p.textContent = txt;
+      const zMatchFallback = `[두 성좌의 원소 공명 & 첫인상]\n**${res.a.name}(${res.a.el} 원소)**와 **${res.b.name}(${res.b.el} 원소)**의 별자리 궁합은 **${res.score}점 (${res.title})**입니다. ${res.desc}\n\n[연애 스타일 & 감정 교감 포인트]\n**${res.a.ruler}**의 기운과 **${res.b.ruler}**의 기운이 만나 서로에게 신선한 영감과 따뜻한 안정을 동시에 선물합니다. 작은 칭찬과 **솔직한 애정 표현**을 자주 나눌수록 신뢰가 단단해져요.\n\n[스텔라의 오래가는 관계 비결]\n서로의 표현 속도가 다를 때는 **주의 포인트**로 서운함을 미루지 말고 바로 부드럽게 이야기해 보세요. 함께 별빛 같은 추억을 쌓아갈수록 **최고의 시너지**가 피어납니다!`;
+      askGeminiFortune('zodiac', '별자리 궁합', `${res.a.name}(${res.a.el})와 ${res.b.name}(${res.b.el}) 궁합 ${res.score}점 (${res.title})`, q, zMatchFallback).then(txt => {
+        const rEl = document.getElementById('zodiac-match-rich');
+        if (rEl) rEl.innerHTML = formatRichReadingHtml(txt, 'violet');
       });
     }
   }
@@ -5918,10 +5945,14 @@ ${sinsalRichList}
       </div>
     `;
 
-    const fallbackText = pickedCards.map(p => `[${p.slot} · ${p.card.kr}] ${p.card.reversed ? p.card.rev : p.card.up}`).join(' ');
+    const fallbackText = pickedCards.map(p => {
+      const dirLabel = p.card.reversed ? '역방향' : '정방향';
+      const body = p.card.reversed ? p.card.rev : p.card.up;
+      return `[${p.slot} · ${p.card.name} (${dirLabel})]\n핵심 키워드는 **${p.card.kw}**입니다. ${body} 이 카드는 지금 흐름에서 **${p.slot}의 결정적 단서**를 보여주고 있어요.`;
+    }).join('\n\n') + `\n\n[셀레네의 종합 타로 조언]\n세 장의 카드(**${pickedCards.map(p => p.card.kr).join(' → ')}**)가 하나로 이어지며 지금 당신에게 꼭 필요한 **전환점**을 비추고 있습니다. 조급함을 내려놓고 카드가 가리키는 **핵심 열쇠**를 일상에 하나씩 적용해 보시면 막혀 있던 흐름이 부드럽게 열릴 거예요!`;
     const aiText = await askGeminiFortune('tarot', `타로(${topicNames[state.tarotTopic]})`, cardsSummary, question, fallbackText);
     const outEl = document.getElementById('tarot-llm-text');
-    if (outEl) outEl.textContent = aiText;
+    if (outEl) outEl.innerHTML = formatRichReadingHtml(aiText, 'violet');
     speechBubble.innerHTML = '세 장의 운명 패가 모두 열렸군요. 지금 당신에게 꼭 필요한 메시지입니다.';
   }
 
@@ -7039,10 +7070,10 @@ ${data.analysis}`, dynScore);
     const name = state.userName || '방문자';
     if (isFace) {
       const faceProfiles = [
-        { type: '귀인을 부르는 맑은 사슴상', txt: `${name}님의 눈망울이 맑고 이마(초년운)가 단정해 주변의 신뢰와 귀인운이 돋보이는 상입니다. 중년 이후 인복이 재물로 이어지며 안정적인 복이 쌓입니다.` },
-        { type: '매력과 재물복의 세련된 여우상', txt: `${name}님의 눈매에 총기와 카리스마가 서려 시선을 끄는 도화 기운이 강합니다. 감각과 직관이 뛰어나 자기 분야에서 빠르게 성과를 거두는 상입니다.` },
-        { type: '친화력과 연애운이 넘치는 강아지상', txt: `${name}님의 부드러운 눈매와 환한 미소 라인이 주변 사람들을 자연스럽게 끌어당깁니다. 대인운과 애정운이 아주 길해 든든한 조력자를 많이 만납니다.` },
-        { type: '품격과 명예가 따르는 우아한 봉황상', txt: `${name}님의 삼정(이마·코·하관) 비율이 조화롭고 기품이 흘러 어디서나 존중받는 귀한 상입니다. 중요한 갈림길마다 좋은 기회가 열립니다.` }
+        { type: '귀인을 부르는 맑은 사슴상', txt: `[초년운 · 이마와 눈썹]\n**${name}님**의 이마 라인이 단정하고 눈썹 결이 부드러워 어린 시절부터 주변의 신뢰를 얻는 **귀인운**이 뚜렷합니다.\n\n[중년운 · 눈매와 코의 재물 기운]\n눈망울이 맑고 코의 중심선이 안정적이어서 중년으로 갈수록 **인복이 곧 재물운**으로 이어지는 복된 흐름을 타고났어요.\n\n[말년운 · 하관과 아린의 개운법]\n부드러운 입매와 균형 잡힌 하관 덕분에 말년까지 편안한 복이 쌓입니다. **밝은 미소와 맑은 피부 톤 유지**가 최고의 개운 포인트예요!` },
+        { type: '매력과 재물복의 세련된 여우상', txt: `[초년운 · 이마와 눈썹]\n**${name}님**의 또렷한 이목구비와 날렵한 눈썹선에 **총기와 판단력**이 서려 있어 일찍부터 자기 분야의 감각을 발휘합니다.\n\n[중년운 · 눈매와 코의 재물 기운]\n시선을 사로잡는 매력적인 **도화 기운**과 직관력이 뛰어나 브랜딩·기획·전문직에서 빠르게 **재물운과 성과**를 거두는 상이에요.\n\n[말년운 · 하관과 아린의 개운법]\n자기 기준이 분명해 성공 기반을 단단히 다집니다. 가까운 사람에게 **따뜻한 공감 한마디**를 더하면 인연복이 배로 커집니다!` },
+        { type: '친화력과 연애운이 넘치는 강아지상', txt: `[초년운 · 이마와 눈썹]\n**${name}님**의 부드러운 인상과 친근한 눈매가 처음 보는 사람의 경계심도 단번에 녹이는 **최강의 친화력**을 보여줍니다.\n\n[중년운 · 눈매와 코의 재물 기운]\n사람이 곧 자산이 되는 상으로, **연애운과 대인운**이 매우 길해 어려울 때마다 든든한 조력자와 좋은 제안이 찾아옵니다.\n\n[말년운 · 하관과 아린의 개운법]\n환한 미소 라인이 복을 부르는 핵심 열쇠예요. 거절할 때만 **부드럽게 선을 긋는 연습**을 하면 재물과 건강이 모두 지켜집니다!` },
+        { type: '품격과 명예가 따르는 우아한 봉황상', txt: `[초년운 · 이마와 눈썹]\n**${name}님**의 삼정(이마·코·하관) 비율이 조화롭고 기품이 흘러 어디서나 **신뢰와 존중**을 받는 귀한 관상입니다.\n\n[중년운 · 눈매와 코의 재물 기운]\n중요한 갈림길마다 명예와 **재물운**이 함께 열리는 흐름이며, 리더십이나 전문 자격 분야에서 빛나는 성취를 이룹니다.\n\n[말년운 · 하관과 아린의 개운법]\n안정적인 하관이 말년의 풍요를 지켜줍니다. **여유 있는 호흡과 단정한 자세**가 타고난 귀인의 기운을 한층 더 끌어올려 줘요!` }
       ];
       const fp = faceProfiles[imgHash % faceProfiles.length];
       const sp = spPool[fallbackIdx];
@@ -7064,20 +7095,20 @@ ${data.analysis}`, dynScore);
 ${fp.txt}`);
     } else {
       const palmProfiles = [
-        { type: '재물과 귀인이 모이는 황금 운명선형', txt: `${name}님의 ${state.palmHand} 중앙으로 뻗은 운명선과 생명선이 조화로워 노력한 일에서 귀한 결실과 재물복이 따라오는 흐름입니다.` },
-        { type: '창의력과 통찰이 빛나는 예술가 두뇌선형', txt: `${name}님의 ${state.palmHand} 두뇌선이 완만하고 깊게 뻗어 독창적인 아이디어와 전문성으로 크게 인정받는 손금입니다.` },
-        { type: '따뜻한 인연과 애정운의 로맨티스트 감정선형', txt: `${name}님의 ${state.palmHand} 감정선이 부드럽게 상승해 깊은 공감력과 좋은 인연 복이 가득한 손금입니다.` },
-        { type: '활력과 추진력이 넘치는 대길 생명선형', txt: `${name}님의 ${state.palmHand} 생명선이 둥글고 탄탄하게 뻗어 회복력과 실행력이 뛰어나며 어떤 도전도 끝까지 해내는 기운입니다.` }
+        { type: '재물과 귀인이 모이는 황금 운명선형', txt: `[생명선 · 타고난 체력과 활력]\n**${name}님**의 ${state.palmHand} 생명선이 안정적인 호를 그리며 뻗어 있어 꾸준한 지구력과 회복력이 돋보입니다.\n\n[두뇌선 & 운명선 · 재물과 커리어]\n손바닥 중앙으로 곧게 뻗은 **운명선** 덕분에 성실히 쌓아온 노력이 중반 이후 확실한 **재물운과 명예**로 꽃피는 흐름이에요.\n\n[감정선 & 서연의 개운 조언]\n신뢰를 중시하는 깊은 애정운을 지녔습니다. **중요한 계약이나 기회는 자신 있게 잡는 결단력**이 행운을 배로 키워줍니다!` },
+        { type: '창의력과 통찰이 빛나는 예술가 두뇌선형', txt: `[두뇌선 · 사고력과 직업 적성]\n**${name}님**의 ${state.palmHand} 두뇌선이 완만하고 깊게 뻗어 있어 **독창적인 아이디어와 예리한 통찰력**이 빛나는 손금입니다.\n\n[감정선 & 생명선 · 에너지 균형]\n감수성이 풍부해 기획·디자인·콘텐츠·전문 상담 분야에서 독보적인 매력을 발휘하며, 좋은 인연과 **귀인운**이 자연스레 따릅니다.\n\n[운명선 & 서연의 개운 조언]\n떠오른 영감을 **메모로 즉시 기록하고 실행하는 습관**이 곧 큰 **재물운**의 전환점이 되어줄 거예요!` },
+        { type: '따뜻한 인연과 애정운의 로맨티스트 감정선형', txt: `[감정선 · 연애와 인연의 결]\n**${name}님**의 ${state.palmHand} 감정선이 부드럽게 상승해 **깊은 공감력과 따뜻한 연애운**이 가득한 복된 손금입니다.\n\n[생명선 & 두뇌선 · 조화로운 판단력]\n상대의 마음을 잘 읽으면서도 현실 감각을 잃지 않아 가정과 직장 모두에서 **신뢰받는 중심 인물**로 사랑받습니다.\n\n[운명선 & 서연의 개운 조언]\n주변에 베푼 친절이 뜻밖의 **귀인운과 재물운**으로 돌아오는 흐름이니, 스스로를 돌보는 휴식 시간도 꼭 챙겨 주세요!` },
+        { type: '활력과 추진력이 넘치는 대길 생명선형', txt: `[생명선 · 타고난 체력과 실행력]\n**${name}님**의 ${state.palmHand} 생명선이 둥글고 탄탄하게 뻗어 있어 **넘치는 활력과 강한 돌파력**이 느껴지는 대길 손금입니다.\n\n[두뇌선 & 운명선 · 성취와 재물 흐름]\n한 번 목표를 정하면 끝까지 밀어붙이는 힘이 강해 새로운 프로젝트나 사업에서 **큰 성과와 재물운**을 거머쥘 잠재력이 큽니다.\n\n[감정선 & 서연의 개운 조언]\n열정이 뜨거울수록 **규칙적인 수면과 가벼운 스트레칭**으로 페이스를 조절하면 오래오래 최상의 운기가 유지됩니다!` }
       ];
       const pp = palmProfiles[imgHash % palmProfiles.length];
       resultEl.innerHTML = `
-        <div class="text-left space-y-2">
+        <div class="text-left space-y-2.5">
           <div class="flex items-center justify-between">
             <span class="font-bold text-teal-200">✋ 서연의 ${state.palmHand} 손금 리딩</span>
-            <span class="text-xs font-extrabold text-amber-300">${fallbackScore}점</span>
+            <span class="text-xs font-extrabold px-2 py-0.5 rounded-full bg-teal-500/25 text-amber-200 border border-amber-300/40">${fallbackScore}점</span>
           </div>
           <div class="rounded-xl bg-teal-950/60 border border-amber-300/40 px-3 py-1.5 text-xs font-bold text-teal-100">✦ ${pp.type}</div>
-          <p class="text-xs text-teal-50/90 leading-relaxed">${pp.txt}</p>
+          <div>${formatRichReadingHtml(pp.txt, 'emerald')}</div>
           ${renderShareActionBar('palm', '손금 결과 공유하기')}
         </div>
       `;
