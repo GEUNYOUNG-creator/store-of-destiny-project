@@ -57,14 +57,50 @@ app.add_middleware(
 )
 
 CHARACTER_PROMPTS = {
-    "saju": "당신은 동양풍 '운명상점'의 주인 '연화'입니다. 사주 명리 마스터로서 고풍스럽고 다정한 존댓말로 사주팔자·오행·신살(도화살·역마살·화개살·천을귀인 등)을 깊이 있고 따뜻하게 풀이해 주세요.",
-    "blood": "당신은 발랄하고 장난기 많은 혈액형 궁합 마스터 '루미'입니다. 친근한 반말과 귀여운 이모티콘(♥, ~)을 섞어 두 사람의 혈액형 케미와 연애 꿀팁을 재밌게 알려주세요.",
-    "zodiac": "당신은 반짝이는 별자리 천문 점성술사 '스텔라'입니다. 밝고 에너지 넘치는 말투로 별자리 운세와 성좌 궁합을 희망차게 들려주세요.",
-    "tarot": "당신은 신비로운 타로 리더 '셀레네'입니다. 차분하고 몽환적인 존댓말로 선택된 3장의 타로 카드(과거·현재·미래)가 이어지는 운명의 서사를 깊이 있게 해석해 주세요.",
-    "mbti": "당신은 따뜻한 MBTI 심리상담사 '하린'입니다. 공감 어린 다정한 말투로 두 사람의 성격 유형 궁합, 감정 소통법, 고민 해결 조언을 따뜻하게 전해 주세요.",
-    "face": "당신은 예리하고 우아한 젊은 관상가 '아린'입니다. 얼굴을 보고 어떤 동물/귀인 관상인지 짚어주고, 이마(초년운), 눈썹·눈(중년운·인복), 코(재물운), 입·하관(말년운)과 잘 어울리는 미래 배우자의 인상을 품격 있고 긍정적으로 풀이해 주세요.",
-    "palm": "당신은 신비로운 젊은 손금가 '서연'입니다. 손바닥의 생명선, 두뇌선, 감정선, 운명선을 다정하고 세밀하게 읽어 희망적인 조언을 건네주세요."
+    "saju": (
+        "당신은 운명상점의 주인이자 정통 명리학 마스터 '연화'입니다. 맑고 또렷한 젊은 여성 명리학자 말투로, "
+        "사주팔자(년·월·일·시주), 오행 균형, 일간 성향은 물론 도화살·역마살·화개살·천을귀인·현침살·백호대살·괴강살·홍염살·귀문관살·원진살·천덕귀인·문창귀인·양인살 등 "
+        "한국 정통 사주 사전의 다양한 신살과 길신을 깊이 있게 풀이해 줍니다."
+    ),
+    "blood": (
+        "당신은 통통 튀고 발랄한 혈액형 궁합 마스터 '루미'입니다. 밝고 경쾌한 에너지로 "
+        "연애 성향, 감정 표현 방식, 갈등 해결법, 찰떡 궁합 포인트를 구체적인 일상 예시와 함께 풍성하게 들려줍니다."
+    ),
+    "zodiac": (
+        "당신은 맑고 신비로운 별자리 천문 점성술사 '스텔라'입니다. 또렷하고 생기 있는 톤으로 "
+        "행성 배치, 원소 에너지, 연애·재물·인간관계의 흐름과 오늘의 행운 포인트를 깊이 있게 설명합니다."
+    ),
+    "tarot": (
+        "당신은 섬세하고 직관적인 타로 리더 '셀레네'입니다. 맑고 또렷한 어조로 "
+        "카드의 상징, 정방향/역방향 에너지, 현재 상황의 숨은 원인, 앞으로의 전개와 행동 가이드를 문단별로 깊이 있게 리딩합니다."
+    ),
+    "mbti": (
+        "당신은 똑 부러지고 친근한 MBTI 심리상담사 '하린'입니다. 명쾌하고 생동감 있는 젊은 톤으로 "
+        "인지기능(주기능·부기능), 연애 및 인간관계 패턴, 스트레스 해소법, 찰떡 파트너십 전략을 구체적으로 설명합니다."
+    ),
+    "face": (
+        "당신은 청동거울을 든 영리한 관상가 '아린'입니다. 맑고 또렷한 어조로 "
+        "이마(초년운)·눈과 눈썹(대인/애정운)·코(재물운)·입과 하관(말년운)을 입체적으로 풀이하고, 어울리는 미래 배우자 인상까지 상세히 알려줍니다."
+    ),
+    "palm": (
+        "당신은 황금 돋보기를 든 통찰력 있는 손금가 '서연'입니다. 경쾌하고 명쾌한 어조로 "
+        "생명선·두뇌선·감정선·운명선·재물선·결혼선의 흐름과 앞으로의 전환점을 알기 쉽게 상세히 풀이합니다."
+    ),
+    "sasang": (
+        "당신은 운명상점의 8번째 마스터이자 사상의학(四象醫學) 한의사 '다온'입니다. 옥빛 약병과 사상체질 두루마리를 들고, "
+        "밝고 명쾌하며 생기 있는 젊은 한의사 말투로 이제마 선생의 동의수세보원 사상의학(태양인·태음인·소양인·소음인)에 따라 "
+        "체형·골격·장부 대소·기질·맞춤 식단·운동·건강 관리법을 아주 상세하고 친절하게 풀이해 줍니다."
+    ),
 }
+
+RICH_FORMAT_GUIDE = (
+    "\n\n[출력 형식 필수 규칙 — 가독성 최우선]\n"
+    "1. 절대로 짧게 요약하지 말고, 최소 4~5개의 뚜렷한 소제목 문단으로 깊이 있고 풍성하게 작성하세요.\n"
+    "2. 각 소제목은 반드시 `[소제목]` 형태로 줄의 맨 앞에 쓰고, 소제목 아래에 2~4문장의 충분한 설명을 문단으로 작성하세요.\n"
+    "3. 각 문단에서 가장 중요한 핵심 키워드, 신살 이름, 체질 포인트, 행운 조언은 반드시 `**강조 텍스트**` 형태로 감싸서 눈에 띄게 표시하세요.\n"
+    "4. 문단과 문단 사이는 반드시 빈 줄(\n\n)로 띄워 모바일 화면에서도 한눈에 시원하게 읽히도록 구성하세요.\n"
+    "5. 캐릭터의 개성 있는 톤을 유지하되, 실제 도움이 되는 구체적인 분석과 현실 조언을 빠짐없이 담아주세요."
+)
 
 # ==================== UNIFIED DB LAYER (POSTGRESQL OR SQLITE) ====================
 def _adapt_sql(sql: str) -> str:
@@ -437,14 +473,32 @@ async def auth_logout(token: str = ""):
 # ==================== FORTUNE / CHAT / VISION / HISTORY ENDPOINTS ====================
 @app.post("/api/fortune")
 async def generate_fortune(req: FortuneRequest):
-    sys_prompt = CHARACTER_PROMPTS.get(req.character_id, CHARACTER_PROMPTS["saju"])
-    sys_prompt += "\n답변은 모바일 화면에서 읽기 좋게 마크다운 기호 없이 깔끔한 문단으로 4~6문장 이내로 구체적이고 생생하게 한국어로 작성하세요."
-    prompt = f"사용자 이름: {req.user_name}\n분야: {req.category}\n입력 정보: {req.details}"
-    if req.question:
-        prompt += f"\n사용자의 고민/질문: {req.question}"
-    prompt += "\n위 정보를 바탕으로 캐릭터의 개성을 살려 맞춤형 운세/궁합 풀이와 실질적인 행운 조언을 들려주세요."
+    sys_prompt = CHARACTER_PROMPTS.get(req.character_id, CHARACTER_PROMPTS["saju"]) + RICH_FORMAT_GUIDE
 
-    reading, model_name = await call_gemini(sys_prompt, [{"text": prompt}], max_tokens=750)
+    extra_guide = ""
+    if req.character_id == "saju":
+        extra_guide = (
+            "\n\n[사주 심층 풀이 필수 포함 항목]\n"
+            "- [타고난 일간과 오행 기운 분석]: 일간의 본질과 강한 오행/부족한 오행이 성격과 인생 흐름에 미치는 영향\n"
+            "- [핵심 신살(神殺) 및 길신 심층 해석]: 전달된 사주 정보에 포함된 신살·길신(도화살, 역마살, 화개살, 현침살, 백호대살, 괴강살, 홍염살, 귀문관살, 원진살, 천을귀인, 천덕귀인, 문창귀인, 양인살 등) 각각의 뜻과 현대적 활용법\n"
+            "- [재물운 · 직업 적성 · 연애/인연운]: 타고난 강점을 살릴 분야와 재물·인연이 열리는 타이밍\n"
+            "- [맞춤 개운법과 주의 포인트]: 부족한 오행을 채우는 색·습관·행동 지침"
+        )
+    elif req.character_id == "sasang":
+        extra_guide = (
+            "\n\n[사상의학 심층 풀이 필수 포함 항목]\n"
+            "- [체질 핵심 진단과 장부(臟腑) 특성]: 해당 체질(태양인/태음인/소양인/소음인)의 타고난 장부 대소와 에너지 순환 원리\n"
+            "- [신체·외형 특징 상세 분석]: 상체·하체 비율, 목덜미/허리/가슴/엉덩이 발달 특징, 얼굴 인상 및 체력 패턴\n"
+            "- [기질·성격 및 대인관계 강점]: 감정 흐름과 일·연애에서의 매력 포인트\n"
+            "- [맞춤 식단 · 추천 운동 · 건강 주의점]: 이로운 음식, 피해야 할 음식, 땀 관리 및 계절별 양생법"
+        )
+
+    prompt = f"사용자 이름: {req.user_name}\n상담 분야: {req.category}\n상세 입력 정보:\n{req.details}"
+    if req.question:
+        prompt += f"\n사용자 질문: {req.question}"
+    prompt += extra_guide + "\n\n위 정보를 바탕으로 캐릭터의 개성을 살려 깊이 있고 가독성 높은 맞춤형 풀이를 들려주세요."
+
+    reading, model_name = await call_gemini(sys_prompt, [{"text": prompt}], max_tokens=1850)
     now = datetime.datetime.now().isoformat(timespec="seconds")
     db_execute(
         "INSERT INTO fortune_history (user_id, category, user_name, input_summary, result_summary, full_content, score, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
@@ -455,7 +509,7 @@ async def generate_fortune(req: FortuneRequest):
 @app.post("/api/chat")
 async def chat_with_character(req: ChatRequest):
     sys_prompt = CHARACTER_PROMPTS.get(req.character_id, CHARACTER_PROMPTS["saju"])
-    sys_prompt += "\n답변은 모바일 대화창에 어울리게 2~4문장으로 자연스럽고 따뜻하게 한국어로 작성하세요."
+    sys_prompt += "\n답변은 모바일 대화창에 어울리게 3~5문장으로 친근하고 명쾌하게 작성하며, 핵심 포인트 1~2곳은 **강조**로 표시하세요."
     now = datetime.datetime.now().isoformat(timespec="seconds")
     db_execute("INSERT INTO chat_logs (user_id, character_id, role, content, created_at) VALUES (?, ?, 'user', ?, ?)", (req.user_id, req.character_id, req.message, now))
     if req.user_id:
@@ -463,34 +517,45 @@ async def chat_with_character(req: ChatRequest):
     else:
         recent = db_execute("SELECT role, content FROM chat_logs WHERE character_id = ? ORDER BY id DESC LIMIT 6", (req.character_id,), fetch="all")
     history_text = "\n".join(f"{'사용자' if r['role']=='user' else '상담사'}: {r['content']}" for r in reversed(recent or []))
-    reply, model_name = await call_gemini(sys_prompt, [{"text": f"사용자 이름: {req.user_name}\n\n[최근 대화]\n{history_text}"}], max_tokens=450)
+    reply, model_name = await call_gemini(sys_prompt, [{"text": f"사용자 이름: {req.user_name}\n\n[최근 대화]\n{history_text}"}], max_tokens=600)
     db_execute("INSERT INTO chat_logs (user_id, character_id, role, content, created_at) VALUES (?, ?, 'assistant', ?, ?)", (req.user_id, req.character_id, reply, datetime.datetime.now().isoformat(timespec="seconds")))
     return {"reply": reply, "model": model_name}
 
 @app.post("/api/vision")
 async def analyze_vision(req: VisionRequest):
-    is_face = req.character_id == "face"
-    sys_prompt = CHARACTER_PROMPTS["face" if is_face else "palm"]
+    char_id = req.character_id if req.character_id in ("face", "palm", "sasang") else "palm"
+    sys_prompt = CHARACTER_PROMPTS[char_id]
     spouse_label = "남성" if (req.spouse_gender or "M").upper() == "M" else "여성"
 
-    if is_face:
+    if char_id == "face":
         prompt = (
             f"사용자 이름: {req.user_name}. 희망 미래 배우자 성별: {spouse_label}. "
-            "이 얼굴 사진을 정밀하게 보고 사진 속 인물의 실제 특징에 맞춰 매번 다른 점수와 관상을 부여하여 아래 순수 JSON으로만 응답하세요(코드블록 금지): "
-            '{"face_type": "예: 귀인을 부르는 맑은 사슴상 / 카리스마 여우상 / 듬직한 호랑이상 / 우아한 봉황상 / 친화력 강아지상 중 사진에 가장 어울리는 표현", '
-            '"score": 76부터 98 사이의 정수(사진의 이목구비 균형과 생기에 따라 매번 다르게 평가), '
-            '"spouse_archetype": 0(온화·감성형), 1(세련·도시 카리스마형), 2(밝고 다정한 강아지상), 3(지적·듬직한 신뢰형) 중 이 얼굴과 가장 잘 어울리는 배우자 유형 숫자(0~3), '
-            '"analysis": "이마·눈매·코·하관 기반 초년·중년·말년 관상 풀이 (마크다운 없이 4~5문장)", '
-            '"spouse_desc": "이 관상과 가장 잘 어우러지는 미래 ' + spouse_label + ' 배우자의 이목구비 인상, 성격, 만나는 인연 포인트 (2~3문장)", '
+            "이 얼굴 사진을 정밀하게 보고 사진 속 인물의 실제 특징에 맞춰 아래 순수 JSON으로만 응답하세요(코드블록 금지): "
+            '{"face_type": "예: 귀인을 부르는 맑은 사슴상 / 카리스마 여우상 / 듬직한 호랑이상 / 우아한 봉황상 / 친화력 강아지상 중 가장 어울리는 표현", '
+            '"score": 76부터 98 사이의 정수, '
+            '"spouse_archetype": 0(온화·감성형), 1(세련·도시 카리스마형), 2(밝고 다정한 강아지상), 3(지적·듬직한 신뢰형) 중 숫자(0~3), '
+            '"analysis": "[초년운 · 이마와 눈썹]\n...\n\n[중년운 · 눈매와 코의 재물 기운]\n...\n\n[말년운 · 하관과 대인복]\n...\n\n[맞춤 개운 포인트]\n... 형식으로 4문단 이상 상세히 작성하고 핵심어는 **강조**로 표시", '
+            '"spouse_desc": "이 관상과 가장 잘 어우러지는 미래 ' + spouse_label + ' 배우자의 이목구비 인상, 성격, 만나는 인연 포인트 (3~4문장, 핵심어는 **강조** 표시)", '
             '"spouse_prompt": "Photorealistic warm candid portrait photograph of a charming Korean ' + ("man" if spouse_label == "남성" else "woman") + ' in their late 20s matching the complementary physiognomy traits above, soft natural lighting, 85mm lens"}'
+        )
+    elif char_id == "sasang":
+        prompt = (
+            f"사용자 이름: {req.user_name}. "
+            "이 전신 사진을 동의수세보원 사상의학(태양인·태음인·소양인·소음인) 체형 관점에서 정밀하게 관찰하여 아래 순수 JSON으로만 응답하세요(코드블록 금지): "
+            '{"sasang_key": "taeyang" 또는 "taeeum" 또는 "soyang" 또는 "soeum" 중 가장 부합하는 1개, '
+            '"sasang_type": "태양인(太陽人)" 또는 "태음인(太陰人)" 또는 "소양인(少陽人)" 또는 "소음인(少陰人)" 중 1개, '
+            '"score": 78부터 98 사이의 체질 일치도 정수, '
+            '"body_features": "전신 사진에서 관찰된 상체·어깨·가슴·허리·골반·하체 비율 및 전체 실루엣 특징을 3~4문장으로 상세히 설명(핵심어는 **강조**)", '
+            '"analysis": "[전신 체형 및 사상체질 판별 근거]\n...\n\n[타고난 신체적·해부학적 특징]\n...\n\n[기질과 에너지 순환 성향]\n...\n\n[맞춤 식습관·운동·건강 관리법]\n... 형식으로 4문단 이상 아주 상세히 작성하고 핵심어는 **강조**로 표시", '
+            '"health_diet": "이 체질에 이로운 음식, 피해야 할 음식, 추천 운동 루틴을 구체적으로 정리 (3~4문장, 핵심어는 **강조**)"}'
         )
     else:
         prompt = (
             f"사용자 이름: {req.user_name}. "
             "이 손바닥 사진을 정밀하게 보고 사진 속 손금 선의 실제 특징에 맞춰 아래 순수 JSON으로만 응답하세요(코드블록 금지): "
             '{"palm_type": "예: 재물과 귀인이 모이는 황금 운명선형 / 창의적 예술가 두뇌선형 / 활력 넘치는 대길 생명선형 등", '
-            '"score": 76부터 98 사이의 정수(손금 선의 선명도와 조화에 따라 실제 평가), '
-            '"analysis": "생명선·두뇌선·감정선·운명선과 앞으로의 재물·연애·건강 흐름을 마크다운 없이 4~5문장으로 상세하고 희망적으로 풀이"}'
+            '"score": 76부터 98 사이의 정수, '
+            '"analysis": "[생명선 · 타고난 체력과 활력]\n...\n\n[두뇌선 · 사고력과 직업 적성]\n...\n\n[감정선 · 연애와 인연의 결]\n...\n\n[운명선과 재물 흐름 · 개운 조언]\n... 형식으로 4문단 이상 상세히 작성하고 핵심어는 **강조**로 표시"}'
         )
     if req.question:
         prompt += f" 추가 질문: {req.question}"
@@ -503,52 +568,93 @@ async def analyze_vision(req: VisionRequest):
     raw_text, model_name = await call_gemini(
         sys_prompt,
         [{"text": prompt}, {"inlineData": {"mimeType": mime, "data": img_clean}}],
-        max_tokens=850
+        max_tokens=1500
     )
 
-    # Deterministic fallback hash from image bytes so scores/archetypes vary if JSON parse fails
     img_hash = sum(ord(c) for c in img_clean[:400:7]) if img_clean else 17
     face_type = ""
     palm_type = ""
+    sasang_key = ""
+    sasang_type = ""
+    body_features = ""
+    health_diet = ""
     analysis = raw_text
     spouse_desc = ""
     spouse_prompt = ""
     score = 80 + (img_hash % 17)
     spouse_archetype = img_hash % 4
 
+    sasang_keys = ["taeyang", "taeeum", "soyang", "soeum"]
+    sasang_labels = {
+        "taeyang": "태양인(太陽人)",
+        "taeeum": "태음인(太陰人)",
+        "soyang": "소양인(少陽人)",
+        "soeum": "소음인(少陰人)",
+    }
+
     try:
         cleaned = raw_text.strip()
         if "{" in cleaned and "}" in cleaned:
             cleaned = cleaned[cleaned.find("{"):cleaned.rfind("}") + 1]
         parsed = json.loads(cleaned)
-        if is_face:
+        if char_id == "face":
             face_type = parsed.get("face_type", "맑고 복된 귀인상")
             analysis = parsed.get("analysis", raw_text)
             spouse_desc = parsed.get("spouse_desc", "")
             spouse_prompt = parsed.get("spouse_prompt", "")
             if isinstance(parsed.get("spouse_archetype"), int):
                 spouse_archetype = max(0, min(3, parsed["spouse_archetype"]))
+        elif char_id == "sasang":
+            sk = str(parsed.get("sasang_key", "")).strip().lower()
+            if sk not in sasang_labels:
+                st = str(parsed.get("sasang_type", ""))
+                if "태양" in st: sk = "taeyang"
+                elif "태음" in st: sk = "taeeum"
+                elif "소양" in st: sk = "soyang"
+                elif "소음" in st: sk = "soeum"
+                else: sk = sasang_keys[img_hash % 4]
+            sasang_key = sk
+            sasang_type = parsed.get("sasang_type") or sasang_labels[sk]
+            body_features = parsed.get("body_features", "")
+            health_diet = parsed.get("health_diet", "")
+            analysis = parsed.get("analysis", raw_text)
         else:
             palm_type = parsed.get("palm_type", "균형 잡힌 황금 운명선형")
             analysis = parsed.get("analysis", raw_text)
         if isinstance(parsed.get("score"), (int, float)):
             score = max(72, min(99, int(parsed["score"])))
     except Exception:
-        if is_face:
+        if char_id == "face":
             face_type = "맑고 복된 귀인상"
+        elif char_id == "sasang":
+            sasang_key = sasang_keys[img_hash % 4]
+            sasang_type = sasang_labels[sasang_key]
         else:
             palm_type = "균형 잡힌 황금 운명선형"
 
     now = datetime.datetime.now().isoformat(timespec="seconds")
-    full_txt = f"[{face_type}] ({score}점)\n{analysis}\n\n[미래 배우자] {spouse_desc}" if is_face else f"[{palm_type}] ({score}점)\n{analysis}"
+    if char_id == "face":
+        cat_label = "관상"
+        full_txt = f"[{face_type}] ({score}점)\n{analysis}\n\n[미래 배우자] {spouse_desc}"
+    elif char_id == "sasang":
+        cat_label = "사상의학"
+        full_txt = f"[{sasang_type}] (체질 일치도 {score}%)\n{body_features}\n\n{analysis}\n\n[맞춤 양생법] {health_diet}"
+    else:
+        cat_label = "손금"
+        full_txt = f"[{palm_type}] ({score}점)\n{analysis}"
+
     db_execute(
         "INSERT INTO fortune_history (user_id, category, user_name, input_summary, result_summary, full_content, score, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        (req.user_id, "관상" if is_face else "손금", req.user_name, req.question or "사진 업로드 분석", analysis[:180], full_txt, score, now)
+        (req.user_id, cat_label, req.user_name, req.question or "사진 업로드 분석", analysis[:180], full_txt, score, now)
     )
     return {
         "analysis": analysis,
         "face_type": face_type,
         "palm_type": palm_type,
+        "sasang_key": sasang_key,
+        "sasang_type": sasang_type,
+        "body_features": body_features,
+        "health_diet": health_diet,
         "score": score,
         "spouse_archetype": spouse_archetype,
         "spouse_desc": spouse_desc,
