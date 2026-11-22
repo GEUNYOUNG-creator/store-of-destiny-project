@@ -1,0 +1,17 @@
+{
+  "appId": "com.storeofdestiny.app",
+  "appName": "운명상점",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#0c101a",
+    "allowMixedContent": false,
+    "captureInput": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 800,
+      "backgroundColor": "#0c101a",
+      "showSpinner": false
+    }
+  }
+}

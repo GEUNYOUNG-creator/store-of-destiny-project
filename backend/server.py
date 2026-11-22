@@ -900,6 +900,15 @@ def serve_spouse_portrait(filename: str):
         raise HTTPException(status_code=404, detail="Spouse portrait not found")
     return FileResponse(p, media_type="image/jpeg")
 
+
+@app.get("/privacy")
+def serve_privacy_policy():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "..", "privacy.html"), media_type="text/html")
+
+@app.get("/delete-account")
+def serve_delete_account():
+    return FileResponse(os.path.join(os.path.dirname(__file__), "..", "delete-account.html"), media_type="text/html")
+
 @app.get("/opening.mp4")
 def serve_opening_video():
     return FileResponse(os.path.join(os.path.dirname(__file__), "..", "opening.mp4"), media_type="video/mp4")

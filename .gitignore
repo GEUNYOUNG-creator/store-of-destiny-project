@@ -2,3 +2,10 @@
 Thumbs.db
 *.log
 node_modules/
+www/
+android/
+ios/
+*.aab
+*.apk
+*.keystore
+*.jks
