@@ -3454,7 +3454,7 @@
       const isMini = state.modelMode === 'mini' && !!(CHARACTERS[state.currentIdx]?.pet);
       this.stop();
       const seq = this.reqSeq;
-      const url = `./assets/voices/${cid}_${kind}.mp3`;
+      const url = `./assets/voices/${cid}_${kind}.mp3?v=2`;
       const audio = new Audio(url);
       audio.volume = 1.0;
       // Subtle youthful lift for mini-pet mode while keeping studio clarity
