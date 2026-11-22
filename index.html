@@ -5319,33 +5319,6 @@ ${sinsalRichList}
         b.className = `blood-me-btn py-1.5 rounded-lg text-xs ${active ? 'font-extrabold border-2 border-rose-500 bg-rose-500 text-white shadow-sm' : 'font-bold border border-pink-300 bg-pink-50 text-rose-900'}`;
       });
     
-    showToast(state.voiceEnabled ? '캐릭터 보이스가 켜졌어요 🗣️' : '캐릭터 보이스가 꺼졌어요 🔇');
-  });
-  document.getElementById('btn-voice-speak')?.addEventListener('click', () => {
-    if (voiceEngine.speaking) {
-      voiceEngine.stop();
-      return;
-    }
-    if (!state.voiceEnabled) {
-      state.voiceEnabled = true;
-      syncVoiceToggleUI();
-    }
-    const curText = speechBubble?.textContent || '';
-    const char = CHARACTERS[state.currentIdx];
-    const prof = CHARACTER_VOICE_PROFILES[char.id];
-    voiceEngine.speak(curText, char.id);
-    if (prof) showToast(`🗣️ ${prof.label}`);
-  });
-  speechBubble?.addEventListener('click', () => {
-    if (state.voiceEnabled) {
-      setTimeout(() => {
-        const curText = speechBubble?.textContent || '';
-        const char = CHARACTERS[state.currentIdx];
-        if (curText && char) voiceEngine.speak(curText, char.id);
-      }, 60);
-    }
-  });
-  syncVoiceToggleUI();
 
   renderBloodResult(false);
     });
@@ -8230,6 +8203,33 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
     state.voiceEnabled = !state.voiceEnabled;
     if (!state.voiceEnabled) voiceEngine.stop();
     syncVoiceToggleUI();
+    showToast(state.voiceEnabled ? '캐릭터 보이스가 켜졌어요 🗣️' : '캐릭터 보이스가 꺼졌어요 🔇');
+  });
+  document.getElementById('btn-voice-speak')?.addEventListener('click', () => {
+    if (voiceEngine.speaking) {
+      voiceEngine.stop();
+      return;
+    }
+    if (!state.voiceEnabled) {
+      state.voiceEnabled = true;
+      syncVoiceToggleUI();
+    }
+    const curText = speechBubble?.textContent || '';
+    const char = CHARACTERS[state.currentIdx];
+    const prof = CHARACTER_VOICE_PROFILES[char.id];
+    voiceEngine.speak(curText, char.id);
+    if (prof) showToast(`🗣️ ${prof.label}`);
+  });
+  speechBubble?.addEventListener('click', () => {
+    if (state.voiceEnabled) {
+      setTimeout(() => {
+        const curText = speechBubble?.textContent || '';
+        const char = CHARACTERS[state.currentIdx];
+        if (curText && char) voiceEngine.speak(curText, char.id);
+      }, 60);
+    }
+  });
+  syncVoiceToggleUI();
 
   goToCharacter(0, true);
   renderBloodResult(false);
