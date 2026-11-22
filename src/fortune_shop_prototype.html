@@ -1105,10 +1105,16 @@
 
   <!-- ==================== TOP APP HEADER ==================== -->
   <header class="relative z-30 flex items-center justify-between px-3.5 pt-3 pb-2 bg-gradient-to-b from-black/75 via-black/40 to-transparent">
-    <button id="btn-open-auth" type="button" title="로그인 및 내 운세 기록" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/55 border border-[#e6c67c]/55 text-[11px] font-semibold text-[#f7e5be] hover:bg-black/75 transition">
-      <span id="auth-btn-icon">👤</span>
-      <span id="auth-btn-label">로그인</span>
-    </button>
+    <div class="flex flex-col items-start gap-1">
+      <button id="btn-open-auth" type="button" title="로그인 및 내 운세 기록" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/55 border border-[#e6c67c]/55 text-[11px] font-semibold text-[#f7e5be] hover:bg-black/75 transition">
+        <span id="auth-btn-icon">👤</span>
+        <span id="auth-btn-label">로그인</span>
+      </button>
+      <button id="btn-open-plus-top" type="button" title="운명플러스 구독 및 이용권" class="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500/30 to-emerald-500/25 border border-amber-300/60 text-[10px] font-bold text-[#fde68a] hover:brightness-110 active:scale-95 transition">
+        <span>👑</span>
+        <span>운명플러스</span>
+      </button>
+    </div>
 
     <div class="text-center">
       <h1 class="font-serif-kr text-[19px] font-bold tracking-wider text-[#f8e5ba] drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">운명 상점</h1>
@@ -2021,14 +2027,6 @@
           <button id="btn-toggle-voice" type="button" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/30 text-emerald-100 border border-emerald-400/60 min-w-[72px]">켜짐</button>
         </div>
 
-        <div class="flex items-center justify-between bg-gradient-to-r from-amber-500/20 to-emerald-500/20 border border-amber-300/45 rounded-xl p-3.5">
-          <div>
-            <div class="text-xs font-bold text-[#fae8bf]">👑 운명플러스 · 이용권 관리</div>
-            <div class="text-[10.5px] text-slate-300">광고 제거 및 심층 풀이 무제한 패스 확인</div>
-          </div>
-          <button id="btn-open-plus-from-settings" type="button" class="px-3 py-1.5 rounded-full text-xs font-bold bg-[#e6c67c] text-[#1a140d] shadow active:scale-95 transition shrink-0">열기</button>
-        </div>
-
         <div class="flex items-center justify-between bg-gradient-to-r from-[#154d48]/40 to-[#2e1f4d]/40 border border-[#e6c67c]/35 rounded-xl p-3.5">
           <div>
             <div class="text-xs font-bold text-[#fae8bf]">📲 홈 화면에 앱으로 설치 (PWA)</div>
@@ -2072,21 +2070,11 @@
           </button>
         </div>
 
-        <div class="flex items-center gap-2 pt-1">
-          <span class="h-[1px] flex-1 bg-white/15"></span>
-          <span class="text-[10.5px] text-slate-400">또는 이메일 계정 (DB 저장)</span>
-          <span class="h-[1px] flex-1 bg-white/15"></span>
-        </div>
-
-        <div class="space-y-2 bg-white/5 border border-white/10 rounded-xl p-3">
-          <input id="auth-email" type="email" placeholder="이메일 주소 (예: user@example.com)" class="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#e6c67c]" />
-          <input id="auth-password" type="password" placeholder="비밀번호 (4자 이상)" class="w-full px-3 py-2 rounded-lg bg-black/40 border border-white/15 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#e6c67c]" />
-          <div class="grid grid-cols-2 gap-2 pt-0.5">
-            <button id="btn-email-login" type="button" class="py-2 rounded-lg bg-[#154d48] text-[#fae9c3] border border-[#e6c67c]/55 font-bold text-xs active:scale-95 transition">이메일 로그인</button>
-            <button id="btn-email-register" type="button" class="py-2 rounded-lg bg-white/10 text-amber-100 border border-white/20 font-bold text-xs active:scale-95 transition">회원가입</button>
-          </div>
-          <div id="auth-db-badge" class="text-[10.5px] text-emerald-300/85 text-center pt-0.5">DB 저장소 상태 확인 중…</div>
-        </div>
+        <button id="btn-open-plus-from-auth" type="button" class="w-full py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-amber-500/25 to-emerald-500/20 border border-amber-300/55 flex items-center justify-between active:scale-[0.98] transition">
+          <span class="text-xs font-extrabold text-[#fae8bf]">👑 운명플러스 · 이용권 관리</span>
+          <span class="text-[10.5px] font-bold text-emerald-200">광고 제거 · 무제한 ›</span>
+        </button>
+        <div id="auth-db-badge" class="text-[10.5px] text-emerald-300/85 text-center pt-0.5">DB 저장소 상태 확인 중…</div>
       </div>
 
       <!-- Logged-in View & Saved DB History -->
@@ -2101,6 +2089,11 @@
           </div>
           <button id="btn-logout" type="button" class="px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-[11px] font-semibold text-slate-200 hover:bg-white/20">로그아웃</button>
         </div>
+
+        <button id="btn-open-plus-from-auth-in" type="button" class="w-full py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-amber-500/25 to-emerald-500/20 border border-amber-300/55 flex items-center justify-between active:scale-[0.98] transition">
+          <span class="text-xs font-extrabold text-[#fae8bf]">👑 운명플러스 · 이용권 관리</span>
+          <span class="text-[10.5px] font-bold text-emerald-200">광고 제거 · 무제한 ›</span>
+        </button>
 
         <div class="flex items-center justify-between">
           <div class="text-xs font-bold text-[#fae6b8]">📜 내가 본 운세 기록 (DB 저장)</div>
@@ -4330,9 +4323,11 @@
 
   document.getElementById('btn-buy-plus')?.addEventListener('click', () => handleStorePurchase('destiny_plus_monthly'));
   document.getElementById('btn-buy-tickets')?.addEventListener('click', () => handleStorePurchase('destiny_tickets_5'));
-  document.getElementById('btn-open-plus-from-settings')?.addEventListener('click', () => {
-    document.getElementById('settings-drawer')?.classList.remove('open');
-    openPlusPaywall('', null);
+  ['btn-open-plus-top', 'btn-open-plus-from-auth', 'btn-open-plus-from-auth-in'].forEach(id => {
+    document.getElementById(id)?.addEventListener('click', () => {
+      document.getElementById('auth-drawer')?.classList.remove('open');
+      openPlusPaywall('', null);
+    });
   });
 
   syncPaywallUI();
@@ -8194,8 +8189,8 @@ ${pp.txt}`);
             <div><strong class="text-amber-200">조회 일시:</strong> ${(rec.created_at || '').replace('T', ' ')}</div>
             <div class="mt-0.5"><strong class="text-amber-200">입력 정보:</strong> ${rec.input_summary || '-'}</div>
           </div>
-          <div class="bg-[#154d48]/25 border border-[#e6c67c]/35 rounded-xl p-3.5 text-xs text-slate-100 leading-relaxed whitespace-pre-line">
-            ${rec.full_content || rec.result_summary || ''}
+          <div class="bg-[#154d48]/25 border border-[#e6c67c]/35 rounded-xl p-3.5">
+            ${formatRichReadingHtml(rec.full_content || rec.result_summary || '', 'gold')}
           </div>
         `);
       });
@@ -8303,8 +8298,8 @@ ${pp.txt}`);
 
   document.getElementById('btn-login-google').addEventListener('click', () => handleSocialLogin('google'));
   document.getElementById('btn-login-kakao').addEventListener('click', () => handleSocialLogin('kakao'));
-  document.getElementById('btn-email-login').addEventListener('click', () => handleEmailAuth('login'));
-  document.getElementById('btn-email-register').addEventListener('click', () => handleEmailAuth('register'));
+  document.getElementById('btn-email-login')?.addEventListener('click', () => handleEmailAuth('login'));
+  document.getElementById('btn-email-register')?.addEventListener('click', () => handleEmailAuth('register'));
   document.getElementById('btn-logout').addEventListener('click', () => {
     const tok = localStorage.getItem('fortune_shop_token');
     if (tok && state.liveApiEnabled && state.apiBaseUrl) {

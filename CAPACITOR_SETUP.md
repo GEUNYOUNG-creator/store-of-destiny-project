@@ -27,3 +27,9 @@ npx cap sync android
 npx cap open android
 ```
 Android Studio → **Build → Generate Signed App Bundle / APK → Android App Bundle (.aab)** 생성 후 Google Play Console에 업로드하시면 됩니다.
+
+## 5. Supabase 영구 DB & Google·카카오 실로그인 연결 (Render 환경변수)
+Render 대시보드 → **Environment**에 아래 환경변수를 등록하면 Google/카카오 실계정 로그인과 운세 기록 영구 저장이 즉시 연동됩니다.
+- `DATABASE_URL`: Supabase 프로젝트 → Connect → Transaction/Session Pooler URI (`postgresql://...`)
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`: Google Cloud Console OAuth 클라이언트 (Redirect URI: `https://store-of-destiny-project.onrender.com/api/auth/google/callback`)
+- `KAKAO_CLIENT_ID`: Kakao Developers REST API 키 (Redirect URI: `https://store-of-destiny-project.onrender.com/api/auth/kakao/callback`)
