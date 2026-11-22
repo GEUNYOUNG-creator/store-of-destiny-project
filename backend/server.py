@@ -185,7 +185,7 @@ def init_db():
         db_execute(s)
     # Safe column migration for existing SQLite DBs
     if not USE_PG:
-        for tbl, col in [("fortune_history", "user_id TEXT"), ("fortune_history", "full_content TEXT"), ("chat_logs", "user_id TEXT")]:
+        for tbl, col in [("fortune_history", "user_id TEXT"), ("fortune_history", "full_content TEXT"), ("chat_logs", "user_id TEXT"), ("users", "plan TEXT DEFAULT 'free'"), ("users", "plus_expires_at TEXT DEFAULT ''"), ("users", "ticket_count INTEGER DEFAULT 0")]:
             try:
                 db_execute(f"ALTER TABLE {tbl} ADD COLUMN {col}")
             except Exception:
@@ -830,6 +830,33 @@ def serve_character_voice(filename: str):
     if not os.path.exists(p):
         raise HTTPException(status_code=404, detail="Voice file not found")
     return FileResponse(p, media_type="audio/mpeg")
+
+
+@app.get("/api/user/entitlement")
+async def get_user_entitlement(user_id: Optional[str] = None):
+    if not user_id:
+        return {"plan": "free", "is_plus": False, "plus_expires_at": "", "ticket_count": 0}
+    try:
+        row = db_execute("SELECT plan, plus_expires_at, ticket_count FROM users WHERE id = ?", (user_id,), fetch="one")
+        if not row:
+            return {"plan": "free", "is_plus": False, "plus_expires_at": "", "ticket_count": 0}
+        plan = (row.get("plan") or "free").lower()
+        return {
+            "plan": plan,
+            "is_plus": plan == "plus",
+            "plus_expires_at": row.get("plus_expires_at") or "",
+            "ticket_count": int(row.get("ticket_count") or 0)
+        }
+    except Exception:
+        return {"plan": "free", "is_plus": False, "plus_expires_at": "", "ticket_count": 0}
+
+@app.get("/src/assets/spouses/{filename}")
+def serve_spouse_portrait(filename: str):
+    safe = os.path.basename(filename)
+    p = os.path.join(os.path.dirname(__file__), "..", "src", "assets", "spouses", safe)
+    if not os.path.exists(p):
+        raise HTTPException(status_code=404, detail="Spouse portrait not found")
+    return FileResponse(p, media_type="image/jpeg")
 
 @app.get("/opening.mp4")
 def serve_opening_video():
