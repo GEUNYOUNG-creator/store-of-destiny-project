@@ -1137,15 +1137,7 @@
     <div class="absolute inset-x-0 bottom-0 h-20 pointer-events-none bg-gradient-to-t from-[#0c101a] via-[#0c101a]/45 to-transparent z-[16]"></div>
 
     <!-- Stage sightline kept clean; Model Mode & GLB Loader moved into Settings Drawer -->
-
-    <button id="btn-stage-prev" type="button" aria-label="이전 캐릭터" class="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/45 border border-[#e6c67c]/45 text-[#f7e5be] flex items-center justify-center hover:bg-black/70 transition">
-      ‹
-    </button>
-    <button id="btn-stage-next" type="button" aria-label="다음 캐릭터" class="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-black/45 border border-[#e6c67c]/45 text-[#f7e5be] flex items-center justify-center hover:bg-black/70 transition">
-      ›
-    </button>
-
-    <div id="char-badge">
+<div id="char-badge">
       <div id="badge-role" class="text-[10px] font-semibold tracking-wider text-[#e6c67c]">운명상점 주인 · 사주 명리</div>
       <div id="badge-name" class="font-serif-kr text-sm font-bold text-white leading-tight">연화</div>
     </div>
@@ -1822,9 +1814,8 @@
   <!-- ==================== CRYSTAL ORB SWIPE CONTROLLER (Ref Photo) ==================== -->
   <nav id="orb-dock" aria-label="옥구슬 캐릭터 컨트롤러">
     <!-- Top Indicator Dots & Mode Label -->
-    <div class="w-full flex items-center justify-between px-1 mb-1">
-      <button id="btn-orb-prev" type="button" class="text-[11px] font-semibold text-[#e6c67c]/85 px-2 py-0.5 rounded-full bg-white/5 border border-[#e6c67c]/25 hover:bg-white/10">‹ 이전</button>
-      <div class="flex flex-col items-center">
+    <div class="w-full flex items-center justify-center px-1 mb-1">
+<div class="flex flex-col items-center">
         <div class="flex items-center gap-1.5" id="orb-dots">
           <span class="orb-dot active" data-dot-idx="0"></span>
           <span class="orb-dot" data-dot-idx="1"></span>
@@ -1838,17 +1829,16 @@
         </div>
         <div id="orb-status-label" class="text-[10px] font-serif-kr font-semibold text-[#f5dfb0] mt-1">사주 · 연화 (마스터)</div>
       </div>
-      <button id="btn-orb-next" type="button" class="text-[11px] font-semibold text-[#e6c67c]/85 px-2 py-0.5 rounded-full bg-white/5 border border-[#e6c67c]/25 hover:bg-white/10">다음 ›</button>
-    </div>
+</div>
 
     <!-- Central Interactive 3D Jade Crystal Orb -->
     <div class="w-full flex items-center justify-center gap-4 pt-3">
       <div class="text-right text-[10px] text-[#e6c67c]/70 leading-tight w-20">
         <div>◀ 좌우 스와이프</div>
-        <div class="text-[#f7e7c4]/90 font-semibold">캐릭터 변경</div>
+        <div class="text-[#f7e7c4]/90 font-semibold">탭: 네비게이터</div>
       </div>
 
-      <button id="magic-orb" type="button" title="좌우 스와이프: 캐릭터 변경 / 위아래 스와이프: 미니 펫 전환 / 탭: 운세 보기">
+      <button id="magic-orb" type="button" title="탭: 9인 캐릭터 네비게이터 / 좌우 스와이프: 캐릭터 변경 / 위아래 스와이프: 미니 펫 전환">
         <div id="orb-3d-canvas"></div>
         <div id="orb-overlay-text">
           <span id="orb-center-icon" class="text-lg leading-none">☯</span>
@@ -1879,6 +1869,25 @@
         <input id="chat-input" type="text" placeholder="고민이나 운세 질문을 입력해 보세요..." class="flex-1 px-3 py-2 rounded-xl bg-white/10 border border-[#e6c67c]/35 text-xs text-white focus:outline-none placeholder-slate-400" />
         <button type="submit" class="px-3.5 py-2 rounded-xl bg-[#154d48] border border-[#e6c67c]/70 text-xs font-bold text-[#fae8bf] active:scale-95 transition">전송</button>
       </form>
+    </div>
+  </div>
+
+
+  <!-- ==================== 9-CHARACTER CRYSTAL ORB NAVIGATOR DRAWER ==================== -->
+  <div id="char-nav-drawer" class="drawer-backdrop" role="dialog" aria-modal="true" aria-label="운명상점 캐릭터 네비게이터">
+    <div class="drawer-sheet space-y-3 overflow-y-auto max-h-[82vh]">
+      <div class="w-10 h-1 bg-white/25 rounded-full mx-auto"></div>
+      <div class="flex items-center justify-between gap-2">
+        <div>
+          <div class="text-[10px] font-bold tracking-wider text-emerald-300 uppercase">Crystal Orb Navigator</div>
+          <h3 class="font-serif-kr text-base font-bold text-[#fae6b8]">🔮 운명상점 캐릭터 네비게이터</h3>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button id="btn-nav-toggle-mode" type="button" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-violet-500/25 border border-violet-300/50 text-violet-100 active:scale-95 transition">🐾 미니펫 전환</button>
+          <button id="btn-close-char-nav" type="button" class="w-8 h-8 rounded-full bg-white/10 text-white/80 flex items-center justify-center">✕</button>
+        </div>
+      </div>
+      <div id="char-nav-grid" class="grid grid-cols-3 gap-2 pb-1"></div>
     </div>
   </div>
 
@@ -3359,6 +3368,78 @@
     dream:  { label: '몽화 · 맑고 영롱한 꿈 해몽 톤' }
   };
 
+
+  /* ==================== MINI PET CUTE SINGLE-NOTE SIGNATURE SOUNDS (NO HUMAN VOICE) ==================== */
+  function playPetSignatureSound(charId) {
+    if (!state.sfxEnabled && !state.voiceEnabled) return;
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') {
+      try { ctx.resume(); } catch (_) {}
+    }
+    const now = ctx.currentTime;
+
+    function tone(type, fStart, fEnd, dur, vol, delay = 0, qFreq = 1800) {
+      const t0 = now + delay;
+      const o = ctx.createOscillator();
+      const filter = ctx.createBiquadFilter();
+      const g = ctx.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(fStart, t0);
+      o.frequency.exponentialRampToValueAtTime(Math.max(60, fEnd), t0 + dur);
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(qFreq, t0);
+      filter.Q.value = 1.6;
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.linearRampToValueAtTime(vol, t0 + Math.min(0.025, dur * 0.25));
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+      o.connect(filter);
+      filter.connect(g);
+      g.connect(ctx.destination);
+      o.start(t0);
+      o.stop(t0 + dur + 0.03);
+    }
+
+    switch (charId) {
+      case 'mbti':
+      case 'face':
+        // 강아지·복여우: 경쾌한 "왈!" 단음
+        tone('sawtooth', 420, 680, 0.055, 0.16, 0, 1100);
+        tone('triangle', 660, 260, 0.085, 0.18, 0.045, 950);
+        break;
+      case 'blood':
+      case 'tarot':
+        // 아기 고양이·박쥐: 귀여운 "야옹!" 짧은 단음
+        tone('triangle', 580, 880, 0.09, 0.16, 0, 1500);
+        tone('sine', 860, 620, 0.12, 0.14, 0.085, 1300);
+        break;
+      case 'zodiac':
+        // 별빛 부엉이: 맑은 "후~!" 짧은 단음
+        tone('sine', 640, 520, 0.14, 0.17, 0, 900);
+        tone('sine', 1280, 1040, 0.09, 0.06, 0.03, 1800);
+        break;
+      case 'palm':
+        // 다람쥐·햄스터: 통통 "찍찍!" 빠른 이중 단음
+        tone('sine', 1250, 1780, 0.055, 0.13, 0, 2200);
+        tone('sine', 1320, 1880, 0.055, 0.12, 0.075, 2200);
+        break;
+      case 'sasang':
+        // 약초 사슴 초롱이: 맑은 "삐용!" 아기 사슴 + 옥방울 단음
+        tone('triangle', 740, 1180, 0.11, 0.15, 0, 1700);
+        tone('sine', 1568, 1568, 0.16, 0.07, 0.05, 2400);
+        break;
+      case 'dream':
+        // 달빛 구름여우 구름이: 포근한 "큐~!" 아기 여우 단음
+        tone('sine', 690, 1080, 0.09, 0.16, 0, 1600);
+        tone('triangle', 1050, 860, 0.08, 0.10, 0.08, 1500);
+        break;
+      default:
+        // 사주 미니 펫: 청아한 "띠링!" 옥구슬 단음
+        tone('sine', 988, 1318, 0.12, 0.14, 0, 2000);
+        break;
+    }
+  }
+
   const voiceEngine = {
     speaking: false,
     currentAudio: null,
@@ -3389,16 +3470,18 @@
     playStudioClip(charId, kind = 'greet') {
       if (!state.voiceEnabled) return;
       const cid = charId || (CHARACTERS[state.currentIdx]?.id || 'saju');
-      const isMini = state.modelMode === 'mini' && !!(CHARACTERS[state.currentIdx]?.pet);
+      // 미니 캐릭터 모드에서는 사람 보이스 완전 차단 -> 동물/미니펫 전용 짧은 단음만 재생!
+      if (state.modelMode === 'mini') {
+        this.stop();
+        playPetSignatureSound(cid);
+        return;
+      }
       this.stop();
       const seq = this.reqSeq;
       const url = `./assets/voices/${cid}_${kind}.mp3?v=2`;
       const audio = new Audio(url);
       audio.volume = 1.0;
-      if (isMini) {
-        audio.preservesPitch = false;
-        audio.playbackRate = 1.12;
-      }
+
       this.currentAudio = audio;
       audio.onplay = () => { if (seq === this.reqSeq) this.setSpeakingUI(true); };
       audio.onended = () => { if (seq === this.reqSeq) this.setSpeakingUI(false); };
@@ -4246,31 +4329,48 @@
     }
   }
 
-  // ---- TRUE THREE.JS 3D CRYSTAL ORB (RIGID SPHERE, ZERO MORPHING, REAL 3D ROLLING!) ----
-  let orbRenderer, orbScene, orbCam, orbGroup, orbShellMat, orbCoreMat, orbInnerGlowMat, orbRingMesh;
-  const orbSpin = { velX: 0, velY: 0.008 };
+  // ---- OPENING-STYLE DETAILED 3D JADE CRYSTAL ORB (RIGID SPHERE, ZERO MORPHING, SWIRLING NEBULA + PEDESTAL) ----
+  let orbRenderer, orbScene, orbCam, orbGroup, orbShellMat, orbCoreMat, orbInnerGlowMat, orbRingMesh, orbSwirlGroup, orbDustPts;
+  const orbSpin = { velX: 0, velY: 0.006 };
 
   function makeOrbMarbleTexture(isMini) {
     const c = document.createElement('canvas');
-    c.width = 256; c.height = 128;
+    c.width = 512; c.height = 256;
     const g = c.getContext('2d');
-    const bg = g.createLinearGradient(0, 0, 256, 128);
+    const bg = g.createLinearGradient(0, 0, 512, 256);
     if (isMini) {
-      bg.addColorStop(0, '#5d329e');
-      bg.addColorStop(0.5, '#b685f7');
-      bg.addColorStop(1, '#45207a');
+      bg.addColorStop(0, '#3a1d6e');
+      bg.addColorStop(0.45, '#8f63d6');
+      bg.addColorStop(0.75, '#d2b2ff');
+      bg.addColorStop(1, '#2b1354');
     } else {
-      bg.addColorStop(0, '#7ba892');
-      bg.addColorStop(0.5, '#e8f5df');
-      bg.addColorStop(1, '#68917d');
+      // Exact opening celadon-jade crystal palette from opening.mp4!
+      bg.addColorStop(0, '#2a5f50');
+      bg.addColorStop(0.35, '#7cc8a8');
+      bg.addColorStop(0.65, '#e8f9dc');
+      bg.addColorStop(1, '#275749');
     }
     g.fillStyle = bg;
-    g.fillRect(0, 0, 256, 128);
-    // Soft internal misty jade/amethyst veins so 3D rotation is visibly felt!
-    for (let i = 0; i < 18; i++) {
-      const x = Math.random() * 256, y = Math.random() * 128, r = 18 + Math.random() * 34;
+    g.fillRect(0, 0, 512, 256);
+
+    // Luminous swirling golden-emerald nebula ribbons inside the crystal orb
+    for (let i = 0; i < 6; i++) {
+      g.save();
+      g.strokeStyle = isMini
+        ? `rgba(255, 224, 255, ${0.28 + i * 0.05})`
+        : `rgba(255, 244, 194, ${0.32 + i * 0.06})`;
+      g.lineWidth = 6 + (i % 3) * 4;
+      g.beginPath();
+      const yBase = 48 + i * 30;
+      g.moveTo(0, yBase);
+      g.bezierCurveTo(140, yBase - 45, 340, yBase + 45, 512, yBase);
+      g.stroke();
+      g.restore();
+    }
+    for (let i = 0; i < 24; i++) {
+      const x = Math.random() * 512, y = Math.random() * 256, r = 16 + Math.random() * 44;
       const rad = g.createRadialGradient(x, y, 2, x, y, r);
-      rad.addColorStop(0, isMini ? 'rgba(255,220,255,0.42)' : 'rgba(255,255,245,0.48)');
+      rad.addColorStop(0, isMini ? 'rgba(255,230,255,0.45)' : 'rgba(254,249,215,0.52)');
       rad.addColorStop(1, 'rgba(255,255,255,0)');
       g.fillStyle = rad;
       g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill();
@@ -4281,89 +4381,157 @@
     return tex;
   }
 
-  let orbTexPlus, orbTexMini;
+  let orbTexPlus, orbTexMini, orbRibbonMat;
   function initOrb3D() {
     const host = document.getElementById('orb-3d-canvas');
     if (typeof THREE === 'undefined' || !host) return;
     orbScene = new THREE.Scene();
     orbCam = new THREE.PerspectiveCamera(34, 1, 0.1, 20);
-    orbCam.position.set(0, 0, 3.6);
+    orbCam.position.set(0, 0.08, 3.75);
 
     try {
       orbRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     } catch (e) { return; }
     orbRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    orbRenderer.setSize(108, 108);
+    orbRenderer.setSize(112, 112);
     orbRenderer.outputEncoding = THREE.sRGBEncoding;
     host.innerHTML = '';
     host.appendChild(orbRenderer.domElement);
 
-    // Crisp 3-point specular glass lighting
-    orbScene.add(new THREE.AmbientLight(0xffffff, 0.62));
-    const keyL = new THREE.DirectionalLight(0xffffff, 1.35);
-    keyL.position.set(-2.2, 2.8, 3.5);
+    // Warm candlelight + cool moonlight 3-point crystal lighting (matching opening table scene)
+    orbScene.add(new THREE.AmbientLight(0xdff8ee, 0.72));
+    const keyL = new THREE.DirectionalLight(0xffffff, 1.55);
+    keyL.position.set(-2.0, 2.8, 3.6);
     orbScene.add(keyL);
-    const rimL = new THREE.PointLight(0xfff0c8, 1.25, 10);
-    rimL.position.set(2.2, -1.8, 2.0);
-    orbScene.add(rimL);
+    const candleL = new THREE.PointLight(0xffcf7d, 1.45, 9);
+    candleL.position.set(2.1, -1.2, 2.2);
+    orbScene.add(candleL);
+    const candleR = new THREE.PointLight(0x8ff5cf, 1.1, 9);
+    candleR.position.set(-2.0, -0.8, 1.8);
+    orbScene.add(candleR);
 
     orbTexPlus = makeOrbMarbleTexture(false);
     orbTexMini = makeOrbMarbleTexture(true);
 
     orbGroup = new THREE.Group();
+    orbGroup.position.y = 0.09;
 
-    // Inner glowing crystal core (strictly rigid sphere, zero morphing!)
+    // 1. Inner glowing celadon-jade mist core (strictly rigid smooth sphere — ZERO morphing!)
     orbCoreMat = new THREE.MeshStandardMaterial({
       map: orbTexPlus,
-      roughness: 0.22,
-      metalness: 0.12,
-      emissive: 0x3b634e,
-      emissiveIntensity: 0.35
+      roughness: 0.18,
+      metalness: 0.08,
+      emissive: 0x4ca885,
+      emissiveIntensity: 0.45,
+      transparent: true,
+      opacity: 0.90
     });
-    const innerCore = new THREE.Mesh(new THREE.SphereGeometry(0.92, 40, 40), orbCoreMat);
+    const innerCore = new THREE.Mesh(new THREE.SphereGeometry(0.84, 48, 48), orbCoreMat);
     orbGroup.add(innerCore);
 
-    // Outer polished translucent glass shell for true 3D crystal specular highlight
-    orbShellMat = new THREE.MeshPhongMaterial({
-      color: 0xffffff,
-      specular: 0xffffff,
-      shininess: 140,
+    // 2. Internal swirling luminous golden energy vortex ribbons (matching the golden S-swirl in opening.mp4!)
+    orbSwirlGroup = new THREE.Group();
+    orbRibbonMat = new THREE.MeshBasicMaterial({
+      color: 0xfff3b8,
       transparent: true,
-      opacity: 0.28
+      opacity: 0.72
     });
-    const outerShell = new THREE.Mesh(new THREE.SphereGeometry(1.0, 44, 44), orbShellMat);
+    for (let r = 0; r < 2; r++) {
+      const curvePts = [];
+      for (let i = 0; i <= 36; i++) {
+        const t = (i / 36) * Math.PI * 2;
+        const rad = 0.56 + 0.12 * Math.sin(t * 2 + r * 1.4);
+        curvePts.push(new THREE.Vector3(
+          Math.cos(t + r * Math.PI) * rad,
+          Math.sin(t * 1.5 + r) * 0.42,
+          Math.sin(t + r * Math.PI) * rad
+        ));
+      }
+      const curve = new THREE.CatmullRomCurve3(curvePts, true);
+      const ribbon = new THREE.Mesh(new THREE.TubeGeometry(curve, 52, 0.026, 8, true), orbRibbonMat);
+      orbSwirlGroup.add(ribbon);
+    }
+    orbGroup.add(orbSwirlGroup);
+
+    // 3. Internal floating golden stardust motes inside the crystal sphere
+    const dustCount = 34;
+    const dustPos = new Float32Array(dustCount * 3);
+    for (let i = 0; i < dustCount; i++) {
+      const phi = Math.acos(2 * Math.random() - 1);
+      const theta = Math.random() * Math.PI * 2;
+      const rad = 0.25 + Math.random() * 0.52;
+      dustPos[i * 3] = rad * Math.sin(phi) * Math.cos(theta);
+      dustPos[i * 3 + 1] = rad * Math.cos(phi);
+      dustPos[i * 3 + 2] = rad * Math.sin(phi) * Math.sin(theta);
+    }
+    const dustGeo = new THREE.BufferGeometry();
+    dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos, 3));
+    orbDustPts = new THREE.Points(dustGeo, new THREE.PointsMaterial({
+      color: 0xfff6cc,
+      size: 0.055,
+      transparent: true,
+      opacity: 0.88,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false
+    }));
+    orbGroup.add(orbDustPts);
+
+    // 4. Outer polished crystal glass shell (high-gloss specular reflection, strictly rigid sphere!)
+    orbShellMat = new THREE.MeshPhongMaterial({
+      color: 0xeafff5,
+      specular: 0xffffff,
+      shininess: 220,
+      transparent: true,
+      opacity: 0.30
+    });
+    const outerShell = new THREE.Mesh(new THREE.SphereGeometry(0.95, 56, 56), orbShellMat);
     orbGroup.add(outerShell);
 
-    // Subtle delicate golden equatorial halo ring
-    orbRingMesh = new THREE.Mesh(
-      new THREE.TorusGeometry(1.13, 0.018, 10, 48),
-      new THREE.MeshStandardMaterial({ color: 0xf2d184, roughness: 0.2, metalness: 0.85, transparent: true, opacity: 0.65 })
-    );
-    orbRingMesh.rotation.x = Math.PI * 0.42;
-    orbScene.add(orbRingMesh);
-
     orbScene.add(orbGroup);
+
+    // 5. Antique carved ebony & gold lotus pedestal base beneath the crystal orb (matching opening.mp4!)
+    const baseGroup = new THREE.Group();
+    const woodMat = new THREE.MeshStandardMaterial({ color: 0x241712, roughness: 0.45, metalness: 0.35 });
+    const goldMat = new THREE.MeshStandardMaterial({ color: 0xe6c373, roughness: 0.25, metalness: 0.88 });
+    const cradle = new THREE.Mesh(new THREE.TorusGeometry(0.58, 0.065, 12, 36), woodMat);
+    cradle.rotation.x = Math.PI / 2;
+    cradle.position.y = -0.82;
+    baseGroup.add(cradle);
+    const goldTrim = new THREE.Mesh(new THREE.TorusGeometry(0.61, 0.022, 10, 36), goldMat);
+    goldTrim.rotation.x = Math.PI / 2;
+    goldTrim.position.y = -0.80;
+    baseGroup.add(goldTrim);
+    const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.68, 0.22, 24), woodMat);
+    foot.position.y = -0.95;
+    baseGroup.add(foot);
+    orbScene.add(baseGroup);
+
+    orbRingMesh = goldTrim;
     requestAnimationFrame(animateOrb3D);
   }
 
   function updateOrb3DTheme(isMini) {
     if (!orbCoreMat) return;
     orbCoreMat.map = isMini ? orbTexMini : orbTexPlus;
-    orbCoreMat.emissive.setHex(isMini ? 0x5c2b9e : 0x3b634e);
+    orbCoreMat.emissive.setHex(isMini ? 0x6b35b8 : 0x4ca885);
+    if (orbRibbonMat) orbRibbonMat.color.setHex(isMini ? 0xf5d0fe : 0xfff3b8);
     orbCoreMat.needsUpdate = true;
   }
 
   function animateOrb3D() {
     requestAnimationFrame(animateOrb3D);
     if (!orbRenderer || !orbScene || !orbCam || !orbGroup) return;
-    // Smooth rigid 3D rolling inertia (zero morphing/squashing!)
+    // Smooth rigid 3D rotation only (ZERO morphing/squashing!)
     orbGroup.rotation.y += orbSpin.velY;
     orbGroup.rotation.x += orbSpin.velX;
-    orbSpin.velY += (0.006 - orbSpin.velY) * 0.06;
+    orbSpin.velY += (0.0055 - orbSpin.velY) * 0.05;
     orbSpin.velX *= 0.90;
-    if (orbRingMesh) {
-      orbRingMesh.rotation.z += 0.008;
-      orbRingMesh.rotation.y = orbGroup.rotation.y * 0.35;
+    if (orbSwirlGroup) {
+      orbSwirlGroup.rotation.y += 0.014;
+      orbSwirlGroup.rotation.z += 0.007;
+    }
+    if (orbDustPts) {
+      orbDustPts.rotation.y -= 0.008;
     }
     orbRenderer.render(orbScene, orbCam);
   }
@@ -4405,14 +4573,7 @@
       else setModelMode(state.modelMode === 'mini' ? 'plus' : 'mini');
     } else if (Math.abs(orbDx) < 12 && Math.abs(orbDy) < 12) {
       orbSpin.velY = 0.14;
-      const idx = state.currentIdx;
-      if (idx === 0) document.getElementById('btn-run-saju').click();
-      else if (idx === 1) document.getElementById('btn-run-blood').click();
-      else if (idx === 2) document.getElementById(state.zodiacTab === 'daily' ? 'btn-run-zodiac-daily' : 'btn-run-zodiac-match').click();
-      else if (idx === 3) document.getElementById('btn-tarot-reset').click();
-      else if (idx === 4) document.getElementById('btn-run-mbti').click();
-      else if (idx === 5) document.getElementById('btn-run-face').click();
-      else if (idx === 6) document.getElementById('btn-run-palm').click();
+      openCharNavigator();
     }
     orbDx = 0; orbDy = 0;
   }
@@ -4424,9 +4585,59 @@
   window.addEventListener('mousemove', orbMove);
   window.addEventListener('mouseup', orbUp);
 
-  document.getElementById('btn-orb-prev').addEventListener('click', () => goToCharacter(state.currentIdx - 1));
-  document.getElementById('btn-orb-next').addEventListener('click', () => goToCharacter(state.currentIdx + 1));
   orbDots.forEach(d => d.addEventListener('click', () => goToCharacter(parseInt(d.dataset.dotIdx, 10))));
+
+  /* ==================== 9-CHARACTER CRYSTAL ORB NAVIGATOR ==================== */
+  const charNavDrawer = document.getElementById('char-nav-drawer');
+  const charNavGrid = document.getElementById('char-nav-grid');
+
+  function openCharNavigator() {
+    if (!charNavDrawer || !charNavGrid) return;
+    const isMini = state.modelMode === 'mini';
+    const modeBtn = document.getElementById('btn-nav-toggle-mode');
+    if (modeBtn) modeBtn.textContent = isMini ? '✨ 마스터 전환' : '🐾 미니펫 전환';
+
+    charNavGrid.innerHTML = CHARACTERS.map((c, idx) => {
+      const act = idx === state.currentIdx;
+      const thumb = (isMini && c.pet) ? c.pet.openSrc : c.openSrc;
+      const displayName = (isMini && c.pet) ? c.pet.name : c.name;
+      return `
+        <button type="button" data-nav-idx="${idx}" class="group relative rounded-2xl overflow-hidden border transition active:scale-95 text-left ${act ? 'border-amber-300 ring-2 ring-amber-300/60 shadow-[0_0_16px_rgba(251,191,36,0.35)]' : 'border-white/15 hover:border-amber-300/50'} bg-black/50">
+          <div class="aspect-[3/3.4] w-full overflow-hidden bg-black/60 relative">
+            <img src="${thumb}" alt="${displayName}" class="w-full h-full object-cover object-top" />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent"></div>
+            <div class="absolute top-1.5 left-1.5 w-6 h-6 rounded-full bg-black/65 border border-white/20 flex items-center justify-center text-xs">${c.icon}</div>
+            ${act ? '<span class="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded-full bg-amber-400 text-[#1a130b] text-[9px] font-extrabold">현재</span>' : ''}
+            <div class="absolute bottom-1.5 left-2 right-2">
+              <div class="text-[10px] font-bold text-amber-200 leading-tight">${c.tabName}</div>
+              <div class="font-serif-kr text-xs font-extrabold text-white truncate">${displayName}</div>
+            </div>
+          </div>
+        </button>
+      `;
+    }).join('');
+
+    charNavGrid.querySelectorAll('[data-nav-idx]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetIdx = parseInt(btn.dataset.navIdx, 10);
+        charNavDrawer.classList.remove('open');
+        goToCharacter(targetIdx);
+      });
+    });
+
+    charNavDrawer.classList.add('open');
+    playChimeSound(740);
+  }
+
+  document.getElementById('btn-close-char-nav')?.addEventListener('click', () => charNavDrawer?.classList.remove('open'));
+  charNavDrawer?.addEventListener('click', (e) => {
+    if (e.target === charNavDrawer) charNavDrawer.classList.remove('open');
+  });
+  document.getElementById('btn-nav-toggle-mode')?.addEventListener('click', () => {
+    toggleModelMode();
+    openCharNavigator();
+  });
+
 
   let dragStartX = 0, dragStartY = 0, dragDeltaX = 0, dragDeltaY = 0;
   let isDragging = false, gestureAxis = null;
@@ -4488,8 +4699,6 @@
   window.addEventListener('mousemove', onPointerMove);
   window.addEventListener('mouseup', onPointerUp);
 
-  document.getElementById('btn-stage-prev').addEventListener('click', () => goToCharacter(state.currentIdx - 1));
-  document.getElementById('btn-stage-next').addEventListener('click', () => goToCharacter(state.currentIdx + 1));
 
   window.addEventListener('keydown', (e) => {
     if (document.activeElement && ['INPUT', 'SELECT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
