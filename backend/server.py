@@ -523,7 +523,7 @@ async def generate_fortune(req: FortuneRequest):
 class UserPreferencesRequest(BaseModel):
     user_id: str
     use_hidden_voice: bool = True
-    use_lv4_skin: bool = True
+    skin_mode: str = "default"
 
 def _ensure_pref_table():
     try:
@@ -532,9 +532,14 @@ def _ensure_pref_table():
                 user_id TEXT PRIMARY KEY,
                 use_hidden_voice INTEGER DEFAULT 1,
                 use_lv4_skin INTEGER DEFAULT 1,
+                skin_mode TEXT DEFAULT 'default',
                 updated_at TEXT
             )
         """)
+    except Exception:
+        pass
+    try:
+        db_execute("ALTER TABLE user_preferences ADD COLUMN skin_mode TEXT DEFAULT 'default'")
     except Exception:
         pass
 
@@ -542,15 +547,18 @@ def _ensure_pref_table():
 async def get_user_preferences(user_id: str):
     _ensure_pref_table()
     row = db_execute(
-        "SELECT use_hidden_voice, use_lv4_skin FROM user_preferences WHERE user_id = ?",
+        "SELECT use_hidden_voice, skin_mode FROM user_preferences WHERE user_id = ?",
         (user_id,),
         fetch="one"
     )
     if not row:
-        return {"use_hidden_voice": True, "use_lv4_skin": True}
+        return {"use_hidden_voice": True, "skin_mode": "default"}
+    mode = row.get("skin_mode") if isinstance(row, dict) else row["skin_mode"]
+    if mode not in ("default", "sexy", "cute", "smart"):
+        mode = "default"
     return {
         "use_hidden_voice": bool(row["use_hidden_voice"]),
-        "use_lv4_skin": bool(row["use_lv4_skin"]),
+        "skin_mode": mode,
     }
 
 @app.post("/api/user/preferences")
@@ -558,19 +566,20 @@ async def save_user_preferences(req: UserPreferencesRequest):
     _ensure_pref_table()
     now = datetime.datetime.now().isoformat(timespec="seconds")
     hv = 1 if req.use_hidden_voice else 0
-    sk = 1 if req.use_lv4_skin else 0
+    mode = req.skin_mode if req.skin_mode in ("default", "sexy", "cute", "smart") else "default"
+    sk = 0 if mode == "default" else 1
     existing = db_execute("SELECT user_id FROM user_preferences WHERE user_id = ?", (req.user_id,), fetch="one")
     if existing:
         db_execute(
-            "UPDATE user_preferences SET use_hidden_voice = ?, use_lv4_skin = ?, updated_at = ? WHERE user_id = ?",
-            (hv, sk, now, req.user_id)
+            "UPDATE user_preferences SET use_hidden_voice = ?, use_lv4_skin = ?, skin_mode = ?, updated_at = ? WHERE user_id = ?",
+            (hv, sk, mode, now, req.user_id)
         )
     else:
         db_execute(
-            "INSERT INTO user_preferences (user_id, use_hidden_voice, use_lv4_skin, updated_at) VALUES (?, ?, ?, ?)",
-            (req.user_id, hv, sk, now)
+            "INSERT INTO user_preferences (user_id, use_hidden_voice, use_lv4_skin, skin_mode, updated_at) VALUES (?, ?, ?, ?, ?)",
+            (req.user_id, hv, sk, mode, now)
         )
-    return {"ok": True, "use_hidden_voice": req.use_hidden_voice, "use_lv4_skin": req.use_lv4_skin}
+    return {"ok": True, "use_hidden_voice": req.use_hidden_voice, "skin_mode": mode}
 
 @app.post("/api/chat")
 async def chat_with_character(req: ChatRequest):
