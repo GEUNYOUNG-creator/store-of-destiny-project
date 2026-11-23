@@ -4779,7 +4779,7 @@
       }
       this.stop();
       const seq = this.reqSeq;
-      const url = `./assets/voices/${cid}_${kind}.mp3?v=6`;
+      const url = `./assets/voices/${cid}_${kind}.mp3?v=7`;
       const audio = new Audio(url);
       audio.volume = 1.0;
 
@@ -11132,15 +11132,15 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
 
     // 9 Harmonious Floor Positions arranged in a cozy arc around the Center Wish Candle!
     const CHIBI_POSITIONS = [
-      { left: '50%', top: '92%', z: 18, scale: 1.12 }, // 0 연화 (앞 중앙)
-      { left: '20%', top: '87%', z: 17, scale: 1.06 }, // 1 루미 (앞 좌)
-      { left: '80%', top: '87%', z: 17, scale: 1.06 }, // 2 스텔라 (앞 우)
-      { left: '16%', top: '74%', z: 15, scale: 1.02 }, // 3 셀레네 (중 좌)
-      { left: '84%', top: '74%', z: 15, scale: 1.02 }, // 4 하린 (중 우)
-      { left: '31%', top: '66%', z: 13, scale: 0.98 }, // 5 아린 (중상 좌)
-      { left: '69%', top: '66%', z: 13, scale: 0.98 }, // 6 서연 (중상 우)
-      { left: '22%', top: '57%', z: 11, scale: 0.95 }, // 7 다온 (뒤 좌)
-      { left: '78%', top: '57%', z: 11, scale: 0.95 }  // 8 몽화 (뒤 우)
+      { left: '50%', top: '86%', z: 18, scale: 1.15 }, // 0 연화 (정면 중앙)
+      { left: '22%', top: '79%', z: 16, scale: 1.06 }, // 1 루미 (앞 좌)
+      { left: '78%', top: '79%', z: 16, scale: 1.06 }, // 2 스텔라 (앞 우)
+      { left: '17%', top: '65%', z: 14, scale: 1.00 }, // 3 셀레네 (중 좌)
+      { left: '83%', top: '65%', z: 14, scale: 1.00 }, // 4 하린 (중 우)
+      { left: '33%', top: '59%', z: 13, scale: 0.96 }, // 5 아린 (안쪽 좌)
+      { left: '67%', top: '59%', z: 13, scale: 0.96 }, // 6 서연 (안쪽 우)
+      { left: '21%', top: '51%', z: 11, scale: 0.94 }, // 7 다온 (뒤 좌)
+      { left: '79%', top: '51%', z: 11, scale: 0.94 }  // 8 몽화 (뒤 우)
     ];
 
     function rebuildBanquetChibis() {
@@ -11159,7 +11159,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
         if (unlocked) {
           slotsHtml += `
             <button type="button" data-chibi-idx="${idx}" class="banquet-chibi-slot" style="left:${pos.left}; top:${pos.top}; z-index:${pos.z};">
-              <img src="./src/assets/banquet/chibi_${c.id}${(window.getCharSkinMode && window.getCharSkinMode(c.id) !== 'default') ? ('_' + window.getCharSkinMode(c.id)) : ''}.png?v=2" alt="${c.name}" class="banquet-chibi-img" style="width:${sizePx}px; height:${sizePx}px; animation-delay:${delay}s;" />
+              <img src="./src/assets/banquet/chibi_${c.id}${(window.getCharSkinMode && window.getCharSkinMode(c.id) !== 'default') ? ('_' + window.getCharSkinMode(c.id)) : ''}.png?v=4" alt="${c.name}" class="banquet-chibi-img" style="width:${sizePx}px; height:${sizePx}px; animation-delay:${delay}s;" />
               <span class="banquet-chibi-tag">${c.name} 💬</span>
             </button>`;
         } else {
