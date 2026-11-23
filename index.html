@@ -3174,6 +3174,8 @@
   let renderer, scene, camera, charMesh, charMaterial, particleSystem, particleGeo;
   const charParticleTextures = [];
   const openTextures = [];
+  const maskTextures = [], bgTextures = [];
+  let bgMesh = null, bgMaterial = null, speakPulseVal = 0.0;
   const blinkTextures = [];
   const petOpenTextures = new Array(7).fill(null);
   const petBlinkTextures = new Array(7).fill(null);
@@ -3197,6 +3199,34 @@
   };
 
   // Face-Protected Soft-Body 3D Morphing + Real 2-Frame Blink Shader
+  const BG_VERT = `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `;
+
+  const BG_FRAG = `
+    uniform sampler2D uTexBg;
+    uniform vec2 uUvScale;
+    uniform float uUvOffsetY;
+    uniform float uTime;
+    uniform float uMotion;
+    varying vec2 vUv;
+    void main() {
+      vec2 uv = (vUv - 0.5) * uUvScale + 0.5;
+      uv.y += uUvOffsetY;
+      uv = clamp(uv, 0.004, 0.996);
+      vec4 col = texture2D(uTexBg, uv);
+      if (uMotion > 0.5) {
+        float amb = 0.018 * sin(uTime * 0.9 + vUv.y * 2.2);
+        col.rgb += vec3(amb * 0.85, amb * 0.9, amb * 1.1);
+      }
+      gl_FragColor = vec4(col.rgb, 1.0);
+    }
+  `;
+
   const CLEAN_VERT = `
     uniform float uTime;
     uniform float uMotion;
@@ -3204,40 +3234,66 @@
     uniform vec2 uTapUv;
     uniform vec2 uFaceUv;
     uniform vec2 uChestUv;
+    uniform vec2 uPointer;
+    uniform float uSpeakPulse;
     varying vec2 vUv;
     varying float vMorphGlow;
+    varying float vRelief;
 
     void main() {
       vUv = uv;
       vec3 pos = position;
       vMorphGlow = 0.0;
+      vRelief = 0.0;
 
       if (uMotion > 0.5) {
-        // Protect face/eyes region 100% from distortion
-        float faceDist = length((uv - uFaceUv) * vec2(1.25, 1.45));
-        float faceProtect = smoothstep(0.18, 0.32, faceDist);
+        float anchor = smoothstep(0.0, 0.20, uv.y);
 
-        // 1. Subtle, calm natural breathing (chest & shoulders rise gently every ~4.3s, face stays crisp)
-        float breath = sin(uTime * 1.45) * 0.5 + 0.5;
-        float chestMask = exp(-pow(length((uv - uChestUv) * vec2(2.1, 2.4)), 2.0)) * faceProtect;
-        pos.y += breath * 0.011 * chestMask;
-        pos.z += breath * 0.028 * chestMask;
-        pos.x += (uv.x - 0.5) * breath * 0.010 * chestMask;
+        // 1. True 3D Sculpted Z-Depth Relief (face dome + torso volume for real 3D perspective turn)
+        float faceDome = exp(-pow(length((uv - uFaceUv) * vec2(2.6, 2.2)), 2.0));
+        float torsoDome = exp(-pow(length((uv - uChestUv) * vec2(1.85, 1.45)), 2.0));
+        float relief = clamp(faceDome * 0.95 + torsoDome * 0.72, 0.0, 1.2);
+        pos.z += relief * 0.22 * anchor;
+        vRelief = relief;
 
-        // 2. Touch-only Shy Flinch / Recoil Tuck-in Morph (ZERO wave/ripple!)
+        // 2. Independent Head & Neck Pivot Bone (head rotates cleanly around neck without warping face!)
+        vec2 neckPivot = vec2(uFaceUv.x, uFaceUv.y - 0.145);
+        float headMask = smoothstep(-0.02, 0.15, uv.y - neckPivot.y) * smoothstep(0.48, 0.16, abs(uv.x - neckPivot.x));
+        float headRoll = (sin(uTime * 0.82) * 0.028 + uPointer.x * 0.042 + sin(uTime * 2.4) * 0.012 * uSpeakPulse) * headMask;
+        vec2 rel = pos.xy - (neckPivot - 0.5) * 2.4;
+        float cs = cos(headRoll), sn = sin(headRoll);
+        vec2 rotRel = vec2(rel.x * cs - rel.y * sn, rel.x * sn + rel.y * cs);
+        pos.xy = mix(pos.xy, (neckPivot - 0.5) * 2.4 + rotRel, headMask);
+        // Subtle 3D head nod (pitch) + gaze turn (yaw) synced with studio voice
+        float headNod = (sin(uTime * 1.15) * 0.012 - uPointer.y * 0.032 - uSpeakPulse * 0.034) * headMask;
+        pos.y += headNod;
+        pos.z += ((uv.x - neckPivot.x) * (uPointer.x * 0.18 + sin(uTime * 0.65) * 0.05) + uSpeakPulse * 0.025) * headMask;
+
+        // 3. Independent Chest & Shoulder Breathing Bone (natural inhale/exhale)
+        float faceDist = length((uv - uFaceUv) * vec2(1.3, 1.5));
+        float faceProtect = smoothstep(0.16, 0.30, faceDist);
+        float breath = sin(uTime * 1.52) * 0.5 + 0.5;
+        float chestMask = exp(-pow(length((uv - uChestUv) * vec2(1.9, 2.2)), 2.0)) * faceProtect * anchor;
+        pos.y += breath * 0.024 * chestMask;
+        pos.z += breath * 0.048 * chestMask;
+        pos.x += (uv.x - 0.5) * breath * 0.022 * chestMask;
+
+        // 4. Upper-body organic sway + secondary hair/sleeve trailing motion
+        float upperSway = sin(uTime * 0.78) * 0.018 * smoothstep(0.18, 0.72, uv.y) * anchor;
+        pos.x += upperSway;
+        float sideEdge = smoothstep(0.13, 0.38, abs(uv.x - 0.5)) * smoothstep(0.12, 0.42, uv.y) * faceProtect;
+        float trailWave = sin(uTime * 1.85 - uv.y * 3.6 + (uv.x > 0.5 ? 0.5 : -0.5));
+        pos.x += trailWave * 0.018 * sideEdge;
+        pos.z += trailWave * 0.024 * sideEdge;
+
+        // 5. Touch-only Shy Recoil / Warm Response Morph
         if (uTapImpulse > 0.002) {
           float tapDist = length((uv - uTapUv) * vec2(1.2, 1.35));
-          float localMask = exp(-tapDist * tapDist * 6.5) * faceProtect;
-
-          pos.z -= uTapImpulse * 0.16 * localMask;
+          float localMask = exp(-tapDist * tapDist * 6.0) * faceProtect;
+          pos.z -= uTapImpulse * 0.14 * localMask;
           vec2 toCenter = vec2(0.5, 0.42) - uv;
-          pos.xy += toCenter * uTapImpulse * 0.065 * localMask;
-
-          float shoulderMask = exp(-pow((uv.y - 0.42) / 0.24, 2.0)) * faceProtect;
-          pos.y -= uTapImpulse * 0.022 * shoulderMask;
-          pos.x -= (uv.x - 0.5) * uTapImpulse * 0.032 * shoulderMask;
-
-          vMorphGlow = uTapImpulse * exp(-tapDist * tapDist * 9.0);
+          pos.xy += toCenter * uTapImpulse * 0.055 * localMask;
+          vMorphGlow = uTapImpulse * exp(-tapDist * tapDist * 8.5);
         }
       }
 
@@ -3248,13 +3304,17 @@
   const CLEAN_FRAG = `
     uniform sampler2D uTexOpen;
     uniform sampler2D uTexBlink;
+    uniform sampler2D uTexMask;
+    uniform float uHasMask;
     uniform float uBlink;
     uniform vec2 uUvScale;
     uniform float uUvOffsetY;
     uniform float uTime;
     uniform float uMotion;
+    uniform vec2 uPointer;
     varying vec2 vUv;
     varying float vMorphGlow;
+    varying float vRelief;
 
     void main() {
       vec2 uv = (vUv - 0.5) * uUvScale + 0.5;
@@ -3265,13 +3325,24 @@
       vec4 colBlink = texture2D(uTexBlink, uv);
       vec4 col = mix(colOpen, colBlink, clamp(uBlink, 0.0, 1.0));
 
+      float alpha = 1.0;
+      if (uHasMask > 0.5) {
+        alpha = texture2D(uTexMask, uv).r;
+        if (alpha < 0.02) discard;
+      }
+
       if (uMotion > 0.5) {
-        float sheen = 0.02 * sin(uTime * 1.4 + vUv.x * 2.5);
-        col.rgb += vec3(sheen);
-        // Subtle golden touch-morph highlight shimmer
+        // Subtle 3D directional studio light & hair/silk specular shift
+        float lightSweep = 0.024 * sin(uTime * 1.15 + vUv.x * 2.8 + uPointer.x * 2.2) * (0.45 + vRelief * 0.55);
+        col.rgb += vec3(lightSweep);
+        // Soft 3D rim light along separated character silhouette
+        if (uHasMask > 0.5) {
+          float rim = smoothstep(0.06, 0.42, alpha) * (1.0 - smoothstep(0.48, 0.94, alpha));
+          col.rgb += vec3(1.0, 0.93, 0.78) * rim * 0.22;
+        }
         col.rgb += vec3(1.0, 0.88, 0.65) * vMorphGlow * 0.16;
       }
-      gl_FragColor = col;
+      gl_FragColor = vec4(col.rgb, alpha);
     }
   `;
 
@@ -3295,11 +3366,18 @@
     threeContainer.innerHTML = '';
     threeContainer.appendChild(renderer.domElement);
 
-    // Lights for optional external .glb 3D models
-    scene.add(new THREE.HemisphereLight(0xfff6eb, 0x3b2d54, 1.0));
-    const dl = new THREE.DirectionalLight(0xfff8ee, 1.0);
-    dl.position.set(2, 3, 4);
-    scene.add(dl);
+    // Studio 3-Point Portrait Lighting for Real 3D .glb Character Models
+    const hemiLight = new THREE.HemisphereLight(0xfffaf2, 0x3b2d54, 1.15);
+    scene.add(hemiLight);
+    const keyLight = new THREE.DirectionalLight(0xfff6e8, 1.25);
+    keyLight.position.set(2.2, 3.2, 4.2);
+    scene.add(keyLight);
+    const fillLight = new THREE.DirectionalLight(0xdbeafe, 0.55);
+    fillLight.position.set(-2.6, 1.4, 2.8);
+    scene.add(fillLight);
+    const rimLight = new THREE.DirectionalLight(0xfde68a, 0.72);
+    rimLight.position.set(0.0, 2.5, -3.2);
+    scene.add(rimLight);
 
     const loader = new THREE.TextureLoader();
     CHARACTERS.forEach((c, idx) => {
@@ -3321,6 +3399,26 @@
       });
       openTextures[idx] = tOpen;
       blinkTextures[idx] = tBlink;
+      const tMask = loader.load(`./src/assets/cutouts/${c.id}_mask.png`, () => {
+        if (idx === state.currentIdx && state.modelMode !== 'mini' && charMaterial) {
+          charMaterial.uniforms.uTexMask.value = tMask;
+          charMaterial.uniforms.uHasMask.value = 1.0;
+        }
+      });
+      tMask.minFilter = THREE.LinearFilter;
+      tMask.magFilter = THREE.LinearFilter;
+      maskTextures[idx] = tMask;
+
+      const tBg = loader.load(`./src/assets/cutouts/${c.id}_bg.jpg`, () => {
+        if (idx === state.currentIdx && state.modelMode !== 'mini' && bgMaterial && bgMesh) {
+          bgMaterial.uniforms.uTexBg.value = tBg;
+          bgMesh.visible = true;
+        }
+      });
+      tBg.minFilter = THREE.LinearFilter;
+      tBg.magFilter = THREE.LinearFilter;
+      tBg.encoding = THREE.sRGBEncoding;
+      bgTextures[idx] = tBg;
       if (c.pet) {
         const pOpen = loader.load(c.pet.openSrc, () => {
           if (idx === state.currentIdx && state.modelMode === 'mini') showCharacter3D(idx);
@@ -3338,12 +3436,31 @@
       }
     });
 
+    bgMaterial = new THREE.ShaderMaterial({
+      vertexShader: BG_VERT,
+      fragmentShader: BG_FRAG,
+      uniforms: {
+        uTexBg: { value: bgTextures[0] },
+        uUvScale: { value: new THREE.Vector2(1.0, 0.72) },
+        uUvOffsetY: { value: CHARACTERS[0].uvOffsetY },
+        uTime: { value: 0.0 },
+        uMotion: { value: 1.0 }
+      },
+      depthWrite: false
+    });
+    bgMesh = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 2.4, 1, 1), bgMaterial);
+    bgMesh.position.set(0, 0, -0.58);
+    bgMesh.visible = false;
+    scene.add(bgMesh);
+
     charMaterial = new THREE.ShaderMaterial({
       vertexShader: CLEAN_VERT,
       fragmentShader: CLEAN_FRAG,
       uniforms: {
         uTexOpen: { value: openTextures[0] },
         uTexBlink: { value: blinkTextures[0] },
+        uTexMask: { value: maskTextures[0] },
+        uHasMask: { value: 0.0 },
         uBlink: { value: 0.0 },
         uUvScale: { value: new THREE.Vector2(1.0, 0.72) },
         uUvOffsetY: { value: CHARACTERS[0].uvOffsetY },
@@ -3352,12 +3469,14 @@
         uTapImpulse: { value: 0.0 },
         uTapUv: { value: new THREE.Vector2(0.5, 0.35) },
         uFaceUv: { value: new THREE.Vector2(0.5, 0.68) },
-        uChestUv: { value: new THREE.Vector2(0.5, 0.36) }
+        uChestUv: { value: new THREE.Vector2(0.5, 0.36) },
+        uPointer: { value: new THREE.Vector2(0.0, 0.0) },
+        uSpeakPulse: { value: 0.0 }
       },
       transparent: true
     });
 
-    charMesh = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 2.4, 48, 56), charMaterial);
+    charMesh = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 2.4, 72, 88), charMaterial);
     scene.add(charMesh);
 
     // 3D Floating Foreground Particles
@@ -3512,14 +3631,18 @@
     const frustumW = frustumH * camera.aspect;
     const bleed = 1.08;
     charMesh.scale.set((frustumW / 2.4) * bleed, (frustumH / 2.4) * bleed, 1);
+    if (bgMesh) {
+      const bgDepthRatio = (camera.position.z + 0.58) / camera.position.z;
+      const bgBleed = 1.14 * bgDepthRatio;
+      bgMesh.scale.set((frustumW / 2.4) * bgBleed, (frustumH / 2.4) * bgBleed, 1);
+    }
 
     const imgAspect = 0.75;
     const viewAspect = w / h;
-    if (viewAspect > imgAspect) {
-      charMaterial.uniforms.uUvScale.value.set(1.0, imgAspect / viewAspect);
-    } else {
-      charMaterial.uniforms.uUvScale.value.set(viewAspect / imgAspect, 1.0);
-    }
+    const uvScaleX = viewAspect > imgAspect ? 1.0 : (viewAspect / imgAspect);
+    const uvScaleY = viewAspect > imgAspect ? (imgAspect / viewAspect) : 1.0;
+    charMaterial.uniforms.uUvScale.value.set(uvScaleX, uvScaleY);
+    if (bgMaterial) bgMaterial.uniforms.uUvScale.value.set(uvScaleX, uvScaleY);
   }
 
   const constructionSignEl = document.getElementById('construction-sign');
@@ -3529,6 +3652,7 @@
   function showCharacter3D(idx) {
     const cfg = CHARACTERS[idx];
     const isMini = state.modelMode === 'mini';
+    if (!isMini) loadCharacterGlbIfPresent(idx);
     const hasGlb = !!customGlbModels[idx] && !isMini;
     const isUnderConstruction = isMini && !cfg.pet;
 
@@ -3546,7 +3670,29 @@
       const tBlink = isMini ? petBlinkTextures[idx] : blinkTextures[idx];
       if (tOpen) charMaterial.uniforms.uTexOpen.value = tOpen;
       if (tBlink) charMaterial.uniforms.uTexBlink.value = tBlink;
-      charMaterial.uniforms.uUvOffsetY.value = isMini ? (cfg.pet.uvOffsetY ?? 0.08) : (cfg.uvOffsetY ?? 0.10);
+      const uvOff = isMini ? (cfg.pet.uvOffsetY ?? 0.08) : (cfg.uvOffsetY ?? 0.10);
+      charMaterial.uniforms.uUvOffsetY.value = uvOff;
+
+      const tMask = (!isMini && maskTextures[idx] && maskTextures[idx].image) ? maskTextures[idx] : null;
+      if (tMask) {
+        charMaterial.uniforms.uTexMask.value = tMask;
+        charMaterial.uniforms.uHasMask.value = 1.0;
+      } else {
+        charMaterial.uniforms.uHasMask.value = 0.0;
+      }
+
+      const tBg = (!isMini && bgTextures[idx] && bgTextures[idx].image) ? bgTextures[idx] : null;
+      if (bgMaterial && bgMesh) {
+        if (tBg) {
+          bgMaterial.uniforms.uTexBg.value = tBg;
+          bgMaterial.uniforms.uUvOffsetY.value = uvOff;
+          bgMesh.visible = true;
+        } else {
+          bgMesh.visible = false;
+        }
+      }
+    } else if (bgMesh) {
+      bgMesh.visible = false;
     }
 
     if (particleSystem) {
@@ -3564,8 +3710,118 @@
     rigPhys.bounceVel = 0.04;
   }
 
-  // External GLB/VRM Loader Support
-  // Custom GLB loader removed from consumer UI
+  /* ==================== REAL 3D GLB CHARACTER RIGGING & ANIMATION ENGINE ==================== */
+  const glbLoadState = {}; // idx -> 'loading' | 'loaded' | 'missing'
+  const glbMixers = {};    // idx -> THREE.AnimationMixer
+  const glbActions = {};   // idx -> { idle, react }
+  const glbBoneRigs = {};  // idx -> { head, neck, spine, chest, leftArm, rightArm, rest: Map, morphMeshes: [] }
+  const gltfLoaderInstance = (typeof THREE !== 'undefined' && THREE.GLTFLoader) ? new THREE.GLTFLoader() : null;
+
+  function findHumanoidBones(root) {
+    const rig = { head: null, neck: null, spine: null, chest: null, leftArm: null, rightArm: null, rest: new Map(), morphMeshes: [] };
+    root.traverse((obj) => {
+      if (obj.isMesh) {
+        if (obj.material) {
+          const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+          mats.forEach((m) => {
+            if (m.map) m.map.encoding = THREE.sRGBEncoding;
+            m.needsUpdate = true;
+          });
+        }
+        if (obj.morphTargetDictionary && obj.morphTargetInfluences) {
+          rig.morphMeshes.push(obj);
+        }
+      }
+      if (obj.isBone) {
+        const n = (obj.name || '').toLowerCase();
+        if (!rig.head && /(^|[_:| -])head($|[_:| -]|0)/.test(n)) rig.head = obj;
+        else if (!rig.neck && /neck/.test(n)) rig.neck = obj;
+        else if (!rig.chest && /(chest|upperchest|spine2|spine_02)/.test(n)) rig.chest = obj;
+        else if (!rig.spine && /(spine1|spine_01|^spine$)/.test(n)) rig.spine = obj;
+        else if (!rig.leftArm && /(leftarm|leftupperarm|l_upperarm|arm_l)/.test(n)) rig.leftArm = obj;
+        else if (!rig.rightArm && /(rightarm|rightupperarm|r_upperarm|arm_r)/.test(n)) rig.rightArm = obj;
+      }
+    });
+    [rig.head, rig.neck, rig.spine, rig.chest, rig.leftArm, rig.rightArm].forEach((b) => {
+      if (b) rig.rest.set(b, { x: b.rotation.x, y: b.rotation.y, z: b.rotation.z });
+    });
+    return rig;
+  }
+
+  function loadCharacterGlbIfPresent(idx) {
+    if (!gltfLoaderInstance || !scene) return;
+    if (glbLoadState[idx]) return;
+    const cfg = CHARACTERS[idx];
+    if (!cfg || !cfg.id) return;
+    glbLoadState[idx] = 'loading';
+    const url = `./src/assets/models/${cfg.id}.glb`;
+
+    fetch(url, { method: 'HEAD' }).then((res) => {
+      if (!res.ok) {
+        glbLoadState[idx] = 'missing';
+        return;
+      }
+      gltfLoaderInstance.load(
+        url,
+        (gltf) => {
+          const root = gltf.scene || (gltf.scenes && gltf.scenes[0]);
+          if (!root) { glbLoadState[idx] = 'missing'; return; }
+
+          const wrapper = new THREE.Group();
+          wrapper.add(root);
+
+          // Auto-normalize any Meshy / Tripo3D / Mixamo scale & framing to portrait stage
+          const box = new THREE.Box3().setFromObject(root);
+          const size = new THREE.Vector3();
+          const center = new THREE.Vector3();
+          box.getSize(size);
+          box.getCenter(center);
+          const maxDim = Math.max(size.y, size.x, size.z, 0.001);
+          const targetHeight = 2.08;
+          const scale = targetHeight / maxDim;
+          root.scale.setScalar(scale);
+          root.position.set(-center.x * scale, -center.y * scale - 0.08, -center.z * scale);
+
+          wrapper.visible = (idx === state.currentIdx && state.modelMode !== 'mini');
+          scene.add(wrapper);
+          customGlbModels[idx] = wrapper;
+          glbBoneRigs[idx] = findHumanoidBones(root);
+
+          // Embedded AnimationClips (Idle + Reaction)
+          if (gltf.animations && gltf.animations.length > 0) {
+            const mixer = new THREE.AnimationMixer(root);
+            const idleClip = gltf.animations.find(c => /idle|breath|stand/i.test(c.name)) || gltf.animations[0];
+            const reactClip = gltf.animations.find(c => /wave|greet|happy|talk|bow/i.test(c.name)) || (gltf.animations.length > 1 ? gltf.animations[1] : null);
+            const idleAction = mixer.clipAction(idleClip);
+            idleAction.play();
+            const reactAction = reactClip ? mixer.clipAction(reactClip) : null;
+            if (reactAction) reactAction.setLoop(THREE.LoopOnce, 1);
+            glbMixers[idx] = mixer;
+            glbActions[idx] = { idle: idleAction, react: reactAction };
+          }
+
+          glbLoadState[idx] = 'loaded';
+          if (idx === state.currentIdx) showCharacter3D(idx);
+        },
+        undefined,
+        () => { glbLoadState[idx] = 'missing'; }
+      );
+    }).catch(() => { glbLoadState[idx] = 'missing'; });
+  }
+
+  function triggerGlbTapReaction(idx) {
+    const acts = glbActions[idx];
+    if (acts && acts.react && acts.idle) {
+      acts.react.reset();
+      acts.react.crossFadeFrom(acts.idle, 0.22, false).play();
+      const dur = Math.max(0.8, (acts.react.getClip()?.duration || 1.4) - 0.25);
+      setTimeout(() => {
+        if (glbActions[idx]?.idle && glbActions[idx]?.react) {
+          glbActions[idx].idle.reset().crossFadeFrom(glbActions[idx].react, 0.35, false).play();
+        }
+      }, dur * 1000);
+    }
+  }
 
   let lastAnimTs = performance.now();
   function animateThree(now) {
@@ -3609,11 +3865,7 @@
     rigPhys.bounceVel *= 0.84;
     rigPhys.bounceY += rigPhys.bounceVel;
 
-    const activeGlb = customGlbModels[state.currentIdx];
-    if (activeGlb && state.motionEnabled) {
-      activeGlb.rotation.y = rigPhys.curX * 0.55 + Math.sin(t * 0.8) * 0.08;
-      activeGlb.position.y = Math.sin(t * 1.8) * 0.03 + rigPhys.bounceY;
-    } else if (charMesh && charMaterial) {
+    if (charMesh && charMaterial) {
       if (rigPhys.flinchElapsed < 0.95) {
         rigPhys.flinchElapsed += dt;
         const ft = rigPhys.flinchElapsed;
@@ -3633,18 +3885,91 @@
       charMaterial.uniforms.uMotion.value = state.motionEnabled ? 1.0 : 0.0;
       charMaterial.uniforms.uTapImpulse.value = rigPhys.tapImpulse;
       charMaterial.uniforms.uTapUv.value.set(rigPhys.tapUv[0], rigPhys.tapUv[1]);
+      const isCharSpeaking = (typeof voiceEngine !== 'undefined' && voiceEngine.speaking);
+      const targetSpeak = isCharSpeaking ? (0.45 + 0.55 * Math.abs(Math.sin(t * 9.5) * Math.cos(t * 3.7))) : 0.0;
+      speakPulseVal += (targetSpeak - speakPulseVal) * Math.min(1, dt * 10);
+      charMaterial.uniforms.uSpeakPulse.value = speakPulseVal;
+      charMaterial.uniforms.uPointer.value.set(rigPhys.curX, rigPhys.curY);
+
+      if (bgMaterial) {
+        bgMaterial.uniforms.uTime.value = t;
+        bgMaterial.uniforms.uMotion.value = state.motionEnabled ? 1.0 : 0.0;
+      }
 
       if (state.motionEnabled) {
-        // Rock-steady when idle; gently recoils/hunches slightly back on touch (no bounce wobble!)
         const flinch = rigPhys.tapImpulse;
-        charMesh.rotation.y = -flinch * (rigPhys.tapUv[0] - 0.5) * 0.14;
-        charMesh.rotation.x = flinch * 0.045;
-        const calmBreath = Math.sin(t * 1.45) * 0.006;
-        charMesh.position.y = calmBreath - flinch * 0.028;
-        charMesh.position.z = -flinch * 0.075;
+        const idleTurnY = Math.sin(t * 0.55) * 0.042 + rigPhys.curX * 0.14;
+        const idleTurnX = Math.sin(t * 0.72) * 0.015 - rigPhys.curY * 0.055;
+        charMesh.rotation.y = idleTurnY - flinch * (rigPhys.tapUv[0] - 0.5) * 0.14;
+        charMesh.rotation.x = idleTurnX + flinch * 0.045;
+        const calmBreath = Math.sin(t * 1.52) * 0.012;
+        charMesh.position.x = rigPhys.curX * 0.032 + Math.sin(t * 0.68) * 0.010;
+        charMesh.position.y = calmBreath - flinch * 0.025;
+        charMesh.position.z = -flinch * 0.07;
+
+        if (bgMesh && bgMesh.visible) {
+          bgMesh.position.x = -rigPhys.curX * 0.075 - Math.sin(t * 0.55) * 0.012;
+          bgMesh.position.y = -rigPhys.curY * 0.032;
+        }
       } else {
         charMesh.rotation.set(0, 0, 0);
         charMesh.position.set(0, 0, 0);
+        if (bgMesh) bgMesh.position.set(0, 0, -0.58);
+      }
+    }
+
+    // Real 3D .glb Character AnimationMixer + Humanoid Bone Breathing / Gaze / Voice Sync
+    const activeIdx = state.currentIdx;
+    const activeGlb = customGlbModels[activeIdx];
+    if (activeGlb && activeGlb.visible) {
+      if (glbMixers[activeIdx] && state.motionEnabled) {
+        glbMixers[activeIdx].update(dt);
+      }
+      const rig = glbBoneRigs[activeIdx];
+      const isSpeaking = (typeof voiceEngine !== 'undefined' && voiceEngine.speaking);
+      const flinch = rigPhys.tapImpulse || 0;
+      if (state.motionEnabled) {
+        const breath = Math.sin(t * 1.55);
+        const talkNod = isSpeaking ? Math.sin(t * 9.5) * 0.045 : 0;
+        const hasAnimClips = !!glbMixers[activeIdx];
+
+        // Gentle 3D stage turn following pointer/touch + breathing float
+        activeGlb.rotation.y += ((rigPhys.curX * 0.26) - activeGlb.rotation.y) * Math.min(1, dt * 6);
+        activeGlb.rotation.x += (((-rigPhys.curY * 0.08) + flinch * 0.06) - activeGlb.rotation.x) * Math.min(1, dt * 6);
+        activeGlb.position.y = (hasAnimClips ? 0 : breath * 0.018) - flinch * 0.03;
+
+        // Procedural humanoid bone layering (works for both rigged static & animated GLBs)
+        if (rig) {
+          if (rig.head && rig.rest.has(rig.head) && !hasAnimClips) {
+            const r = rig.rest.get(rig.head);
+            rig.head.rotation.y = r.y + rigPhys.curX * 0.24 + Math.sin(t * 0.7) * 0.04;
+            rig.head.rotation.x = r.x - rigPhys.curY * 0.14 + talkNod;
+          }
+          if (rig.chest && rig.rest.has(rig.chest) && !hasAnimClips) {
+            const r = rig.rest.get(rig.chest);
+            rig.chest.rotation.x = r.x + breath * 0.028;
+          }
+          if (rig.spine && rig.rest.has(rig.spine) && !hasAnimClips) {
+            const r = rig.rest.get(rig.spine);
+            rig.spine.rotation.z = r.z + Math.sin(t * 0.85) * 0.016;
+          }
+          // Morph target blink & voice-synced mouth open if model includes blendshapes
+          if (rig.morphMeshes && rig.morphMeshes.length) {
+            const mouthVal = isSpeaking ? (0.25 + Math.abs(Math.sin(t * 13.5)) * 0.55) : 0.0;
+            rig.morphMeshes.forEach((m) => {
+              const dict = m.morphTargetDictionary;
+              const inf = m.morphTargetInfluences;
+              for (const k in dict) {
+                const lk = k.toLowerCase();
+                if (lk.includes('blink')) inf[dict[k]] = rigPhys.blinkVal;
+                else if (lk.includes('mouthopen') || lk.includes('jawopen') || lk === 'aa' || lk.includes('viseme_aa')) inf[dict[k]] = mouthVal;
+              }
+            });
+          }
+        }
+      } else {
+        activeGlb.rotation.set(0, 0, 0);
+        activeGlb.position.set(0, 0, 0);
       }
     }
 
@@ -5317,6 +5642,7 @@
     rigPhys.flinchElapsed = 0.0;
     rigPhys.happyTimer = 0.95;
     rigPhys.blinkState = 1;
+    if (!isMini && customGlbModels[idx]) triggerGlbTapReaction(idx);
     playChimeSound(isMini ? 880 : 780);
   }
   speechBubble.addEventListener('click', (e) => {

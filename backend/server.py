@@ -892,6 +892,28 @@ async def consume_user_ticket(req: TicketConsumeRequest):
     db_execute("UPDATE users SET ticket_count = ? WHERE id = ?", (cur - 1, req.user_id))
     return {"ok": True, "is_plus": False, "ticket_count": cur - 1}
 
+@app.get("/src/assets/cutouts/{filename}")
+async def serve_cutout_asset(filename: str):
+    safe = os.path.basename(filename)
+    if not safe.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
+        raise HTTPException(status_code=400, detail="Invalid cutout format")
+    p = os.path.join(os.path.dirname(__file__), "..", "src", "assets", "cutouts", safe)
+    if not os.path.exists(p):
+        raise HTTPException(status_code=404, detail="Cutout not found")
+    media = "image/png" if safe.lower().endswith(".png") else "image/jpeg"
+    return FileResponse(p, media_type=media)
+
+@app.get("/src/assets/models/{filename}")
+async def serve_model_asset(filename: str):
+    safe = os.path.basename(filename)
+    if not safe.lower().endswith((".glb", ".gltf")):
+        raise HTTPException(status_code=400, detail="Invalid model format")
+    p = os.path.join(os.path.dirname(__file__), "..", "src", "assets", "models", safe)
+    if not os.path.exists(p):
+        raise HTTPException(status_code=404, detail="Model not found")
+    media = "model/gltf-binary" if safe.lower().endswith(".glb") else "model/gltf+json"
+    return FileResponse(p, media_type=media)
+
 @app.get("/src/assets/spouses/{filename}")
 def serve_spouse_portrait(filename: str):
     safe = os.path.basename(filename)
