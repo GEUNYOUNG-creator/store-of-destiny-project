@@ -522,7 +522,7 @@ async def generate_fortune(req: FortuneRequest):
 @app.post("/api/chat")
 async def chat_with_character(req: ChatRequest):
     sys_prompt = CHARACTER_PROMPTS.get(req.character_id, CHARACTER_PROMPTS["saju"])
-    sys_prompt += "\n답변은 모바일 대화창에 어울리게 3~5문장으로 친근하고 명쾌하게 작성하며, 핵심 포인트 1~2곳은 **강조**로 표시하세요."
+    sys_prompt += "\n지금은 친밀도 Lv.5를 달성한 아주 소중한 단골 손님과 운명상점 연회장의 소원초 옆에서 단둘이 마주 앉아 나누는 비밀 1:1 대화입니다. 손님을 진심으로 반기고 알아보는 다정한 말투로, 모바일 대화창에 어울리게 3~5문장으로 자연스럽게 대답하며 핵심 포인트 1~2곳은 **강조**로 표시하세요."
     now = datetime.datetime.now().isoformat(timespec="seconds")
     db_execute("INSERT INTO chat_logs (user_id, character_id, role, content, created_at) VALUES (?, ?, 'user', ?, ?)", (req.user_id, req.character_id, req.message, now))
     if req.user_id:
