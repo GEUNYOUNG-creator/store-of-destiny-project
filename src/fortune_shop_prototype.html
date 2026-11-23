@@ -1286,22 +1286,30 @@
       background-position: center 48%;
       overflow: hidden;
     }
+        @keyframes chibiWalkWaddle {
+      0%, 100% { transform: scaleX(var(--flip-x, 1)) translateY(0px) rotate(0deg); }
+      25% { transform: scaleX(var(--flip-x, 1)) translateY(-3px) rotate(-2.5deg); }
+      75% { transform: scaleX(var(--flip-x, 1)) translateY(-3px) rotate(2.5deg); }
+    }
     .banquet-chibi-slot {
       position: absolute;
       transform: translate(-50%, -100%);
       display: flex;
       flex-direction: column;
       align-items: center;
-      cursor: pointer;
-      transition: transform 0.2s ease;
+      pointer-events: none;
+      will-change: left, top;
     }
-    .banquet-chibi-slot:active { transform: translate(-50%, -100%) scale(0.94); }
     .banquet-chibi-img {
       width: 78px;
       height: 78px;
       object-fit: contain;
       filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.65));
-      animation: petFloatBob 2.8s ease-in-out infinite;
+      transform: scaleX(var(--flip-x, 1));
+      transition: transform 0.25s ease;
+    }
+    .banquet-chibi-slot.is-walking .banquet-chibi-img {
+      animation: chibiWalkWaddle 0.42s ease-in-out infinite;
     }
     .banquet-chibi-tag {
       margin-top: -4px;
@@ -2242,7 +2250,7 @@
 
 
   <!-- ==================== OLLAMA AI CHARACTER CHAT DRAWER ==================== -->
-  <div id="chat-drawer" class="drawer-backdrop" style="z-index: 98;" role="dialog" aria-modal="true">
+  <div id="chat-drawer" class="drawer-backdrop" style="z-index: 1050;" role="dialog" aria-modal="true">
     <div class="drawer-sheet h-[74%]">
       <div class="w-10 h-1 bg-white/25 rounded-full mx-auto mb-2.5"></div>
       <div class="flex items-center justify-between pb-2.5 border-b border-white/10">
@@ -2671,7 +2679,7 @@
           <span class="font-serif-kr text-base font-extrabold text-[#fde68a]">🕯️ 운명상점 연회장</span>
           <span id="banquet-unlocked-badge" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500/30 text-rose-100 border border-rose-300/50">0 / 9명</span>
         </div>
-        <div class="text-[10px] text-amber-100/75 mt-0.5">Lv.5 달성 캐릭터가 귀여운 미니미로 등장 · 터치 시 1:1 대화</div>
+        <div class="text-[10px] text-amber-100/75 mt-0.5">미니미들이 연회장을 자유롭게 돌아다녀요 · 아래 이름표에서 1:1 대화 &amp; 복장 변경</div>
       </div>
       <div class="flex items-center gap-1.5 shrink-0">
         <button id="btn-close-banquet" type="button" class="px-2.5 py-1.5 rounded-full text-xs font-bold bg-white/10 hover:bg-white/20 text-amber-100 border border-amber-300/40 active:scale-95 transition">
@@ -2773,7 +2781,7 @@
   </div>
 
   <!-- ==================== WISH CANDLE ALTAR DRAWER (소원초 · 운명 펫 소원 배달부) ==================== -->
-  <div id="wish-candle-drawer" class="drawer-backdrop" style="z-index: 97;" role="dialog" aria-modal="true">
+  <div id="wish-candle-drawer" class="drawer-backdrop" style="z-index: 1040;" role="dialog" aria-modal="true">
     <div class="drawer-sheet space-y-3.5 overflow-y-auto max-h-[84vh]">
       <div class="w-10 h-1 bg-white/25 rounded-full mx-auto"></div>
       <div class="flex items-center justify-between">
@@ -4779,7 +4787,7 @@
       }
       this.stop();
       const seq = this.reqSeq;
-      const url = `./assets/voices/${cid}_${kind}.mp3?v=7`;
+      const url = `./assets/voices/${cid}_${kind}.mp3?v=8`;
       const audio = new Audio(url);
       audio.volume = 1.0;
 
@@ -11143,8 +11151,74 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       { left: '79%', top: '51%', z: 11, scale: 0.94 }  // 8 몽화 (뒤 우)
     ];
 
+        let banquetRoamTimers = [];
+    function stopBanquetRoaming() {
+      banquetRoamTimers.forEach((id) => clearTimeout(id));
+      banquetRoamTimers = [];
+    }
+
+    // Safe circular floor waypoints around the Wish Candle (avoids center candle pedestal)
+    const ROAM_SPOTS = [
+      { left: 50, top: 87 }, { left: 36, top: 85 }, { left: 64, top: 85 },
+      { left: 20, top: 81 }, { left: 80, top: 81 }, { left: 28, top: 75 },
+      { left: 72, top: 75 }, { left: 16, top: 68 }, { left: 84, top: 68 },
+      { left: 26, top: 63 }, { left: 74, top: 63 }, { left: 18, top: 56 },
+      { left: 82, top: 56 }, { left: 31, top: 56 }, { left: 69, top: 56 },
+      { left: 22, top: 50 }, { left: 78, top: 50 }
+    ];
+
+    function startBanquetRoaming() {
+      stopBanquetRoaming();
+      if (!banquetMount) return;
+      const slots = Array.from(banquetMount.querySelectorAll('.banquet-chibi-slot[data-unlocked="1"]'));
+      slots.forEach((slot, orderIdx) => {
+        let curLeft = parseFloat(slot.dataset.curLeft || '50');
+        let curTop = parseFloat(slot.dataset.curTop || '78');
+
+        function scheduleNextMove() {
+          if (!banquetOpen) return;
+          const waitMs = 1800 + Math.random() * 2600 + orderIdx * 160;
+          const tid = setTimeout(() => {
+            if (!banquetOpen) return;
+            // Pick a nearby floor spot for natural 2D strolling
+            const candidates = ROAM_SPOTS.filter((sp) => {
+              const d = Math.hypot(sp.left - curLeft, sp.top - curTop);
+              return d >= 10 && d <= 36;
+            });
+            const next = (candidates.length ? candidates : ROAM_SPOTS)[Math.floor(Math.random() * (candidates.length || ROAM_SPOTS.length))];
+            const dx = next.left - curLeft;
+            const dist = Math.hypot(dx, next.top - curTop);
+            const durSec = Math.max(1.5, Math.min(3.4, dist * 0.095));
+
+            slot.style.transition = `left ${durSec.toFixed(2)}s ease-in-out, top ${durSec.toFixed(2)}s ease-in-out`;
+            slot.style.left = `${next.left}%`;
+            slot.style.top = `${next.top}%`;
+            slot.style.zIndex = String(Math.round(next.top));
+            slot.classList.add('is-walking');
+            const img = slot.querySelector('.banquet-chibi-img');
+            if (img && Math.abs(dx) > 1.5) {
+              img.style.setProperty('--flip-x', dx < 0 ? '-1' : '1');
+            }
+            curLeft = next.left;
+            curTop = next.top;
+            slot.dataset.curLeft = String(curLeft);
+            slot.dataset.curTop = String(curTop);
+
+            const stopTid = setTimeout(() => {
+              slot.classList.remove('is-walking');
+              scheduleNextMove();
+            }, Math.round(durSec * 1000) + 120);
+            banquetRoamTimers.push(stopTid);
+          }, waitMs);
+          banquetRoamTimers.push(tid);
+        }
+        scheduleNextMove();
+      });
+    }
+
     function rebuildBanquetChibis() {
       if (!banquetMount) return;
+      stopBanquetRoaming();
       let unlockedCount = 0;
       let slotsHtml = '';
 
@@ -11153,20 +11227,21 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
         const unlocked = lv >= 5;
         if (unlocked) unlockedCount++;
         const pos = CHIBI_POSITIONS[idx] || { left: '50%', top: '80%', z: 14, scale: 1 };
-        const delay = (idx * 0.35).toFixed(2);
+        const leftNum = parseFloat(pos.left);
+        const topNum = parseFloat(pos.top);
         const sizePx = Math.round(82 * pos.scale);
 
         if (unlocked) {
           slotsHtml += `
-            <button type="button" data-chibi-idx="${idx}" class="banquet-chibi-slot" style="left:${pos.left}; top:${pos.top}; z-index:${pos.z};">
-              <img src="./src/assets/banquet/chibi_${c.id}${(window.getCharSkinMode && window.getCharSkinMode(c.id) !== 'default') ? ('_' + window.getCharSkinMode(c.id)) : ''}.png?v=4" alt="${c.name}" class="banquet-chibi-img" style="width:${sizePx}px; height:${sizePx}px; animation-delay:${delay}s;" />
-              <span class="banquet-chibi-tag">${c.name} 💬</span>
-            </button>`;
+            <div data-chibi-idx="${idx}" data-unlocked="1" data-cur-left="${leftNum}" data-cur-top="${topNum}" class="banquet-chibi-slot" style="left:${pos.left}; top:${pos.top}; z-index:${Math.round(topNum)};">
+              <img src="./src/assets/banquet/chibi_${c.id}${(window.getCharSkinMode && window.getCharSkinMode(c.id) !== 'default') ? ('_' + window.getCharSkinMode(c.id)) : ''}.png?v=4" alt="${c.name}" class="banquet-chibi-img" style="width:${sizePx}px; height:${sizePx}px;" />
+              <span class="banquet-chibi-tag">${c.name}</span>
+            </div>`;
         } else {
           slotsHtml += `
-            <button type="button" data-chibi-idx="${idx}" class="banquet-chibi-slot" style="left:${pos.left}; top:${pos.top}; z-index:${pos.z};">
+            <div data-chibi-idx="${idx}" data-unlocked="0" class="banquet-chibi-slot" style="left:${pos.left}; top:${pos.top}; z-index:${pos.z};">
               <div class="banquet-locked-seat">🔒 ${c.name}</div>
-            </button>`;
+            </div>`;
         }
       });
 
@@ -11185,32 +11260,38 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
         if (typeof window.openWishCandleDrawer === 'function') window.openWishCandleDrawer();
       });
 
-      banquetMount.querySelectorAll('[data-chibi-idx]').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const idx = parseInt(btn.dataset.chibiIdx, 10);
-          handleBanquetChibiTap(idx, false);
-        });
-      });
-
       if (banquetUnlockedBadge) banquetUnlockedBadge.textContent = `${unlockedCount} / ${CHARACTERS.length}명`;
 
       if (banquetDock) {
         banquetDock.innerHTML = CHARACTERS.map((c, idx) => {
           const lv = getAffinityLevel(c.id);
           const unlocked = lv >= 5;
+          const isSel = (idx === bFocusedIdx);
           return `<button type="button" data-bdock-idx="${idx}" class="px-2.5 py-1.5 rounded-full text-[11px] font-bold shrink-0 border transition active:scale-95 ${
-            unlocked
-              ? 'bg-amber-400/25 border-amber-300/70 text-amber-100'
-              : 'bg-white/8 border-white/15 text-slate-300'
+            isSel
+              ? 'bg-gradient-to-r from-amber-400/45 to-rose-400/40 border-amber-200 text-white shadow-md'
+              : (unlocked ? 'bg-amber-400/20 border-amber-300/60 text-amber-100' : 'bg-white/5 border-white/15 text-slate-400')
           }">${c.icon} ${c.name} ${unlocked ? '💬' : `Lv.${lv}`}</button>`;
         }).join('');
-        banquetDock.querySelectorAll('[data-bdock-idx]').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const idx = parseInt(btn.dataset.bdockIdx, 10);
+        banquetDock.querySelectorAll('[data-bdock-idx]').forEach((b) => {
+          b.addEventListener('click', () => {
+            const idx = parseInt(b.dataset.bdockIdx, 10);
             handleBanquetChibiTap(idx, false);
+            // Highlight selected chip in bottom dock
+            banquetDock.querySelectorAll('[data-bdock-idx]').forEach((el) => {
+              const eIdx = parseInt(el.dataset.bdockIdx, 10);
+              const u = getAffinityLevel(CHARACTERS[eIdx].id) >= 5;
+              el.className = `px-2.5 py-1.5 rounded-full text-[11px] font-bold shrink-0 border transition active:scale-95 ${
+                eIdx === idx
+                  ? 'bg-gradient-to-r from-amber-400/45 to-rose-400/40 border-amber-200 text-white shadow-md'
+                  : (u ? 'bg-amber-400/20 border-amber-300/60 text-amber-100' : 'bg-white/5 border-white/15 text-slate-400')
+              }`;
+            });
           });
         });
       }
+
+      if (banquetOpen) startBanquetRoaming();
     }
 
     function handleBanquetChibiTap(idx, openChatImmediately = true) {
@@ -11276,6 +11357,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
 
     function closeBanquetHall() {
       banquetOpen = false;
+      stopBanquetRoaming();
       if (banquetOverlay) {
         banquetOverlay.classList.add('hidden');
         banquetOverlay.classList.remove('flex');
