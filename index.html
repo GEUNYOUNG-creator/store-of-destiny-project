@@ -1305,7 +1305,7 @@
     <!-- Stage sightline kept clean; Model Mode & GLB Loader moved into Settings Drawer -->
 <div id="char-badge">
       <div id="badge-role" class="text-[10px] font-semibold tracking-wider text-[#e6c67c]">운명상점 주인 · 사주 명리</div>
-      <div id="badge-name" class="font-serif-kr text-sm font-bold text-white leading-tight">연화</div>
+      <div class="flex items-center gap-1.5"><div id="badge-name" class="font-serif-kr text-sm font-bold text-white leading-tight">연화</div><button id="badge-affinity-pill" type="button" title="캐릭터 친밀도 보기" class="px-1.5 py-0.5 rounded-full bg-rose-500/30 border border-rose-300/55 text-[9.5px] font-extrabold text-rose-100 active:scale-95 transition">♥ Lv.1</button></div>
     </div>
 
     <div id="speech-bubble" title="터치하면 표정과 대사가 바뀝니다">
@@ -1315,6 +1315,38 @@
 
   <!-- ==================== CHARACTER-THEMED BESPOKE INPUT PANELS ==================== -->
   <main id="content-sheet">
+    <!-- ==================== RETENTION & VIRAL QUICK BAR ==================== -->
+    <div id="retention-quick-bar" class="grid grid-cols-4 gap-1.5 mb-2.5 pt-1">
+      <button id="btn-open-retention" type="button" class="relative flex flex-col items-center justify-center py-1.5 px-1 rounded-xl bg-gradient-to-b from-amber-500/20 to-amber-900/25 border border-amber-300/45 text-[10px] font-bold text-amber-100 active:scale-95 transition">
+        <span id="checkin-red-dot" class="hidden absolute top-1 right-1.5 w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span>
+        <span class="text-sm leading-none mb-0.5">🎁</span>
+        <span class="truncate">출석·친밀도</span>
+      </button>
+      <button id="btn-open-profile-cal" type="button" class="flex flex-col items-center justify-center py-1.5 px-1 rounded-xl bg-gradient-to-b from-emerald-500/20 to-teal-900/25 border border-emerald-300/40 text-[10px] font-bold text-emerald-100 active:scale-95 transition">
+        <span class="text-sm leading-none mb-0.5">📅</span>
+        <span class="truncate">프로필·달력</span>
+      </button>
+      <button id="btn-open-newyear-2027" type="button" class="flex flex-col items-center justify-center py-1.5 px-1 rounded-xl bg-gradient-to-b from-rose-500/25 to-purple-900/30 border border-rose-300/50 text-[10px] font-bold text-rose-100 active:scale-95 transition">
+        <span class="text-sm leading-none mb-0.5">🐎</span>
+        <span class="truncate">2027 신년운</span>
+      </button>
+      <button id="btn-open-compat-invite" type="button" class="flex flex-col items-center justify-center py-1.5 px-1 rounded-xl bg-gradient-to-b from-yellow-400/25 to-amber-800/30 border border-yellow-300/55 text-[10px] font-bold text-yellow-100 active:scale-95 transition">
+        <span class="text-sm leading-none mb-0.5">💌</span>
+        <span class="truncate">카톡 궁합초대</span>
+      </button>
+    </div>
+
+    <!-- Incoming Compatibility Invite Deep-Link Banner -->
+    <div id="compat-invite-banner" class="hidden mb-2.5 rounded-2xl p-3 bg-gradient-to-r from-rose-950/90 via-purple-950/90 to-amber-950/85 border border-amber-300/60 shadow-lg">
+      <div class="flex items-start justify-between gap-2">
+        <div>
+          <div class="text-[10px] font-bold text-amber-200 tracking-wider">💌 카톡 궁합 초대 도착</div>
+          <div id="compat-invite-banner-text" class="text-xs font-extrabold text-white mt-0.5 leading-snug"></div>
+        </div>
+        <button id="btn-close-invite-banner" type="button" class="text-xs text-white/70 px-1.5">✕</button>
+      </div>
+    </div>
+
     <!-- PANEL 0: SAJU -->
     <div id="panel-0" class="char-panel space-y-3 pt-2">
       <div class="jade-tablet-frame px-4 pt-5 pb-4">
@@ -2157,6 +2189,240 @@
           </div>
           <button id="btn-install-pwa" type="button" class="px-3 py-1.5 rounded-full text-xs font-bold bg-[#e6c67c] text-[#1a1612] shadow active:scale-95 transition shrink-0">앱 설치</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==================== 1. ATTENDANCE STREAK & CHARACTER AFFINITY DRAWER ==================== -->
+  <div id="retention-drawer" class="drawer-backdrop" role="dialog" aria-modal="true">
+    <div class="drawer-sheet space-y-3.5 overflow-y-auto max-h-[84vh]">
+      <div class="w-10 h-1 bg-white/25 rounded-full mx-auto"></div>
+      <div class="flex items-center justify-between">
+        <h3 class="font-serif-kr text-base font-bold text-[#fae6b8]">🎁 출석 체크 &amp; 캐릭터 친밀도</h3>
+        <button id="btn-close-retention" type="button" class="w-8 h-8 rounded-full bg-white/10 text-white/80 flex items-center justify-center">✕</button>
+      </div>
+
+      <!-- 7-Day Attendance Streak Card -->
+      <div class="rounded-2xl p-3.5 bg-gradient-to-br from-amber-950/60 to-slate-900/90 border border-amber-300/45 space-y-2.5">
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-xs font-extrabold text-amber-200">🔥 7일 연속 운명 출석부</div>
+            <div id="streak-subtitle" class="text-[11px] text-slate-300 mt-0.5">3일차 복주머니 +1 · 7일차 복주머니 +2 무료 지급!</div>
+          </div>
+          <span id="streak-count-badge" class="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-amber-400/20 text-amber-200 border border-amber-300/45">0일 연속</span>
+        </div>
+        <div id="streak-grid" class="grid grid-cols-7 gap-1.5"></div>
+        <button id="btn-daily-checkin" type="button" class="w-full py-2.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-amber-400 to-yellow-300 text-slate-950 shadow-md active:scale-95 transition">
+          ✨ 오늘 출석 도장 찍고 기운 받기
+        </button>
+      </div>
+
+      <!-- 9-Character Affinity List -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <div class="text-xs font-extrabold text-emerald-200">💖 9인 마스터 친밀도 (Lv.3 · Lv.5 히든 대사 해금)</div>
+          <span class="text-[10px] text-slate-400">운세·대화 시 자동 상승</span>
+        </div>
+        <div id="affinity-list" class="space-y-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 2. MY PROFILE / FRIENDS & MONTHLY FORTUNE CALENDAR DRAWER ==================== -->
+  <div id="profile-calendar-drawer" class="drawer-backdrop" role="dialog" aria-modal="true">
+    <div class="drawer-sheet space-y-3.5 overflow-y-auto max-h-[85vh]">
+      <div class="w-10 h-1 bg-white/25 rounded-full mx-auto"></div>
+      <div class="flex items-center justify-between">
+        <h3 class="font-serif-kr text-base font-bold text-[#a7f3d0]">📅 내 프로필 &amp; 이달의 운세 달력</h3>
+        <button id="btn-close-profile-cal" type="button" class="w-8 h-8 rounded-full bg-white/10 text-white/80 flex items-center justify-center">✕</button>
+      </div>
+
+      <!-- Sub-tabs: 달력 vs 프로필 -->
+      <div class="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-black/40 border border-white/10">
+        <button type="button" data-pcal-tab="calendar" class="pcal-tab-btn py-1.5 rounded-lg text-xs font-bold bg-emerald-500/30 text-emerald-100 border border-emerald-400/50">📅 이달의 운세 달력</button>
+        <button type="button" data-pcal-tab="profiles" class="pcal-tab-btn py-1.5 rounded-lg text-xs font-bold text-slate-300">👤 내 프로필 · 지인 저장</button>
+      </div>
+
+      <!-- TAB A: Monthly Fortune Calendar -->
+      <div id="pcal-tab-calendar" class="space-y-2.5">
+        <div class="flex items-center justify-between px-1">
+          <button id="btn-cal-prev" type="button" class="px-2.5 py-1 rounded-lg bg-white/10 text-xs text-white">◀</button>
+          <div id="cal-month-title" class="font-serif-kr text-sm font-extrabold text-amber-100">2026년 11월</div>
+          <button id="btn-cal-next" type="button" class="px-2.5 py-1 rounded-lg bg-white/10 text-xs text-white">▶</button>
+        </div>
+        <div class="flex items-center justify-center gap-2.5 text-[10px] text-slate-300">
+          <span>🌟 대길일</span><span>💖 연애운</span><span>💰 재물운</span><span>⚠️ 주의일</span>
+        </div>
+        <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-slate-400">
+          <span class="text-rose-300">일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span class="text-sky-300">토</span>
+        </div>
+        <div id="fortune-calendar-grid" class="grid grid-cols-7 gap-1"></div>
+        <div id="fortune-calendar-detail" class="rounded-xl p-3 bg-white/5 border border-emerald-300/30 text-xs text-slate-100 space-y-2">
+          날짜를 누르면 그날의 상세 흐름과 적중 기록을 남길 수 있어요.
+        </div>
+      </div>
+
+      <!-- TAB B: Saved Profiles & Friends -->
+      <div id="pcal-tab-profiles" class="hidden space-y-3">
+        <div class="rounded-2xl p-3 bg-white/5 border border-emerald-300/35 space-y-2">
+          <div class="text-xs font-extrabold text-emerald-200">✨ 프로필 추가 / 수정 (본인 또는 연인·친구)</div>
+          <div class="grid grid-cols-2 gap-1.5">
+            <select id="prof-slot-role" class="px-2.5 py-1.5 rounded-lg bg-black/50 border border-white/15 text-xs text-white">
+              <option value="me">본인 (내 프로필)</option>
+              <option value="partner">연인 / 썸</option>
+              <option value="friend">친구 / 가족</option>
+            </select>
+            <input id="prof-name" type="text" placeholder="이름 (예: 근영)" class="px-2.5 py-1.5 rounded-lg bg-black/50 border border-white/15 text-xs text-white" />
+          </div>
+          <div class="grid grid-cols-3 gap-1.5">
+            <input id="prof-year" type="number" placeholder="출생년 (1995)" class="px-2 py-1.5 rounded-lg bg-black/50 border border-white/15 text-xs text-white" />
+            <input id="prof-month" type="number" placeholder="월" class="px-2 py-1.5 rounded-lg bg-black/50 border border-white/15 text-xs text-white" />
+            <input id="prof-day" type="number" placeholder="일" class="px-2 py-1.5 rounded-lg bg-black/50 border border-white/15 text-xs text-white" />
+          </div>
+          <div class="grid grid-cols-3 gap-1.5">
+            <select id="prof-gender" class="px-2 py-1.5 rounded-lg bg-black/50 border border-white/15 text-xs text-white">
+              <option value="F">여성</option>
+              <option value="M">남성</option>
+            </select>
+            <select id="prof-blood" class="px-2 py-1.5 rounded-lg bg-black/50 border border-white/15 text-xs text-white">
+              <option value="A">A형</option><option value="B">B형</option><option value="O">O형</option><option value="AB">AB형</option>
+            </select>
+            <select id="prof-mbti" class="px-2 py-1.5 rounded-lg bg-black/50 border border-white/15 text-xs text-white">
+              <option value="ENFP">ENFP</option><option value="INFP">INFP</option><option value="ENFJ">ENFJ</option><option value="INFJ">INFJ</option>
+              <option value="ENTP">ENTP</option><option value="INTP">INTP</option><option value="ENTJ">ENTJ</option><option value="INTJ">INTJ</option>
+              <option value="ESFP">ESFP</option><option value="ISFP">ISFP</option><option value="ESFJ">ESFJ</option><option value="ISFJ">ISFJ</option>
+              <option value="ESTP">ESTP</option><option value="ISTP">ISTP</option><option value="ESTJ">ESTJ</option><option value="ISTJ">ISTJ</option>
+            </select>
+          </div>
+          <button id="btn-save-profile" type="button" class="w-full py-2 rounded-xl text-xs font-extrabold bg-emerald-500/35 text-emerald-100 border border-emerald-300/50 active:scale-95 transition">
+            💾 프로필 저장하기 (원터치 자동입력 지원)
+          </button>
+        </div>
+
+        <div class="space-y-1.5">
+          <div class="text-xs font-bold text-slate-300">저장된 프로필 목록 (탭해서 바로 입력칸 채우기)</div>
+          <div id="saved-profiles-list" class="space-y-1.5"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 3. 2027 JEONGMI NEW YEAR FORTUNE & 1-MIN WORRY PACK DRAWER ==================== -->
+  <div id="newyear-2027-drawer" class="drawer-backdrop" role="dialog" aria-modal="true">
+    <div class="drawer-sheet space-y-3.5 overflow-y-auto max-h-[85vh]">
+      <div class="w-10 h-1 bg-white/25 rounded-full mx-auto"></div>
+      <div class="flex items-center justify-between">
+        <h3 class="font-serif-kr text-base font-bold text-[#fde68a]">🐎 2027 정미년 신년운세 &amp; 고민별 리딩</h3>
+        <button id="btn-close-newyear-2027" type="button" class="w-8 h-8 rounded-full bg-white/10 text-white/80 flex items-center justify-center">✕</button>
+      </div>
+
+      <div class="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-black/40 border border-white/10">
+        <button type="button" data-ny-tab="2027" class="ny-tab-btn py-1.5 rounded-lg text-xs font-bold bg-rose-500/35 text-rose-100 border border-rose-300/50">🐎 2027 신년 총운</button>
+        <button type="button" data-ny-tab="worry" class="ny-tab-btn py-1.5 rounded-lg text-xs font-bold text-slate-300">🔮 고민별 1분 리딩</button>
+      </div>
+
+      <!-- TAB 1: 2027 Jeongmi New Year -->
+      <div id="ny-tab-2027" class="space-y-3">
+        <div class="rounded-2xl p-3 bg-gradient-to-br from-rose-950/60 to-amber-950/50 border border-amber-300/40 space-y-2">
+          <div class="text-[11px] text-amber-100 leading-relaxed">
+            <strong>2027년 정미년(丁未年 · 붉은 양의 해)</strong>의 불(火)과 흙(土) 기운이 내 사주와 만나 어떤 전환점을 만드는지 월별 흐름까지 한눈에 펼쳐드립니다.
+          </div>
+          <div class="grid grid-cols-4 gap-1.5">
+            <input id="ny-name" type="text" placeholder="이름" class="px-2 py-1.5 rounded-lg bg-black/45 border border-white/15 text-xs text-white" />
+            <input id="ny-year" type="number" placeholder="1995" class="px-2 py-1.5 rounded-lg bg-black/45 border border-white/15 text-xs text-white" />
+            <input id="ny-month" type="number" placeholder="월" class="px-2 py-1.5 rounded-lg bg-black/45 border border-white/15 text-xs text-white" />
+            <input id="ny-day" type="number" placeholder="일" class="px-2 py-1.5 rounded-lg bg-black/45 border border-white/15 text-xs text-white" />
+          </div>
+          <button id="btn-run-newyear-2027" type="button" class="w-full py-2.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-md active:scale-95 transition">
+            ✨ 내 2027년 정미년 신년운세 보기
+          </button>
+        </div>
+        <div id="ny-2027-result" class="hidden space-y-2.5"></div>
+      </div>
+
+      <!-- TAB 2: 1-Min Worry Packs -->
+      <div id="ny-tab-worry" class="hidden space-y-3">
+        <div class="text-xs text-slate-300">지금 가장 마음이 쓰이는 고민을 하나 고르면 즉석으로 핵심 해답을 읽어드려요.</div>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" data-worry-pack="reunion" class="worry-pack-btn p-3 rounded-2xl text-left bg-rose-500/15 border border-rose-300/40 hover:bg-rose-500/25 active:scale-95 transition">
+            <div class="text-lg">💔</div>
+            <div class="text-xs font-extrabold text-rose-100 mt-1">재회운 · 속마음</div>
+            <div class="text-[10px] text-slate-300 mt-0.5">그 사람 연락 올까?</div>
+          </button>
+          <button type="button" data-worry-pack="crush" class="worry-pack-btn p-3 rounded-2xl text-left bg-pink-500/15 border border-pink-300/40 hover:bg-pink-500/25 active:scale-95 transition">
+            <div class="text-lg">💘</div>
+            <div class="text-xs font-extrabold text-pink-100 mt-1">썸 · 연애 타이밍</div>
+            <div class="text-[10px] text-slate-300 mt-0.5">고백·연애 성공 시기</div>
+          </button>
+          <button type="button" data-worry-pack="career" class="worry-pack-btn p-3 rounded-2xl text-left bg-sky-500/15 border border-sky-300/40 hover:bg-sky-500/25 active:scale-95 transition">
+            <div class="text-lg">💼</div>
+            <div class="text-xs font-extrabold text-sky-100 mt-1">이직 · 취업운</div>
+            <div class="text-[10px] text-slate-300 mt-0.5">움직여야 할 황금기</div>
+          </button>
+          <button type="button" data-worry-pack="wealth" class="worry-pack-btn p-3 rounded-2xl text-left bg-amber-500/15 border border-amber-300/40 hover:bg-amber-500/25 active:scale-95 transition">
+            <div class="text-lg">💰</div>
+            <div class="text-xs font-extrabold text-amber-100 mt-1">재물 · 목돈 흐름</div>
+            <div class="text-[10px] text-slate-300 mt-0.5">수입·지출 주의 포인트</div>
+          </button>
+        </div>
+        <div id="worry-pack-result" class="hidden rounded-2xl p-3.5 bg-white/5 border border-amber-300/35 text-xs text-slate-100 space-y-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 4. KAKAO COMPATIBILITY INVITE LINK BUILDER DRAWER ==================== -->
+  <div id="compat-invite-drawer" class="drawer-backdrop" role="dialog" aria-modal="true">
+    <div class="drawer-sheet space-y-3.5 overflow-y-auto max-h-[82vh]">
+      <div class="w-10 h-1 bg-white/25 rounded-full mx-auto"></div>
+      <div class="flex items-center justify-between">
+        <h3 class="font-serif-kr text-base font-bold text-[#fef08a]">💌 카톡 궁합 초대 링크 보내기</h3>
+        <button id="btn-close-compat-invite" type="button" class="w-8 h-8 rounded-full bg-white/10 text-white/80 flex items-center justify-center">✕</button>
+      </div>
+      <div class="text-xs text-slate-300 leading-relaxed">
+        내 정보를 담은 초대 링크를 카카오톡으로 보내면, 상대방이 링크를 눌러 <strong>자기 정보만 입력하고 바로 둘의 궁합</strong>을 확인할 수 있어요!
+      </div>
+      <div class="space-y-2 rounded-2xl p-3 bg-white/5 border border-yellow-300/35">
+        <div class="grid grid-cols-2 gap-1.5">
+          <select id="inv-type" class="px-2.5 py-2 rounded-xl bg-black/50 border border-white/15 text-xs text-white">
+            <option value="saju">🔮 사주 궁합 초대</option>
+            <option value="blood">🩸 혈액형 궁합 초대</option>
+            <option value="mbti">🧩 MBTI 궁합 초대</option>
+            <option value="zodiac">✨ 별자리 궁합 초대</option>
+          </select>
+          <input id="inv-name" type="text" placeholder="내 이름/닉네임" class="px-2.5 py-2 rounded-xl bg-black/50 border border-white/15 text-xs text-white" />
+        </div>
+        <div id="inv-fields-saju" class="grid grid-cols-4 gap-1.5">
+          <input id="inv-y" type="number" placeholder="1995" class="px-2 py-1.5 rounded-lg bg-black/50 border border-white/15 text-xs text-white" />
+          <input id="inv-m" type="number" placeholder="월" class="px-2 py-1.5 rounded-lg bg-black/50 border border-white/15 text-xs text-white" />
+          <input id="inv-d" type="number" placeholder="일" class="px-2 py-1.5 rounded-lg bg-black/50 border border-white/15 text-xs text-white" />
+          <select id="inv-g" class="px-2 py-1.5 rounded-lg bg-black/50 border border-white/15 text-xs text-white">
+            <option value="F">여</option><option value="M">남</option>
+          </select>
+        </div>
+        <div id="inv-fields-blood" class="hidden">
+          <select id="inv-blood" class="w-full px-2.5 py-2 rounded-lg bg-black/50 border border-white/15 text-xs text-white">
+            <option value="A">내 혈액형: A형</option><option value="B">내 혈액형: B형</option><option value="O">내 혈액형: O형</option><option value="AB">내 혈액형: AB형</option>
+          </select>
+        </div>
+        <div id="inv-fields-mbti" class="hidden">
+          <select id="inv-mbti" class="w-full px-2.5 py-2 rounded-lg bg-black/50 border border-white/15 text-xs text-white">
+            <option value="ENFP">ENFP</option><option value="INFP">INFP</option><option value="ENFJ">ENFJ</option><option value="INFJ">INFJ</option>
+            <option value="ENTP">ENTP</option><option value="INTP">INTP</option><option value="ENTJ">ENTJ</option><option value="INTJ">INTJ</option>
+            <option value="ESFP">ESFP</option><option value="ISFP">ISFP</option><option value="ESFJ">ESFJ</option><option value="ISFJ">ISFJ</option>
+            <option value="ESTP">ESTP</option><option value="ISTP">ISTP</option><option value="ESTJ">ESTJ</option><option value="ISTJ">ISTJ</option>
+          </select>
+        </div>
+        <div id="inv-fields-zodiac" class="hidden">
+          <select id="inv-zodiac" class="w-full px-2.5 py-2 rounded-lg bg-black/50 border border-white/15 text-xs text-white">
+            <option value="0">양자리</option><option value="1">황소자리</option><option value="2">쌍둥이자리</option><option value="3">게자리</option>
+            <option value="4">사자자리</option><option value="5">처녀자리</option><option value="6">천칭자리</option><option value="7">전갈자리</option>
+            <option value="8">사수자리</option><option value="9">염소자리</option><option value="10">물병자리</option><option value="11">물고기자리</option>
+          </select>
+        </div>
+        <button id="btn-send-compat-invite" type="button" class="w-full py-2.5 rounded-xl text-xs font-extrabold bg-[#FEE500] text-[#191919] shadow-md active:scale-95 transition">
+          💬 카카오톡·메신저로 궁합 초대 보내기
+        </button>
       </div>
     </div>
   </div>
@@ -9700,6 +9966,656 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       }
     });
   }
+
+  /* ==================== RETENTION, AFFINITY, PROFILE/CALENDAR, 2027 NEW YEAR & KAKAO INVITE SUITE ==================== */
+  (function initRetentionAndViralSuite() {
+    const STORAGE_STREAK = 'destiny_streak_v1';
+    const STORAGE_AFFINITY = 'destiny_affinity_v1';
+    const STORAGE_PROFILES = 'destiny_profiles_v1';
+    const STORAGE_CAL_HITS = 'destiny_cal_hits_v1';
+
+    const AFFINITY_TITLES = [
+      { lv: 1, minXp: 0,   title: '낯선 손님' },
+      { lv: 2, minXp: 30,  title: '단골 인연' },
+      { lv: 3, minXp: 80,  title: '속마음 친구' },
+      { lv: 4, minXp: 160, title: '운명의 벗' },
+      { lv: 5, minXp: 280, title: '영혼의 단짝' }
+    ];
+    const HIDDEN_AFFINITY_LINES = {
+      saju:   '비밀인데… 당신 사주는 볼수록 참 귀한 빛이 나요. 나랑 오래오래 인연 이어가요 ✦',
+      blood:  '헤헤, 너랑은 혈액형 안 봐도 100% 찰떡인 거 알지? 오늘도 와줘서 고마워 ♥',
+      zodiac: '밤하늘에서 제일 먼저 반짝이는 별이 꼭 너 같아. 내일도 별빛 보러 와줘 ★',
+      tarot:  '수많은 카드 중에서도 당신이 내미는 손길이 가장 따뜻하게 느껴지더군요…',
+      mbti:   '분석 결과! 당신은 나에게 100% 힐링을 주는 최애 단골 유형이에요 ♡',
+      face:   '청동거울이 그러는데, 당신 얼굴엔 요즘 유독 행복한 복이 피어나고 있대요 🪞',
+      palm:   '손금보다 더 확실한 건, 이렇게 매일 찾아와 주는 당신의 다정한 마음이에요 ✨',
+      sasang: '체질 상관없이 당신이 건강하고 웃는 하루를 보내는 게 내 제일 큰 처방이에요 🌿',
+      dream:  '오늘 밤엔 당신 꿈속에 내가 직접 들러서 제일 예쁜 길몽만 놓아두고 올게요 🌙'
+    };
+
+    function todayKey() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+    function loadJson(key, fallback) {
+      try { return JSON.parse(localStorage.getItem(key) || 'null') ?? fallback; } catch (_) { return fallback; }
+    }
+    function saveJson(key, val) {
+      try { localStorage.setItem(key, JSON.stringify(val)); } catch (_) {}
+    }
+
+    function getAffinityData() { return loadJson(STORAGE_AFFINITY, {}); }
+    function getCharAffinityInfo(charId) {
+      const data = getAffinityData();
+      const xp = Number(data[charId] || 0);
+      let cur = AFFINITY_TITLES[0], next = AFFINITY_TITLES[1];
+      for (let i = 0; i < AFFINITY_TITLES.length; i++) {
+        if (xp >= AFFINITY_TITLES[i].minXp) {
+          cur = AFFINITY_TITLES[i];
+          next = AFFINITY_TITLES[i + 1] || null;
+        }
+      }
+      return { xp, lv: cur.lv, title: cur.title, nextMin: next ? next.minXp : cur.minXp, isMax: !next };
+    }
+
+    function syncAffinityBadge() {
+      const pill = document.getElementById('badge-affinity-pill');
+      const char = CHARACTERS[state.currentIdx];
+      if (!pill || !char) return;
+      const info = getCharAffinityInfo(char.id);
+      pill.textContent = `♥ Lv.${info.lv}`;
+      if (info.lv >= 3 && HIDDEN_AFFINITY_LINES[char.id] && !char.lines.includes(HIDDEN_AFFINITY_LINES[char.id])) {
+        char.lines.push(HIDDEN_AFFINITY_LINES[char.id]);
+      }
+    }
+
+    window.addCharacterAffinity = function(idx, gain = 5) {
+      const char = CHARACTERS[idx];
+      if (!char) return;
+      const data = getAffinityData();
+      const before = getCharAffinityInfo(char.id).lv;
+      data[char.id] = Number(data[char.id] || 0) + gain;
+      saveJson(STORAGE_AFFINITY, data);
+      const after = getCharAffinityInfo(char.id);
+      syncAffinityBadge();
+      if (after.lv > before) {
+        playChimeSound(940);
+        showToast(`💖 ${char.name} 친밀도 Lv.${after.lv} (${after.title}) 달성!${after.lv >= 3 ? ' 히든 대사 해금!' : ''}`);
+      }
+    };
+
+    // Hook into character label updates & speech bubble taps
+    const badgePill = document.getElementById('badge-affinity-pill');
+    badgePill?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openRetentionDrawer();
+    });
+    speechBubble?.addEventListener('click', () => {
+      window.addCharacterAffinity(state.currentIdx, 2);
+    });
+    const origGoTo = goToCharacter;
+    // Also observe badgeName changes to keep affinity pill synced
+    const badgeObserver = new MutationObserver(() => syncAffinityBadge());
+    if (badgeName) badgeObserver.observe(badgeName, { childList: true, characterData: true, subtree: true });
+    syncAffinityBadge();
+
+    /* ---- 1. ATTENDANCE STREAK & AFFINITY DRAWER ---- */
+    const retentionDrawer = document.getElementById('retention-drawer');
+    function getStreakState() {
+      return loadJson(STORAGE_STREAK, { streak: 0, lastDate: '' });
+    }
+    function updateCheckinDot() {
+      const dot = document.getElementById('checkin-red-dot');
+      if (!dot) return;
+      const st = getStreakState();
+      dot.classList.toggle('hidden', st.lastDate === todayKey());
+    }
+    function renderRetentionDrawer() {
+      const st = getStreakState();
+      const today = todayKey();
+      const checkedToday = st.lastDate === today;
+      const curDay = Math.min(7, st.streak);
+      const badge = document.getElementById('streak-count-badge');
+      if (badge) badge.textContent = `${st.streak}일 연속`;
+
+      const grid = document.getElementById('streak-grid');
+      if (grid) {
+        grid.innerHTML = Array.from({ length: 7 }, (_, i) => {
+          const day = i + 1;
+          const done = day <= (curDay === 0 ? 0 : ((st.streak - 1) % 7) + 1);
+          const reward = day === 3 ? '🧧+1' : (day === 7 ? '🧧+2' : '♥+15');
+          return `<div class="rounded-xl py-2 px-1 text-center border ${done ? 'bg-amber-400/25 border-amber-300/70 text-amber-100' : 'bg-black/35 border-white/10 text-slate-400'}">
+            <div class="text-[9.5px] font-bold">${day}일</div>
+            <div class="text-xs mt-0.5">${done ? '✅' : reward}</div>
+          </div>`;
+        }).join('');
+      }
+      const btn = document.getElementById('btn-daily-checkin');
+      if (btn) {
+        btn.disabled = checkedToday;
+        btn.textContent = checkedToday ? '✅ 오늘 출석 완료! 내일 또 만나요' : '✨ 오늘 출석 도장 찍고 기운 받기';
+        btn.classList.toggle('opacity-60', checkedToday);
+      }
+
+      const affList = document.getElementById('affinity-list');
+      if (affList) {
+        affList.innerHTML = CHARACTERS.map((c, idx) => {
+          const info = getCharAffinityInfo(c.id);
+          const pct = info.isMax ? 100 : Math.min(100, Math.round((info.xp / info.nextMin) * 100));
+          return `<div class="rounded-xl p-2.5 bg-white/5 border border-white/10 flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center text-base bg-black/45 border border-amber-300/35 shrink-0">${c.icon}</div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-bold text-white">${c.name} <span class="text-[10px] text-amber-200">Lv.${info.lv} · ${info.title}</span></span>
+                <span class="text-[10px] text-slate-400">${info.xp} XP</span>
+              </div>
+              <div class="w-full h-1.5 rounded-full bg-black/50 mt-1 overflow-hidden">
+                <div class="h-full rounded-full bg-gradient-to-r from-amber-400 to-rose-400" style="width:${pct}%"></div>
+              </div>
+            </div>
+            <button type="button" data-jump-char="${idx}" class="px-2 py-1 rounded-lg bg-white/10 text-[10px] font-bold text-amber-100 shrink-0">만나기</button>
+          </div>`;
+        }).join('');
+        affList.querySelectorAll('[data-jump-char]').forEach((b) => {
+          b.addEventListener('click', () => {
+            retentionDrawer.classList.remove('open');
+            goToCharacter(parseInt(b.dataset.jumpChar, 10));
+          });
+        });
+      }
+      updateCheckinDot();
+    }
+
+    function openRetentionDrawer() {
+      renderRetentionDrawer();
+      retentionDrawer?.classList.add('open');
+    }
+    document.getElementById('btn-open-retention')?.addEventListener('click', openRetentionDrawer);
+    document.getElementById('btn-close-retention')?.addEventListener('click', () => retentionDrawer?.classList.remove('open'));
+    retentionDrawer?.addEventListener('click', (e) => { if (e.target === retentionDrawer) retentionDrawer.classList.remove('open'); });
+
+    document.getElementById('btn-daily-checkin')?.addEventListener('click', () => {
+      const st = getStreakState();
+      const today = todayKey();
+      if (st.lastDate === today) return;
+      const yest = new Date(Date.now() - 86400000);
+      const yestKey = `${yest.getFullYear()}-${String(yest.getMonth() + 1).padStart(2, '0')}-${String(yest.getDate()).padStart(2, '0')}`;
+      st.streak = (st.lastDate === yestKey) ? (st.streak + 1) : 1;
+      st.lastDate = today;
+      saveJson(STORAGE_STREAK, st);
+
+      const cycleDay = ((st.streak - 1) % 7) + 1;
+      let bonusTickets = 0;
+      if (cycleDay === 3) bonusTickets = 1;
+      if (cycleDay === 7) bonusTickets = 2;
+      if (bonusTickets > 0) {
+        const curT = Number(localStorage.getItem('destiny_bonus_tickets') || '0') + bonusTickets;
+        localStorage.setItem('destiny_bonus_tickets', String(curT));
+        if (typeof state.ticketBalance === 'number') state.ticketBalance += bonusTickets;
+      }
+      window.addCharacterAffinity(state.currentIdx, 15);
+      playChimeSound(880);
+      showToast(bonusTickets > 0
+        ? `🎉 ${st.streak}일 연속 출석! 무료 복주머니 +${bonusTickets}개 & 친밀도 +15 지급!`
+        : `✨ ${st.streak}일 출석 완료! ${CHARACTERS[state.currentIdx].name} 친밀도 +15!`);
+      renderRetentionDrawer();
+    });
+    updateCheckinDot();
+
+    /* ---- 2. MY PROFILE / FRIENDS & MONTHLY FORTUNE CALENDAR ---- */
+    const pcalDrawer = document.getElementById('profile-calendar-drawer');
+    let calYear = new Date().getFullYear();
+    let calMonth = new Date().getMonth(); // 0-indexed
+
+    function getProfiles() { return loadJson(STORAGE_PROFILES, []); }
+    function getMyProfile() { return getProfiles().find(p => p.role === 'me') || getProfiles()[0] || null; }
+
+    function applyProfileToInputs(prof, asPartner = false) {
+      if (!prof) return;
+      if (!asPartner) {
+        if (sajuNameInput && prof.name) sajuNameInput.value = prof.name;
+        if (sajuYearInput && prof.year) sajuYearInput.value = prof.year;
+        if (sajuMonthInput && prof.month) sajuMonthInput.value = prof.month;
+        if (sajuDayInput && prof.day) sajuDayInput.value = prof.day;
+        if (prof.gender) {
+          state.userGender = prof.gender;
+          document.querySelectorAll('.saju-gender-btn').forEach(b => {
+            const act = b.dataset.gender === prof.gender;
+            b.className = act ? 'saju-gender-btn px-2.5 py-1 text-[11px] font-bold bg-[#154d48] text-[#f7e9c7]' : 'saju-gender-btn px-2.5 py-1 text-[11px] font-bold text-[#2b3a32]';
+          });
+        }
+        const bMeName = document.getElementById('blood-me-name');
+        if (bMeName && prof.name) bMeName.value = prof.name;
+        if (prof.blood) {
+          state.bloodMe = prof.blood;
+          document.querySelector(`.blood-me-btn[data-blood-me="${prof.blood}"]`)?.click();
+        }
+        const mMeName = document.getElementById('mbti-me-name');
+        if (mMeName && prof.name) mMeName.value = prof.name;
+        const mMeSel = document.getElementById('mbti-me');
+        if (mMeSel && prof.mbti) mMeSel.value = prof.mbti;
+        showToast(`👤 ${prof.name}님 프로필을 모든 운세 입력칸에 자동 채웠어요!`);
+      } else {
+        const pName = document.getElementById('saju-partner-name');
+        const pY = document.getElementById('saju-partner-year');
+        const pM = document.getElementById('saju-partner-month');
+        const pD = document.getElementById('saju-partner-day');
+        if (pName && prof.name) pName.value = prof.name;
+        if (pY && prof.year) pY.value = prof.year;
+        if (pM && prof.month) pM.value = prof.month;
+        if (pD && prof.day) pD.value = prof.day;
+        const bYouName = document.getElementById('blood-you-name');
+        if (bYouName && prof.name) bYouName.value = prof.name;
+        if (prof.blood) document.querySelector(`.blood-you-btn[data-blood-you="${prof.blood}"]`)?.click();
+        const mYouName = document.getElementById('mbti-you-name');
+        if (mYouName && prof.name) mYouName.value = prof.name;
+        const mYouSel = document.getElementById('mbti-you');
+        if (mYouSel && prof.mbti) mYouSel.value = prof.mbti;
+        showToast(`💞 ${prof.name}님 정보를 상대방 궁합 칸에 채웠어요!`);
+      }
+      pcalDrawer?.classList.remove('open');
+    }
+
+    function renderSavedProfiles() {
+      const list = document.getElementById('saved-profiles-list');
+      if (!list) return;
+      const profs = getProfiles();
+      if (!profs.length) {
+        list.innerHTML = '<div class="text-xs text-slate-400 p-3 rounded-xl bg-black/30 text-center">아직 저장된 프로필이 없어요. 위에서 본인이나 연인 정보를 저장해 두세요!</div>';
+        return;
+      }
+      const roleLabels = { me: '본인', partner: '연인/썸', friend: '친구/가족' };
+      list.innerHTML = profs.map((p, idx) => `
+        <div class="rounded-xl p-2.5 bg-white/5 border border-white/10 flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <div class="text-xs font-bold text-white truncate">
+              <span class="px-1.5 py-0.5 rounded bg-emerald-500/25 text-emerald-200 text-[9.5px] mr-1">${roleLabels[p.role] || '지인'}</span>${p.name}
+            </div>
+            <div class="text-[10.5px] text-slate-400 mt-0.5">${p.year}.${p.month}.${p.day} · ${p.gender === 'M' ? '남' : '여'} · ${p.blood}형 · ${p.mbti}</div>
+          </div>
+          <div class="flex items-center gap-1 shrink-0">
+            <button type="button" data-apply-me="${idx}" class="px-2 py-1 rounded-lg bg-emerald-500/25 text-emerald-100 text-[10px] font-bold">내 입력</button>
+            <button type="button" data-apply-partner="${idx}" class="px-2 py-1 rounded-lg bg-rose-500/25 text-rose-100 text-[10px] font-bold">상대 입력</button>
+            <button type="button" data-del-prof="${idx}" class="px-1.5 py-1 rounded-lg bg-white/10 text-slate-300 text-[10px]">✕</button>
+          </div>
+        </div>
+      `).join('');
+      list.querySelectorAll('[data-apply-me]').forEach(b => b.addEventListener('click', () => applyProfileToInputs(profs[parseInt(b.dataset.applyMe, 10)], false)));
+      list.querySelectorAll('[data-apply-partner]').forEach(b => b.addEventListener('click', () => applyProfileToInputs(profs[parseInt(b.dataset.applyPartner, 10)], true)));
+      list.querySelectorAll('[data-del-prof]').forEach(b => b.addEventListener('click', () => {
+        profs.splice(parseInt(b.dataset.delProf, 10), 1);
+        saveJson(STORAGE_PROFILES, profs);
+        renderSavedProfiles();
+      }));
+    }
+
+    function getDayFortuneMeta(y, m, d) {
+      const me = getMyProfile();
+      const seed = (me ? (Number(me.year || 1995) * 7 + Number(me.month || 5) * 13 + Number(me.day || 14) * 17) : 777) + y * 31 + (m + 1) * 37 + d * 19;
+      const mod = Math.abs(seed) % 10;
+      if (mod === 0 || mod === 7) return { icon: '🌟', tag: '대길일', cls: 'bg-amber-400/25 border-amber-300/60 text-amber-100', tip: '중요한 약속, 계약, 새로운 시작에 하늘의 귀인 기운이 따르는 최고의 날입니다.' };
+      if (mod === 2 || mod === 5) return { icon: '💖', tag: '연애길일', cls: 'bg-rose-400/25 border-rose-300/55 text-rose-100', tip: '매력과 호감도가 크게 올라가는 날! 먼저 연락하거나 데이트를 잡으면 좋은 흐름이 열립니다.' };
+      if (mod === 4 || mod === 8) return { icon: '💰', tag: '재물길일', cls: 'bg-emerald-400/25 border-emerald-300/55 text-emerald-100', tip: '작은 횡재나 알뜰한 기회가 들어오는 날. 미뤄둔 정산이나 계획 정리에 유리합니다.' };
+      if (mod === 9) return { icon: '⚠️', tag: '주의일', cls: 'bg-slate-600/35 border-slate-400/40 text-slate-200', tip: '말실수나 충동 지출을 조심하고, 한 템포 쉬어가며 컨디션을 챙기면 무탈하게 넘어갑니다.' };
+      return { icon: '✨', tag: '평온한 날', cls: 'bg-white/5 border-white/10 text-slate-200', tip: '큰 기복 없이 차분하게 일상을 쌓아가기 좋은 날입니다. 따뜻한 차 한 잔으로 여유를 챙겨보세요.' };
+    }
+
+    function renderFortuneCalendar() {
+      const title = document.getElementById('cal-month-title');
+      const grid = document.getElementById('fortune-calendar-grid');
+      if (!grid) return;
+      if (title) title.textContent = `${calYear}년 ${calMonth + 1}월`;
+      const firstDow = new Date(calYear, calMonth, 1).getDay();
+      const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+      const hits = loadJson(STORAGE_CAL_HITS, {});
+      const todayStr = todayKey();
+
+      let html = '';
+      for (let i = 0; i < firstDow; i++) html += '<div></div>';
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dKey = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        const meta = getDayFortuneMeta(calYear, calMonth, d);
+        const isToday = dKey === todayStr;
+        const hitMark = hits[dKey] ? '✓' : '';
+        html += `<button type="button" data-cal-day="${d}" class="rounded-lg py-1.5 px-0.5 text-center border ${meta.cls} ${isToday ? 'ring-2 ring-amber-300' : ''} active:scale-95 transition">
+          <div class="text-[10.5px] font-bold leading-none">${d}${hitMark ? '<span class="text-emerald-300 ml-0.5">✓</span>' : ''}</div>
+          <div class="text-[11px] leading-none mt-1">${meta.icon}</div>
+        </button>`;
+      }
+      grid.innerHTML = html;
+      grid.querySelectorAll('[data-cal-day]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const day = parseInt(btn.dataset.calDay, 10);
+          const dKey = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+          const meta = getDayFortuneMeta(calYear, calMonth, day);
+          const curHits = loadJson(STORAGE_CAL_HITS, {});
+          const detail = document.getElementById('fortune-calendar-detail');
+          if (!detail) return;
+          detail.innerHTML = `
+            <div class="flex items-center justify-between">
+              <span class="font-extrabold text-amber-200">${calMonth + 1}월 ${day}일 · ${meta.icon} ${meta.tag}</span>
+              <span class="text-[10px] text-emerald-200">${curHits[dKey] ? '기록됨: ' + curHits[dKey] : '적중 체크 가능'}</span>
+            </div>
+            <p class="text-[11.5px] text-slate-100 leading-relaxed">${meta.tip}</p>
+            <div class="grid grid-cols-2 gap-1.5 pt-1">
+              <button type="button" id="btn-cal-hit-yes" class="py-1.5 rounded-lg bg-emerald-500/25 border border-emerald-300/50 text-[11px] font-bold text-emerald-100">✅ 오늘 운세 맞았어요!</button>
+              <button type="button" id="btn-cal-hit-no" class="py-1.5 rounded-lg bg-white/10 border border-white/15 text-[11px] font-bold text-slate-200">📝 조금 달랐어요</button>
+            </div>`;
+          document.getElementById('btn-cal-hit-yes')?.addEventListener('click', () => {
+            curHits[dKey] = '적중';
+            saveJson(STORAGE_CAL_HITS, curHits);
+            showToast('🌟 운세 적중 기록을 저장했어요!');
+            renderFortuneCalendar();
+          });
+          document.getElementById('btn-cal-hit-no')?.addEventListener('click', () => {
+            curHits[dKey] = '참고';
+            saveJson(STORAGE_CAL_HITS, curHits);
+            showToast('📝 오늘의 회고를 기록했어요!');
+            renderFortuneCalendar();
+          });
+        });
+      });
+    }
+
+    document.getElementById('btn-open-profile-cal')?.addEventListener('click', () => {
+      renderFortuneCalendar();
+      renderSavedProfiles();
+      pcalDrawer?.classList.add('open');
+    });
+    document.getElementById('btn-close-profile-cal')?.addEventListener('click', () => pcalDrawer?.classList.remove('open'));
+    pcalDrawer?.addEventListener('click', (e) => { if (e.target === pcalDrawer) pcalDrawer.classList.remove('open'); });
+    document.getElementById('btn-cal-prev')?.addEventListener('click', () => { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderFortuneCalendar(); });
+    document.getElementById('btn-cal-next')?.addEventListener('click', () => { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderFortuneCalendar(); });
+
+    document.querySelectorAll('.pcal-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const isCal = btn.dataset.pcalTab === 'calendar';
+        document.getElementById('pcal-tab-calendar')?.classList.toggle('hidden', !isCal);
+        document.getElementById('pcal-tab-profiles')?.classList.toggle('hidden', isCal);
+        document.querySelectorAll('.pcal-tab-btn').forEach(b => {
+          const act = b === btn;
+          b.className = act ? 'pcal-tab-btn py-1.5 rounded-lg text-xs font-bold bg-emerald-500/30 text-emerald-100 border border-emerald-400/50' : 'pcal-tab-btn py-1.5 rounded-lg text-xs font-bold text-slate-300';
+        });
+      });
+    });
+
+    document.getElementById('btn-save-profile')?.addEventListener('click', () => {
+      const role = document.getElementById('prof-slot-role')?.value || 'me';
+      const name = (document.getElementById('prof-name')?.value || '').trim();
+      const year = parseInt(document.getElementById('prof-year')?.value || '', 10);
+      const month = parseInt(document.getElementById('prof-month')?.value || '', 10);
+      const day = parseInt(document.getElementById('prof-day')?.value || '', 10);
+      if (!name || !year || !month || !day) { showToast('이름과 생년월일을 모두 입력해 주세요.'); return; }
+      const prof = {
+        role, name, year, month, day,
+        gender: document.getElementById('prof-gender')?.value || 'F',
+        blood: document.getElementById('prof-blood')?.value || 'A',
+        mbti: document.getElementById('prof-mbti')?.value || 'ENFP'
+      };
+      const profs = getProfiles();
+      if (role === 'me') {
+        const idx = profs.findIndex(p => p.role === 'me');
+        if (idx >= 0) profs[idx] = prof; else profs.unshift(prof);
+      } else {
+        if (profs.length >= 6) profs.pop();
+        profs.push(prof);
+      }
+      saveJson(STORAGE_PROFILES, profs);
+      renderSavedProfiles();
+      renderFortuneCalendar();
+      showToast(`💾 ${name}님 프로필이 저장되었습니다!`);
+    });
+
+    // Auto-fill inputs on first load if user already saved 'me' profile
+    const savedMe = getMyProfile();
+    if (savedMe && sajuNameInput && !sajuNameInput.value) {
+      sajuNameInput.value = savedMe.name;
+      if (sajuYearInput && !sajuYearInput.value) sajuYearInput.value = savedMe.year;
+      if (sajuMonthInput && !sajuMonthInput.value) sajuMonthInput.value = savedMe.month;
+      if (sajuDayInput && !sajuDayInput.value) sajuDayInput.value = savedMe.day;
+    }
+
+    /* ---- 3. 2027 JEONGMI NEW YEAR FORTUNE & 1-MIN WORRY PACKS ---- */
+    const nyDrawer = document.getElementById('newyear-2027-drawer');
+    document.getElementById('btn-open-newyear-2027')?.addEventListener('click', () => {
+      const me = getMyProfile();
+      const nName = document.getElementById('ny-name');
+      const nY = document.getElementById('ny-year');
+      const nM = document.getElementById('ny-month');
+      const nD = document.getElementById('ny-day');
+      if (nName && !nName.value) nName.value = (me?.name || sajuNameInput?.value || '');
+      if (nY && !nY.value) nY.value = (me?.year || sajuYearInput?.value || '');
+      if (nM && !nM.value) nM.value = (me?.month || sajuMonthInput?.value || '');
+      if (nD && !nD.value) nD.value = (me?.day || sajuDayInput?.value || '');
+      nyDrawer?.classList.add('open');
+    });
+    document.getElementById('btn-close-newyear-2027')?.addEventListener('click', () => nyDrawer?.classList.remove('open'));
+    nyDrawer?.addEventListener('click', (e) => { if (e.target === nyDrawer) nyDrawer.classList.remove('open'); });
+
+    document.querySelectorAll('.ny-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const isNy = btn.dataset.nyTab === '2027';
+        document.getElementById('ny-tab-2027')?.classList.toggle('hidden', !isNy);
+        document.getElementById('ny-tab-worry')?.classList.toggle('hidden', isNy);
+        document.querySelectorAll('.ny-tab-btn').forEach(b => {
+          const act = b === btn;
+          b.className = act ? 'ny-tab-btn py-1.5 rounded-lg text-xs font-bold bg-rose-500/35 text-rose-100 border border-rose-300/50' : 'ny-tab-btn py-1.5 rounded-lg text-xs font-bold text-slate-300';
+        });
+      });
+    });
+
+    document.getElementById('btn-run-newyear-2027')?.addEventListener('click', () => {
+      const name = (document.getElementById('ny-name')?.value || '').trim() || '방문자';
+      const y = parseInt(document.getElementById('ny-year')?.value || '', 10);
+      const m = parseInt(document.getElementById('ny-month')?.value || '', 10);
+      const d = parseInt(document.getElementById('ny-day')?.value || '', 10);
+      if (!y || !m || !d) { showToast('생년월일을 입력해 주세요.'); return; }
+      const saju = calculateSaju(y, m, d, 'unknown');
+      const score = 78 + ((y + m * 3 + d * 7) % 20);
+      const monthHints = [
+        '1월: 새해 계획과 귀인 인연이 열리는 달', '2월: 작은 지출을 점검하고 체력을 다질 시기',
+        '3월: 봄바람과 함께 연애·대인운이 활짝 핌', '4월: 일·학업에서 인정받고 성과가 드러남',
+        '5월: 이동·여행·새로운 제안이 반갑게 찾아옴', '6월: 상반기 결실과 재물 흐름이 안정됨',
+        '7월: 잠시 숨을 고르며 핵심 목표에 집중', '8월: 뜻밖의 반가운 소식과 횡재 기운',
+        '9월: 인간관계가 깊어지고 신뢰가 단단해짐', '10월: 승진·이직·도전의 황금 타이밍',
+        '11월: 그동안 쌓아온 노력이 보상으로 돌아옴', '12월: 따뜻한 인연과 함께 풍성한 연말 마무리'
+      ];
+      const bestMonths = `${((y + d) % 4) + 3}월 · ${((m + d) % 3) + 9}월`;
+      const resEl = document.getElementById('ny-2027-result');
+      if (!resEl) return;
+      resEl.classList.remove('hidden');
+      resEl.innerHTML = `
+        <div class="rounded-2xl p-3.5 bg-gradient-to-br from-rose-950/75 to-slate-900/95 border border-amber-300/45 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <div>
+              <div class="text-[10px] font-bold text-amber-300">2027 정미년(丁未年) 신년 총운</div>
+              <div class="font-serif-kr text-base font-extrabold text-white">${name}님 (${saju.animal}띠 · ${saju.ilgan.title})</div>
+            </div>
+            <div class="text-right">
+              <div class="text-xl font-black text-amber-300">${score}점</div>
+              <div class="text-[10px] text-rose-200">최고 길월: ${bestMonths}</div>
+            </div>
+          </div>
+          <div id="ny-2027-rich" class="text-xs text-slate-100 leading-relaxed bg-black/30 rounded-xl p-2.5">연화가 2027년 정미년 흐름을 깊이 읽고 있어요…</div>
+          <div class="grid grid-cols-2 gap-1.5 text-[10.5px] text-slate-200">
+            ${monthHints.map(h => `<div class="p-2 rounded-lg bg-white/5 border border-white/10">${h}</div>`).join('')}
+          </div>
+          ${renderShareActionBar('newyear2027', '2027 신년운세 공유하기')}
+        </div>`;
+
+      const nyFallback = `[2027년 정미년(丁未年) 총운]
+**${name}님(${saju.ilgan.title})**에게 2027년은 정화(丁火)의 영감과 미토(未土)의 결실이 어우러지는 도약의 해입니다. 특히 **${bestMonths}**에 오랜 고민이 풀리고 반가운 귀인이 다가옵니다.
+
+[재물 · 커리어 · 연애 핵심]
+상반기에는 기반을 다지고, 하반기에는 과감한 실행이 큰 보상으로 돌아옵니다. 솔직한 표현과 유연한 태도가 인연과 재물을 동시에 불러옵니다.`;
+      registerSharePayload('newyear2027', {
+        category: '2027 정미년 신년운세', title: `${name}님의 2027년`,
+        scoreText: `${score}점`, subtitle: `${saju.animal}띠 · 최고 길월 ${bestMonths}`,
+        summary: nyFallback, tip: `2027 행운 키워드: ${saju.ilgan.lucky}`,
+        bg1: '#3b1025', bg2: '#0f0a1a', accent: '#fbbf24'
+      });
+      window.addCharacterAffinity(0, 15);
+      askGeminiFortune('saju', '2027 정미년 신년운세', `${name}님, ${y}년 ${m}월 ${d}일, ${saju.ilgan.title}, 2027년 정미년 총운·연애운·재물운·직장운`, '2027년 정미년 신년운세를 상반기·하반기와 핵심 조언 중심으로 풀이해 주세요', nyFallback, name).then(txt => {
+        const box = document.getElementById('ny-2027-rich');
+        if (box) box.innerHTML = formatRichReadingHtml(txt, 'gold');
+        enrichSharePayload('newyear2027', txt);
+      });
+    });
+
+    const WORRY_DATA = {
+      reunion: { title: '💔 재회운 · 그 사람의 속마음', cat: '재회운 1분 리딩', prompt: '헤어진 상대방의 현재 속마음과 다시 연락이 올 가능성, 내가 취해야 할 행동을 1분 리딩으로 다정하고 현실적으로 알려주세요.', fallback: `[그 사람의 현재 속마음]\n상대방 역시 문득문득 함께했던 기억을 떠올리며 미련과 자존심 사이에서 망설이고 있습니다.\n\n[연락 타이밍 & 조언]\n지금 성급하게 감정을 쏟아내기보다 2~3주 정도 내 일상을 환하게 가꾸면, 오히려 상대 쪽에서 가벼운 안부로 먼저 신호를 보낼 확률이 높습니다.` },
+      crush:   { title: '💘 썸 · 연애 타이밍 리딩', cat: '썸·연애 1분 리딩', prompt: '지금 호감 있는 상대와의 발전 가능성과 고백·연애로 이어지는 최적의 타이밍을 알려주세요.', fallback: `[두 사람의 현재 온도]\n상대방도 당신에게 분명한 호감을 느끼고 있지만, 확신이 조금 부족해 한 발짝 망설이는 흐름입니다.\n\n[연애 성공 열쇠]\n가벼운 칭찬과 "다음에 같이 가자"는 구체적인 약속 제안 한 마디가 썸을 연애로 바꾸는 결정적 계기가 됩니다.` },
+      career:  { title: '💼 이직 · 취업 황금 타이밍', cat: '이직·취업 1분 리딩', prompt: '현재 커리어 흐름에서 이직·취업을 준비할 때 가장 유리한 시기와 합격운을 높이는 전략을 알려주세요.', fallback: `[커리어 전환 흐름]\n지금은 기존 경험을 정리해 포트폴리오와 이력서를 다듬기에 가장 좋은 준비기이며, 1~2개월 안에 조건이 잘 맞는 제안이 열립니다.\n\n[합격운 상승 팁]\n혼자 고민하기보다 업계 지인이나 선배에게 가볍게 안부를 물으면 의외의 좋은 자리 소식이 연결됩니다.` },
+      wealth:  { title: '💰 재물 · 목돈 흐름 리딩', cat: '재물운 1분 리딩', prompt: '앞으로 3개월간의 재물 흐름과 목돈이 들어올 기회, 피해야 할 지출 포인트를 알려주세요.', fallback: `[재물 흐름 요약]\n고정 지출만 살짝 정리해도 통장에 돈이 차곡차곡 모이기 시작하는 안정 상승 구간입니다.\n\n[금전 개운 전략]\n충동적인 소액 결제와 주변 권유에 의한 단기 투자는 피하고, 본업·부업의 작은 성과금을 따로 떼어두면 생각보다 빠르게 목돈이 불어납니다.` }
+    };
+    document.querySelectorAll('.worry-pack-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.worryPack;
+        const w = WORRY_DATA[key];
+        const resBox = document.getElementById('worry-pack-result');
+        if (!w || !resBox) return;
+        resBox.classList.remove('hidden');
+        resBox.innerHTML = `<div class="font-bold text-amber-200">${w.title}</div><div id="worry-rich-body" class="text-slate-200">카드를 펼쳐 핵심 해답을 읽고 있어요… ✨</div>`;
+        playChimeSound(820);
+        window.addCharacterAffinity(3, 12);
+        askGeminiFortune('tarot', w.cat, w.title, w.prompt, w.fallback, state.userName || '방문자').then(txt => {
+          const el = document.getElementById('worry-rich-body');
+          if (el) el.innerHTML = formatRichReadingHtml(txt, 'purple');
+        });
+      });
+    });
+
+    /* ---- 4. KAKAO COMPATIBILITY INVITE LINK BUILDER & DEEP-LINK RECEIVER ---- */
+    const invDrawer = document.getElementById('compat-invite-drawer');
+    const invTypeSel = document.getElementById('inv-type');
+    function syncInviteTypeFields() {
+      const t = invTypeSel?.value || 'saju';
+      ['saju', 'blood', 'mbti', 'zodiac'].forEach(k => {
+        document.getElementById(`inv-fields-${k}`)?.classList.toggle('hidden', k !== t);
+      });
+    }
+    invTypeSel?.addEventListener('change', syncInviteTypeFields);
+
+    document.getElementById('btn-open-compat-invite')?.addEventListener('click', () => {
+      const me = getMyProfile();
+      const iName = document.getElementById('inv-name');
+      if (iName && !iName.value) iName.value = me?.name || sajuNameInput?.value || '';
+      const iy = document.getElementById('inv-y'), im = document.getElementById('inv-m'), idd = document.getElementById('inv-d');
+      if (iy && !iy.value) iy.value = me?.year || sajuYearInput?.value || '';
+      if (im && !im.value) im.value = me?.month || sajuMonthInput?.value || '';
+      if (idd && !idd.value) idd.value = me?.day || sajuDayInput?.value || '';
+      syncInviteTypeFields();
+      invDrawer?.classList.add('open');
+    });
+    document.getElementById('btn-close-compat-invite')?.addEventListener('click', () => invDrawer?.classList.remove('open'));
+    invDrawer?.addEventListener('click', (e) => { if (e.target === invDrawer) invDrawer.classList.remove('open'); });
+
+    document.getElementById('btn-send-compat-invite')?.addEventListener('click', async () => {
+      const t = invTypeSel?.value || 'saju';
+      const name = (document.getElementById('inv-name')?.value || '').trim() || '친구';
+      const qs = new URLSearchParams({ invite: 'compat', type: t, name });
+      let label = '사주 궁합';
+      if (t === 'saju') {
+        const y = document.getElementById('inv-y')?.value || '1995';
+        const m = document.getElementById('inv-m')?.value || '5';
+        const d = document.getElementById('inv-d')?.value || '14';
+        const g = document.getElementById('inv-g')?.value || 'F';
+        qs.set('y', y); qs.set('m', m); qs.set('d', d); qs.set('g', g);
+      } else if (t === 'blood') {
+        label = '혈액형 궁합';
+        qs.set('blood', document.getElementById('inv-blood')?.value || 'A');
+      } else if (t === 'mbti') {
+        label = 'MBTI 궁합';
+        qs.set('mbti', document.getElementById('inv-mbti')?.value || 'ENFP');
+      } else if (t === 'zodiac') {
+        label = '별자리 궁합';
+        qs.set('z', document.getElementById('inv-zodiac')?.value || '0');
+      }
+      const inviteUrl = `https://store-of-destiny-project.onrender.com/?${qs.toString()}`;
+      const text = `💌 ${name}님이 [운명상점 ${label}]을 보냈어요!
+아래 링크를 눌러 내 정보만 입력하면 우리 둘의 궁합 점수를 바로 확인할 수 있어요 ✨
+👉 ${inviteUrl}`;
+      try {
+        if (navigator.share) {
+          await navigator.share({ title: `운명상점 · ${name}님의 ${label} 초대`, text, url: inviteUrl });
+          invDrawer?.classList.remove('open');
+          return;
+        }
+      } catch (_) {}
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast('💌 카톡에 바로 붙여넣을 궁합 초대 링크가 복사되었어요!');
+        invDrawer?.classList.remove('open');
+      } catch (_) {
+        showToast('초대 링크가 준비되었습니다: ' + inviteUrl);
+      }
+    });
+
+    // Deep-Link Receiver when a friend opens ?invite=compat&...
+    (function handleIncomingCompatInvite() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('invite') !== 'compat') return;
+      const type = params.get('type') || 'saju';
+      const fromName = params.get('name') || '친구';
+      const banner = document.getElementById('compat-invite-banner');
+      const bannerText = document.getElementById('compat-invite-banner-text');
+      document.getElementById('btn-close-invite-banner')?.addEventListener('click', () => banner?.classList.add('hidden'));
+
+      setTimeout(() => {
+        if (openingOverlay && !openingOverlay.classList.contains('hidden-seq')) {
+          openingOverlay.classList.add('hidden-seq');
+        }
+        if (type === 'saju') {
+          goToCharacter(0, true);
+          const pBox = document.getElementById('saju-partner-box');
+          if (pBox) pBox.classList.remove('hidden');
+          const pName = document.getElementById('saju-partner-name');
+          const pY = document.getElementById('saju-partner-year');
+          const pM = document.getElementById('saju-partner-month');
+          const pD = document.getElementById('saju-partner-day');
+          if (pName) pName.value = fromName;
+          if (pY && params.get('y')) pY.value = params.get('y');
+          if (pM && params.get('m')) pM.value = params.get('m');
+          if (pD && params.get('d')) pD.value = params.get('d');
+          if (banner && bannerText) {
+            bannerText.textContent = `${fromName}님이 사주 궁합을 보냈어요! 위 옥판에 내 생년월일을 넣고 궁합을 확인해 보세요 💞`;
+            banner.classList.remove('hidden');
+          }
+        } else if (type === 'blood') {
+          goToCharacter(1, true);
+          const bYou = document.getElementById('blood-you-name');
+          if (bYou) bYou.value = fromName;
+          const bl = params.get('blood');
+          if (bl) document.querySelector(`.blood-you-btn[data-blood-you="${bl}"]`)?.click();
+          if (banner && bannerText) {
+            bannerText.textContent = `${fromName}님(${bl || 'A'}형)이 혈액형 궁합을 보냈어요! 내 혈액형을 골라 궁합을 확인하세요 ♥`;
+            banner.classList.remove('hidden');
+          }
+        } else if (type === 'mbti') {
+          goToCharacter(4, true);
+          const mYou = document.getElementById('mbti-you-name');
+          if (mYou) mYou.value = fromName;
+          const mb = params.get('mbti');
+          const mSel = document.getElementById('mbti-you');
+          if (mSel && mb) mSel.value = mb;
+          if (banner && bannerText) {
+            bannerText.textContent = `${fromName}님(${mb || 'ENFP'})이 MBTI 궁합을 보냈어요! 내 MBTI를 골라 바로 확인하세요 🧩`;
+            banner.classList.remove('hidden');
+          }
+        } else if (type === 'zodiac') {
+          goToCharacter(2, true);
+          const zIdx = params.get('z');
+          const zSel = document.getElementById('zodiac-match-you');
+          if (zSel && zIdx !== null) zSel.value = zIdx;
+          if (banner && bannerText) {
+            bannerText.textContent = `${fromName}님이 별자리 궁합을 보냈어요! 아래 별자리 궁합 탭에서 확인해 보세요 ✨`;
+            banner.classList.remove('hidden');
+          }
+        }
+      }, 450);
+    })();
+  })();
+
   if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) {
     navigator.serviceWorker.register('/sw.js').catch(() => {});
   }
