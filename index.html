@@ -11272,8 +11272,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
     }
 
     window.openBanquetHall = openBanquetHall;
-    window.refreshBanquetHallSkins = () => { if (typeof window.applyCurrentSkinIfUnlocked === 'function') window.applyCurrentSkinIfUnlocked();
-        if (banquetOpen) rebuildBanquetChibis(); };
+    window.refreshBanquetHallSkins = () => { if (banquetOpen) rebuildBanquetChibis(); };
     window.closeBanquetHall = closeBanquetHall;
     document.getElementById('btn-close-banquet')?.addEventListener('click', closeBanquetHall);
     window.addEventListener('keydown', (e) => {
@@ -11759,10 +11758,9 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       let entry = skinTexEntries[k];
       if (entry) {
         if (entry.loaded && entry.tex && entry.tex.image && entry.tex.image.naturalWidth > 0) {
-          if (onLoadCb) onLoadCb(entry.tex);
           return entry;
         }
-        if (onLoadCb) entry.callbacks.push(onLoadCb);
+        if (onLoadCb && !entry.callbacks.includes(onLoadCb)) entry.callbacks.push(onLoadCb);
         return entry;
       }
       entry = { tex: null, loaded: false, callbacks: onLoadCb ? [onLoadCb] : [] };
@@ -11912,7 +11910,11 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       });
     }
 
+    let _applyingSkin = false;
     function applyCurrentSkinIfUnlocked() {
+      if (_applyingSkin) return;
+      _applyingSkin = true;
+      try {
       const idx = state.currentIdx;
       const c = CHARACTERS[idx];
       if (!c) return;
@@ -11933,6 +11935,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
           if (stageBgAura) stageBgAura.style.backgroundImage = `url('${c.openSrc}')`;
         }
       }
+      } finally { _applyingSkin = false; }
     }
     window.applyCurrentSkinIfUnlocked = applyCurrentSkinIfUnlocked;
 
