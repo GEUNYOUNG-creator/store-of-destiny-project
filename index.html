@@ -1055,22 +1055,7 @@
       padding: 20px 16px 18px 16px !important;
       overflow: hidden;
     }
-    .face-study-card::before {
-      content: '❖  청동거울 관상경  ❖';
-      display: block;
-      width: fit-content;
-      margin: -6px auto 10px auto;
-      padding: 3px 16px;
-      border-radius: 9999px;
-      background: linear-gradient(90deg, #5c3f14, #a87b2f, #5c3f14);
-      border: 1px solid #f3d997;
-      color: #fff6dc;
-      font-family: 'Gowun Batang', serif;
-      font-size: 10.5px;
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      box-shadow: 0 3px 10px rgba(92, 63, 20, 0.45);
-    }
+    .face-study-card::before { content: none !important; }
     .face-study-card::after {
       content: '';
       position: absolute;
@@ -1096,22 +1081,7 @@
       margin-bottom: 10px;
       overflow: visible !important;
     }
-    .palm-atelier-card::before {
-      content: '🔍  황금 돋보기 렌즈  ·  손금 관찰경';
-      display: block;
-      width: fit-content;
-      margin: -6px auto 10px auto;
-      padding: 3px 14px;
-      border-radius: 9999px;
-      background: linear-gradient(90deg, #785013, #d4a13a, #785013);
-      border: 1px solid #fef08a;
-      color: #fffbeb;
-      font-family: 'Gowun Batang', serif;
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.4);
-    }
+    .palm-atelier-card::before { content: none !important; }
     .palm-atelier-card::after {
       /* Golden magnifying glass handle extending cleanly at bottom-right */
       content: '';
@@ -1196,22 +1166,7 @@
       padding: 18px 15px 16px 15px !important;
       overflow: hidden;
     }
-    .dream-card-frame::before {
-      content: '✦  🌙  달빛 드림캐처 해몽서  🌙  ✦';
-      display: block;
-      width: fit-content;
-      margin: -4px auto 10px auto;
-      padding: 3px 14px;
-      border-radius: 9999px;
-      background: linear-gradient(90deg, #3b1778, #6d28d9, #3b1778);
-      border: 1px solid #fde047;
-      color: #fef9c3;
-      font-family: 'Gowun Batang', serif;
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      box-shadow: 0 3px 12px rgba(109, 40, 217, 0.45);
-    }
+    .dream-card-frame::before { content: none !important; }
     .dream-journal-textarea {
       background:
         repeating-linear-gradient(
@@ -1270,7 +1225,7 @@
     </div>
 
     <div id="opening-whisper">
-      <div class="text-[11px] tracking-[0.28em] text-[#a7f3d0] mb-1.5 drop-shadow">✦ FORTUNE SHOP ✦</div>
+      <div class="text-[11px] tracking-[0.28em] text-[#a7f3d0] mb-1.5 drop-shadow">✦ 운 명 상 점 ✦</div>
       <p id="opening-whisper-line" class="font-serif-kr text-lg font-bold text-[#fff8e1] leading-relaxed drop-shadow-[0_2px_16px_rgba(0,0,0,0.85)]">
         어서 오세요… 기다리고 있었답니다.
       </p>
@@ -1865,7 +1820,6 @@
     <div id="panel-7" class="char-panel hidden space-y-3 pt-2">
       <div class="sasang-card-frame">
         <div class="pr-10">
-          <div class="text-[10px] font-extrabold tracking-widest text-[#235c47]">동의수세보원 · 어약방 체질 처방전(處方箋)</div>
           <h2 class="font-serif-kr text-[19px] font-extrabold text-[#122b22] mt-0.5">🌿 다온의 사상의학 처방전</h2>
         </div>
         <div class="sasang-hanji-divider"></div>
@@ -1959,7 +1913,6 @@
       <div class="dream-card-frame p-4 space-y-3">
         <div class="flex items-center justify-between">
           <div>
-            <div class="text-[10px] font-bold tracking-wider text-violet-300">달빛 드림캐처 꿈 해몽소</div>
             <h2 class="font-serif-kr text-lg font-extrabold text-[#f5f3ff]">🌙 몽화의 달빛 꿈 해몽관</h2>
           </div>
           <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-violet-400/20 text-violet-100 border border-violet-300/45">길몽 · 흉몽 · 심리</span>
@@ -5331,7 +5284,7 @@
     if (e.key === 'ArrowUp' || e.key === 'ArrowDown') toggleModelMode();
   });
 
-  function triggerCharacterTapReaction(tx = 0.5, ty = 0.36) {
+  function advanceSpeechBubbleOnly() {
     const idx = state.currentIdx;
     const char = CHARACTERS[idx];
     const isMini = state.modelMode === 'mini';
@@ -5343,13 +5296,33 @@
     const lines = (isMini && char.pet) ? char.pet.lines : char.lines;
     state.speechIdx[idx] = (state.speechIdx[idx] + 1) % lines.length;
     speechBubble.innerHTML = formatSpeech(lines[state.speechIdx[idx]]);
-    rigPhys.tapUv = [tx, ty];
+    playChimeSound(isMini ? 880 : 780);
+  }
+
+  function triggerCharacterTapReaction(tx = 0.5, ty = 0.36) {
+    const safeTx = (typeof tx === 'number' && Number.isFinite(tx)) ? tx : 0.5;
+    const safeTy = (typeof ty === 'number' && Number.isFinite(ty)) ? ty : 0.36;
+    const idx = state.currentIdx;
+    const char = CHARACTERS[idx];
+    const isMini = state.modelMode === 'mini';
+    if (isMini && !char.pet) {
+      playSwipeSound();
+      showToast(`${char.tabName} 미니 펫은 공사중이에요 🚧`);
+      return;
+    }
+    const lines = (isMini && char.pet) ? char.pet.lines : char.lines;
+    state.speechIdx[idx] = (state.speechIdx[idx] + 1) % lines.length;
+    speechBubble.innerHTML = formatSpeech(lines[state.speechIdx[idx]]);
+    rigPhys.tapUv = [safeTx, safeTy];
     rigPhys.flinchElapsed = 0.0;
     rigPhys.happyTimer = 0.95;
     rigPhys.blinkState = 1;
     playChimeSound(isMini ? 880 : 780);
   }
-  speechBubble.addEventListener('click', triggerCharacterTapReaction);
+  speechBubble.addEventListener('click', (e) => {
+    e.stopPropagation();
+    advanceSpeechBubbleOnly();
+  });
 
   const btn25d = document.getElementById('btn-toggle-25d');
   btn25d.addEventListener('click', () => {
@@ -5776,6 +5749,7 @@ ${sinsalRichList}
     askGeminiFortune('saju', '사주 명리·신살', details, q, sajuFallback, name).then(txt => {
       const el = document.getElementById('saju-llm-box');
       if (el) el.innerHTML = formatRichReadingHtml(txt, 'gold');
+      enrichSharePayload('saju', txt);
       const vWrap = document.getElementById('saju-voice-btn-wrap');
       if (vWrap) vWrap.innerHTML = renderVoiceReadBtn(txt, 'saju', '🗣️ 연화 보이스로 듣기');
     });
@@ -5936,109 +5910,191 @@ ${sinsalRichList}
 
   /* ==================== RESULT CARD PNG GENERATOR & SNS SHARE ENGINE ==================== */
   window.__fortuneShareStore = {};
+  function cleanFortuneShareText(raw) {
+    return String(raw || '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\*\*/g, '')
+      .replace(/^#{1,4}\s*/gm, '')
+      .replace(/[ \t]+/g, ' ')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  }
   function registerSharePayload(key, payload) {
     window.__fortuneShareStore[key] = payload;
   }
+  function enrichSharePayload(key, richText) {
+    const p = window.__fortuneShareStore[key];
+    if (!p || !richText) return;
+    const cleaned = cleanFortuneShareText(richText);
+    if (cleaned) p.detail = cleaned;
+  }
 
-  function wrapCanvasText(ctx, text, x, y, maxW, lineH, maxLines = 7) {
-    const words = String(text || '').replace(/\n+/g, ' ').split(' ');
-    let line = '', lines = [];
-    for (let i = 0; i < words.length; i++) {
-      const test = line ? line + ' ' + words[i] : words[i];
-      if (ctx.measureText(test).width > maxW && line) {
-        lines.push(line);
-        line = words[i];
-        if (lines.length >= maxLines - 1) break;
-      } else {
-        line = test;
+  function layoutCanvasLines(ctx, text, maxW, maxLines = 24) {
+    const paragraphs = cleanFortuneShareText(text).split('\n');
+    const out = [];
+    for (let pi = 0; pi < paragraphs.length; pi++) {
+      const para = paragraphs[pi].trim();
+      if (!para) {
+        if (out.length > 0 && out[out.length - 1] !== '' && out.length < maxLines - 1) out.push('');
+        continue;
       }
+      const isHeading = /^\[[^\]]+\]$/.test(para);
+      let line = '';
+      for (let ci = 0; ci < para.length; ci++) {
+        const ch = para[ci];
+        const test = line + ch;
+        if (ctx.measureText(test).width > maxW && line) {
+          out.push(line.trim());
+          line = ch === ' ' ? '' : ch;
+          if (out.length >= maxLines) break;
+        } else {
+          line = test;
+        }
+      }
+      if (line.trim() && out.length < maxLines) out.push(line.trim());
+      if (isHeading && out.length < maxLines) { /* keep compact under heading */ }
+      if (out.length >= maxLines) break;
     }
-    if (line) lines.push(line);
-    lines.slice(0, maxLines).forEach((ln, idx) => ctx.fillText(ln, x, y + idx * lineH));
-    return y + Math.min(lines.length, maxLines) * lineH;
+    if (out.length > maxLines) out.length = maxLines;
+    return out;
+  }
+
+  function getCombinedShareBody(p) {
+    const summary = cleanFortuneShareText(p.summary || '');
+    const detail = cleanFortuneShareText(p.detail || '');
+    if (detail && summary) {
+      if (detail.includes(summary.slice(0, 28))) return detail;
+      return `${summary}\n\n${detail}`;
+    }
+    return detail || summary;
   }
 
   function buildFortuneCardBlob(p) {
     return new Promise((resolve) => {
+      const W = 720;
+      const measureCanvas = document.createElement('canvas');
+      const mctx = measureCanvas.getContext('2d');
+
+      const bodyText = getCombinedShareBody(p);
+      mctx.font = '500 20px "Noto Sans KR", sans-serif';
+      const bodyLines = layoutCanvasLines(mctx, bodyText, 540, 24);
+      const bodyLineH = 32;
+      const bodyBoxH = Math.max(240, bodyLines.length * bodyLineH + 56);
+
+      let tipLines = [];
+      let tipBoxH = 0;
+      if (p.tip) {
+        mctx.font = 'bold 18px "Noto Sans KR", sans-serif';
+        tipLines = layoutCanvasLines(mctx, `✨ ${cleanFortuneShareText(p.tip)}`, 544, 4);
+        tipBoxH = Math.max(76, tipLines.length * 27 + 34);
+      }
+
+      const bodyTop = 418;
+      const tipTop = bodyTop + bodyBoxH + 22;
+      const footerY = (tipBoxH ? tipTop + tipBoxH : bodyTop + bodyBoxH) + 52;
+      const H = Math.max(1020, footerY + 56);
+
       const c = document.createElement('canvas');
-      c.width = 720; c.height = 960;
+      c.width = W; c.height = H;
       const ctx = c.getContext('2d');
-      const g = ctx.createLinearGradient(0, 0, 720, 960);
+      const g = ctx.createLinearGradient(0, 0, W, H);
       g.addColorStop(0, p.bg1 || '#181438');
       g.addColorStop(1, p.bg2 || '#0b0e1c');
       ctx.fillStyle = g;
-      ctx.fillRect(0, 0, 720, 960);
+      ctx.fillRect(0, 0, W, H);
 
-      const rg = ctx.createRadialGradient(360, 260, 20, 360, 260, 340);
+      const rg = ctx.createRadialGradient(360, 260, 20, 360, 260, 380);
       rg.addColorStop(0, (p.accent || '#e6c67c') + '33');
       rg.addColorStop(1, 'rgba(0,0,0,0)');
       ctx.fillStyle = rg;
-      ctx.fillRect(0, 0, 720, 960);
+      ctx.fillRect(0, 0, W, H);
 
       ctx.strokeStyle = '#e6c67c';
       ctx.lineWidth = 3;
-      ctx.strokeRect(26, 26, 668, 908);
+      ctx.strokeRect(26, 26, W - 52, H - 52);
       ctx.strokeStyle = 'rgba(230,198,124,0.4)';
       ctx.lineWidth = 1.2;
-      ctx.strokeRect(38, 38, 644, 884);
+      ctx.strokeRect(38, 38, W - 76, H - 76);
 
       ctx.textAlign = 'center';
       ctx.fillStyle = '#e6c67c';
-      ctx.font = 'bold 20px "Noto Sans KR", sans-serif';
-      ctx.fillText('✦ 운 명 상 점  ·  FORTUNE SHOP ✦', 360, 92);
+      ctx.font = 'bold 21px "Noto Sans KR", sans-serif';
+      ctx.fillText('✦  운 명 상 점  ✦', 360, 88);
 
       ctx.fillStyle = 'rgba(255,255,255,0.1)';
       ctx.beginPath();
-      ctx.roundRect(220, 118, 280, 42, 21);
+      ctx.roundRect(190, 112, 340, 42, 21);
       ctx.fill();
       ctx.strokeStyle = p.accent || '#e6c67c';
       ctx.lineWidth = 1.4;
       ctx.stroke();
       ctx.fillStyle = '#fff5dc';
-      ctx.font = 'bold 19px "Noto Sans KR", sans-serif';
-      ctx.fillText(p.category || '운명상점 운세 결과', 360, 146);
+      ctx.font = 'bold 18px "Noto Sans KR", sans-serif';
+      ctx.fillText(p.category || '운명상점 운세 결과', 360, 140);
 
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 42px "Noto Serif KR", serif';
-      ctx.fillText(p.title || '', 360, 232);
+      const titleStr = String(p.title || '');
+      ctx.font = titleStr.length > 14 ? 'bold 32px "Noto Serif KR", serif' : 'bold 40px "Noto Serif KR", serif';
+      ctx.fillText(titleStr, 360, 224);
 
       if (p.scoreText) {
         ctx.fillStyle = p.accent || '#fbbf24';
-        ctx.font = '900 54px "Inter", sans-serif';
-        ctx.fillText(p.scoreText, 360, 314);
+        ctx.font = '900 48px "Inter", "Noto Sans KR", sans-serif';
+        ctx.fillText(p.scoreText, 360, 298);
       }
       if (p.subtitle) {
         ctx.fillStyle = '#f5dc9c';
-        ctx.font = 'bold 24px "Noto Sans KR", sans-serif';
-        ctx.fillText(p.subtitle, 360, p.scoreText ? 364 : 292);
+        ctx.font = 'bold 21px "Noto Sans KR", sans-serif';
+        const subLines = layoutCanvasLines(ctx, p.subtitle, 580, 2);
+        subLines.forEach((ln, idx) => ctx.fillText(ln, 360, (p.scoreText ? 346 : 284) + idx * 28));
       }
 
       ctx.strokeStyle = 'rgba(230,198,124,0.35)';
-      ctx.beginPath(); ctx.moveTo(86, 404); ctx.lineTo(634, 404); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(82, 396); ctx.lineTo(638, 396); ctx.stroke();
 
-      ctx.fillStyle = 'rgba(255,255,255,0.06)';
+      ctx.fillStyle = 'rgba(255,255,255,0.065)';
       ctx.beginPath();
-      ctx.roundRect(66, 430, 588, 310, 22);
+      ctx.roundRect(62, bodyTop, 596, bodyBoxH, 22);
       ctx.fill();
-      ctx.textAlign = 'left';
-      ctx.fillStyle = '#f1f5f9';
-      ctx.font = '500 22px "Noto Sans KR", sans-serif';
-      wrapCanvasText(ctx, p.summary || '', 96, 480, 528, 36, 7);
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
 
-      if (p.tip) {
+      ctx.textAlign = 'left';
+      let curY = bodyTop + 42;
+      bodyLines.forEach((ln) => {
+        if (!ln) {
+          curY += 12;
+          return;
+        }
+        if (/^\[[^\]]+\]$/.test(ln)) {
+          ctx.fillStyle = p.accent || '#fde68a';
+          ctx.font = 'bold 20px "Noto Sans KR", sans-serif';
+        } else {
+          ctx.fillStyle = '#f1f5f9';
+          ctx.font = '500 20px "Noto Sans KR", sans-serif';
+        }
+        ctx.fillText(ln, 90, curY);
+        curY += bodyLineH;
+      });
+
+      if (p.tip && tipLines.length) {
         ctx.fillStyle = 'rgba(230,198,124,0.14)';
         ctx.beginPath();
-        ctx.roundRect(66, 766, 588, 86, 18);
+        ctx.roundRect(62, tipTop, 596, tipBoxH, 18);
         ctx.fill();
+        ctx.strokeStyle = 'rgba(230,198,124,0.35)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
         ctx.fillStyle = '#fde68a';
-        ctx.font = 'bold 19px "Noto Sans KR", sans-serif';
-        wrapCanvasText(ctx, `✨ ${p.tip}`, 92, 804, 536, 28, 2);
+        ctx.font = 'bold 18px "Noto Sans KR", sans-serif';
+        tipLines.forEach((ln, idx) => ctx.fillText(ln, 88, tipTop + 34 + idx * 27));
       }
 
       ctx.textAlign = 'center';
-      ctx.fillStyle = 'rgba(226,232,240,0.65)';
+      ctx.fillStyle = 'rgba(226,232,240,0.7)';
       ctx.font = '500 16px "Noto Sans KR", sans-serif';
-      ctx.fillText('store-of-destiny-project.onrender.com', 360, 898);
+      ctx.fillText('운명상점 · store-of-destiny-project.onrender.com', 360, footerY);
 
       c.toBlob((blob) => resolve({ blob, dataUrl: c.toDataURL('image/png') }), 'image/png');
     });
@@ -6052,13 +6108,24 @@ ${sinsalRichList}
     a.href = dataUrl;
     a.download = `운명상점_${(p.category || '결과').replace(/\s+/g, '_')}.png`;
     a.click();
-    showToast('결과 카드 이미지가 저장되었습니다 🖼️');
+    showToast('상세 결과 카드 이미지가 저장되었습니다 🖼️');
   };
 
   window.shareFortuneResult = async function(key) {
     const p = window.__fortuneShareStore[key];
     if (!p) return;
-    const shareText = `[운명상점 · ${p.category}] ${p.title}${p.scoreText ? ' (' + p.scoreText + ')' : ''}\n${p.subtitle || ''}\n${(p.summary || '').slice(0, 110)}…\n👉 https://store-of-destiny-project.onrender.com`;
+    const fullBody = getCombinedShareBody(p);
+    const bodyForShare = fullBody.length > 750 ? fullBody.slice(0, 750).trim() + '…' : fullBody;
+    const lines = [
+      `✦ 운명상점 · ${p.category || '운세 결과'} ✦`,
+      `${p.title || ''}${p.scoreText ? ' (' + p.scoreText + ')' : ''}`,
+      p.subtitle ? `— ${p.subtitle}` : '',
+      '',
+      bodyForShare,
+      p.tip ? `\n✨ ${cleanFortuneShareText(p.tip)}` : '',
+      '\n👉 운명상점에서 내 운세도 보기: https://store-of-destiny-project.onrender.com'
+    ].filter((v, i, arr) => !(v === '' && arr[i - 1] === ''));
+    const shareText = lines.join('\n');
     try {
       const { blob } = await buildFortuneCardBlob(p);
       const file = blob ? new File([blob], `운명상점_${key}.png`, { type: 'image/png' }) : null;
@@ -6073,7 +6140,7 @@ ${sinsalRichList}
     } catch (_) {}
     try {
       await navigator.clipboard.writeText(shareText);
-      showToast('카카오톡·SNS 공유 문구가 복사되었습니다 📋');
+      showToast('상세 운세 공유 문구가 복사되었습니다 📋');
     } catch (_) {
       showToast('결과 카드를 저장해 SNS에 공유해 보세요 ✨');
     }
@@ -6201,6 +6268,7 @@ ${sinsalRichList}
       askGeminiFortune('blood', '혈액형 궁합', `${meName}님(${state.bloodMe}형)과 ${youName}님(${state.bloodYou}형)의 혈액형 궁합 (${res.score}%, ${res.tag}). 반드시 "${meName}님과 ${youName}님의 혈액형 궁합은"으로 시작해 풀이해 주세요.`, q, bloodFallback, `${meName}·${youName}`).then(txt => {
         const richBox = document.getElementById('blood-rich-box');
         if (richBox) richBox.innerHTML = formatRichReadingHtml(txt, 'pink');
+        enrichSharePayload('blood', txt);
       });
     }
   }
@@ -6292,6 +6360,7 @@ ${sinsalRichList}
       askGeminiFortune('zodiac', '별자리 운세', `${z.name} (${z.el} 원소, 수호성 ${z.ruler}, 행운컬러 ${z.color}, 럭키아이템 ${z.item})`, q, zodiacFallback).then(txt => {
         const rEl = document.getElementById('zodiac-daily-rich');
         if (rEl) rEl.innerHTML = formatRichReadingHtml(txt, 'violet');
+        enrichSharePayload('zodiac', txt);
       });
     }
   }
@@ -6324,6 +6393,7 @@ ${sinsalRichList}
       askGeminiFortune('zodiac', '별자리 궁합', `${res.a.name}(${res.a.el})와 ${res.b.name}(${res.b.el}) 궁합 ${res.score}점 (${res.title})`, q, zMatchFallback).then(txt => {
         const rEl = document.getElementById('zodiac-match-rich');
         if (rEl) rEl.innerHTML = formatRichReadingHtml(txt, 'violet');
+        enrichSharePayload('zodiac_match', txt);
       });
     }
   }
@@ -7037,6 +7107,7 @@ ${sinsalRichList}
       askGeminiFortune('mbti', 'MBTI 궁합', `${meName}님(${res.a})과 ${youName}님(${res.b})의 MBTI 궁합 (${res.score}점, ${res.grade}). 반드시 "${meName}님과 ${youName}님의 MBTI 궁합은"으로 시작해 풀이해 주세요.`, q, mbtiFallback, `${meName}·${youName}`).then(txt => {
         const richBox = document.getElementById('mbti-rich-box');
         if (richBox) richBox.innerHTML = formatRichReadingHtml(txt, 'sky');
+        enrichSharePayload('mbti', txt);
       });
     }
   }
@@ -8023,7 +8094,7 @@ ${sinsalRichList}
           registerSharePayload('face', {
             category: '관상 & 미래 배우자', title: fType,
             scoreText: `${dynScore}점`, subtitle: '아린의 관상 & 미래 배우자 리딩',
-            summary: (data.analysis || '').slice(0, 140), tip: `미래 배우자 인상: ${spDesc.slice(0, 60)}`,
+            summary: data.analysis || '', tip: `미래 배우자 인상: ${spDesc}`,
             bg1: '#153a2e', bg2: '#0b1814', accent: '#6ee7b7'
           });
           saveLocalHistoryOnly('관상', question || '얼굴 사진 분석', `${fType} (${dynScore}점) · ${(data.analysis || '').slice(0, 80)}`, `[${fType} · ${dynScore}점]
@@ -8050,7 +8121,7 @@ ${spDesc}`, dynScore);
         registerSharePayload('palm', {
           category: '황금 돋보기 손금 리딩', title: `${state.palmHand} · ${pType}`,
           scoreText: `${dynScore}점`, subtitle: '서연의 정밀 손금 분석',
-          summary: (data.analysis || '').slice(0, 140), tip: '생명선·두뇌선·감정선·운명선 종합 분석',
+          summary: data.analysis || '', tip: '생명선·두뇌선·감정선·운명선 종합 분석',
           bg1: '#0e363c', bg2: '#071619', accent: '#5eead4'
         });
         saveLocalHistoryOnly('손금', `${state.palmHand} ${question || '손바닥 사진'}`, `${pType} (${dynScore}점) · ${(data.analysis || '').slice(0, 80)}`, `[${pType} · ${dynScore}점]
@@ -8083,7 +8154,7 @@ ${data.analysis}`, dynScore);
       registerSharePayload('face', {
         category: '관상 & 미래 배우자', title: fp.type,
         scoreText: `${fallbackScore}점`, subtitle: '아린의 관상 & 미래 배우자 리딩',
-        summary: fp.txt, tip: `미래 배우자 인상: ${sp.desc.slice(0, 58)}`,
+        summary: fp.txt, tip: `미래 배우자 인상: ${sp.desc}`,
         bg1: '#153a2e', bg2: '#0b1814', accent: '#6ee7b7'
       });
       saveFortuneRecord('관상', question || '얼굴 사진 업로드', `${fp.type} (${fallbackScore}점)`, fallbackScore, `[${fp.type} · ${fallbackScore}점]
@@ -9065,12 +9136,13 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
     registerSharePayload('sasang', {
       category: '사상의학 체질 분석', title: built.info.name,
       scoreText: built.info.shortName, subtitle: built.info.organs,
-      summary: built.info.bodySummary, tip: `추천 음식: ${built.info.goodFoods.slice(0, 48)}`,
+      summary: built.info.bodySummary, detail: built.fallbackFull, tip: `추천 음식: ${built.info.goodFoods}`,
       bg1: '#123d32', bg2: '#071411', accent: '#6ee7b7'
     });
     askGeminiFortune('sasang', '사상의학', `사용자 선택 사상체질: ${built.info.name} (${built.info.organs}). 신체 특징: ${built.info.bodySummary}`, q, built.fallbackFull, state.userName || '방문자').then(txt => {
       const box = document.getElementById('sasang-llm-box');
       if (box) box.innerHTML = formatRichReadingHtml(txt, 'emerald');
+      enrichSharePayload('sasang', txt);
       const vWrap = document.getElementById('sasang-voice-detail-wrap');
       if (vWrap) vWrap.innerHTML = renderVoiceReadBtn(txt, 'sasang', '🗣️ 풀이 듣기');
     });
@@ -9133,8 +9205,9 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
         registerSharePayload('sasang', {
           category: '전신 사상체질 분석', title: built.info.name,
           scoreText: `${dynScore}%`, subtitle: built.info.organs,
-          summary: (data.body_features || built.info.bodySummary).slice(0, 140),
-          tip: `추천 음식: ${built.info.goodFoods.slice(0, 48)}`,
+          summary: built.info.bodySummary,
+          detail: data.analysis || built.fallbackFull,
+          tip: `추천 음식: ${built.info.goodFoods}`,
           bg1: '#123d32', bg2: '#071411', accent: '#6ee7b7'
         });
         saveLocalHistoryOnly('사상의학', question || '전신 사진 체질 판별', `${built.info.name} (${dynScore}%) · ${built.info.bodySummary.slice(0, 70)}`, `[${built.info.name} · ${dynScore}%]\n${data.analysis || built.fallbackFull}`, dynScore);
@@ -9154,7 +9227,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
     registerSharePayload('sasang', {
       category: '전신 사상체질 분석', title: built.info.name,
       scoreText: `${fallbackScore}%`, subtitle: built.info.organs,
-      summary: built.info.bodySummary, tip: `추천 음식: ${built.info.goodFoods.slice(0, 48)}`,
+      summary: built.info.bodySummary, detail: built.fallbackFull, tip: `추천 음식: ${built.info.goodFoods}`,
       bg1: '#123d32', bg2: '#071411', accent: '#6ee7b7'
     });
     saveFortuneRecord('사상의학', question || '전신 사진 판별', `${built.info.name} (${fallbackScore}%)`, fallbackScore, built.fallbackFull);
@@ -9286,7 +9359,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
     registerSharePayload('dream', {
       category: '달빛 꿈 해몽', title: '몽화의 꿈 해몽 리딩',
       scoreText: state.dreamFocus, subtitle: dreamText.slice(0, 28),
-      summary: aiText.replace(/\*\*|\[|\]/g, '').slice(0, 140),
+      summary: aiText,
       tip: '운명상점 몽화의 달빛 꿈 해몽',
       bg1: '#26174d', bg2: '#0d081c', accent: '#c084fc'
     });
