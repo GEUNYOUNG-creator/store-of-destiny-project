@@ -1181,6 +1181,92 @@
       border: 1.5px solid rgba(212, 175, 55, 0.50) !important;
     }
 
+  
+    @keyframes petFloatBob {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+    }
+    #floating-destiny-pet {
+      position: absolute;
+      left: 12px;
+      bottom: 66px;
+      z-index: 26;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+    #floating-destiny-pet.visible { display: flex; }
+    .pet-avatar-orb {
+      width: 50px;
+      height: 50px;
+      border-radius: 9999px;
+      border: 2px solid #fde68a;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.55), 0 0 14px rgba(253, 230, 138, 0.35);
+      overflow: hidden;
+      background: #1a122e;
+      animation: petFloatBob 2.6s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+    .pet-avatar-orb img { width: 100%; height: 100%; object-fit: cover; }
+    #pet-tip-bubble {
+      max-width: 170px;
+      padding: 5px 9px;
+      border-radius: 12px;
+      background: rgba(20, 13, 40, 0.9);
+      border: 1px solid rgba(253, 230, 138, 0.55);
+      color: #fef9c3;
+      font-size: 10px;
+      line-height: 1.35;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.45);
+      backdrop-filter: blur(6px);
+    }
+    #pet-loading-overlay {
+      position: fixed;
+      left: 50%;
+      bottom: 84px;
+      transform: translateX(-50%);
+      z-index: 105;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px 8px 10px;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, rgba(24, 15, 48, 0.95), rgba(14, 34, 42, 0.95));
+      border: 1.5px solid rgba(253, 230, 138, 0.65);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+      max-width: 90vw;
+    }
+    #pet-loading-overlay.show { display: flex; }
+
+  
+    /* Mobile-Optimized 3D Banquet Hall Layout */
+    #banquet-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      width: 100%;
+      max-width: 430px;
+      height: 100dvh;
+      margin: 0 auto;
+      z-index: 92;
+      background: #0b0818;
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    #banquet-canvas-wrap {
+      flex: 1 1 auto;
+      min-height: 320px;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      touch-action: none;
+    }
+    #banquet-3d-mount, #banquet-3d-mount canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+
   </style>
 </head>
 <body>
@@ -1264,6 +1350,9 @@
     </div>
 
     <div class="flex items-center gap-1">
+      <button id="btn-open-banquet-top" type="button" title="운명상점 연회장 입장" class="px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-500/30 to-rose-500/30 border border-amber-300/65 text-[11px] font-bold text-[#fef08a] hover:brightness-110 active:scale-95 transition">
+        🕯️ 연회장
+      </button>
       <button id="btn-open-settings" type="button" title="환경 설정" class="w-7 h-7 rounded-full bg-black/55 border border-[#e6c67c]/50 flex items-center justify-center text-xs text-[#f3dfb1]">
         ⚙️
       </button>
@@ -1300,6 +1389,14 @@
     <div class="absolute inset-x-0 bottom-0 h-20 pointer-events-none bg-gradient-to-t from-[#0c101a] via-[#0c101a]/45 to-transparent z-[16]"></div>
 
     <!-- Stage sightline kept clean; Model Mode & GLB Loader moved into Settings Drawer -->
+    <!-- Floating Adopted Destiny Pet Mascot (Lv.2+ Unlocked) -->
+    <div id="floating-destiny-pet" title="운명 펫 쓰다듬기 & 행운 팁">
+      <div class="pet-avatar-orb">
+        <img id="floating-pet-img" src="" alt="운명 펫" />
+      </div>
+      <div id="pet-tip-bubble" class="hidden"></div>
+    </div>
+
 <div id="char-badge">
       <div id="badge-role" class="text-[10px] font-semibold tracking-wider text-[#e6c67c]">운명상점 주인 · 사주 명리</div>
       <div class="flex items-center gap-1.5"><div id="badge-name" class="font-serif-kr text-sm font-bold text-white leading-tight">연화</div><button id="badge-affinity-pill" type="button" title="캐릭터 친밀도 보기" class="px-1.5 py-0.5 rounded-full bg-rose-500/30 border border-rose-300/55 text-[9.5px] font-extrabold text-rose-100 active:scale-95 transition">♥ Lv.1</button></div>
@@ -2495,6 +2592,98 @@
     <!-- Bottom Quick Character Ring Selector -->
     <div class="relative z-20 px-2.5 py-2 bg-[#0f0a21]/95 border-t border-amber-300/20">
       <div id="banquet-char-dock" class="flex items-center gap-1.5 overflow-x-auto pb-0.5"></div>
+    </div>
+  </div>
+
+
+  <!-- ==================== CUTE PET LOADING COMPANION OVERLAY ==================== -->
+  <div id="pet-loading-overlay" role="status" aria-live="polite">
+    <div class="w-11 h-11 rounded-full overflow-hidden border-2 border-amber-300/80 bg-black/40 shrink-0" style="animation: petFloatBob 0.9s ease-in-out infinite;">
+      <img id="pet-loading-img" src="" alt="운명 펫 로딩" class="w-full h-full object-cover" />
+    </div>
+    <div class="min-w-0">
+      <div id="pet-loading-name" class="text-[11px] font-extrabold text-amber-200 leading-tight">🐾 운명 펫</div>
+      <div id="pet-loading-msg" class="text-[11px] text-slate-100 leading-snug truncate">운세를 물어오는 중이에요… ✨</div>
+    </div>
+  </div>
+
+  <!-- ==================== DESTINY PET CARE & ADOPTION DRAWER (쓰다듬기 · 복주머니 조각) ==================== -->
+  <div id="pet-care-drawer" class="drawer-backdrop" style="z-index: 96;" role="dialog" aria-modal="true">
+    <div class="drawer-sheet space-y-3.5 overflow-y-auto max-h-[84vh]">
+      <div class="w-10 h-1 bg-white/25 rounded-full mx-auto"></div>
+      <div class="flex items-center justify-between">
+        <h3 class="font-serif-kr text-base font-bold text-[#fde68a]">🐾 내 운명 펫 &amp; 쓰다듬기</h3>
+        <button id="btn-close-pet-care" type="button" class="w-8 h-8 rounded-full bg-white/10 text-white/80 flex items-center justify-center">✕</button>
+      </div>
+
+      <!-- Active Pet Care Stage -->
+      <div class="rounded-2xl p-3.5 bg-gradient-to-br from-indigo-950/75 to-rose-950/50 border border-amber-300/45 flex items-center gap-3.5">
+        <div class="w-20 h-20 rounded-2xl overflow-hidden border-2 border-amber-300/75 bg-black/40 shrink-0 shadow-lg">
+          <img id="pet-care-img" src="" alt="선택된 운명 펫" class="w-full h-full object-cover" />
+        </div>
+        <div class="flex-1 min-w-0 space-y-1.5">
+          <div class="flex items-center justify-between gap-1">
+            <div id="pet-care-title" class="font-serif-kr text-sm font-extrabold text-amber-100 truncate">아기 옥룡 청옥이</div>
+            <span id="pet-care-master-tag" class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-white/10 text-amber-200 shrink-0">연화의 펫</span>
+          </div>
+          <div id="pet-care-quote" class="text-[11px] text-slate-200 leading-snug">"오늘도 반가워! 쓰다듬어 주면 복 기운을 물어올게!"</div>
+          <div class="flex items-center justify-between text-[10.5px] text-amber-200/90 pt-0.5">
+            <span id="pet-shard-label">🧧 복주머니 조각: 0 / 5</span>
+            <span id="pet-pat-count-label">오늘 쓰다듬기 0 / 3</span>
+          </div>
+          <div class="w-full h-1.5 rounded-full bg-black/50 overflow-hidden">
+            <div id="pet-shard-bar" class="h-full rounded-full bg-gradient-to-r from-amber-400 to-rose-400 transition-all" style="width: 0%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <button id="btn-pat-pet" type="button" class="w-full py-2.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-amber-400 to-rose-400 text-slate-950 shadow-md active:scale-95 transition">
+        🤚 쓰다듬기 (주인 친밀도 +8 XP &amp; 복주머니 조각 +1)
+      </button>
+
+      <!-- All 9 Destiny Pets Adoption Grid -->
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-between text-xs">
+          <span class="font-bold text-amber-100">✨ 9인 운명 펫 입양 목록 (친밀도 Lv.2 입양)</span>
+          <span class="text-[10px] text-slate-400">대표 펫 = 소원 아바타</span>
+        </div>
+        <div id="pet-adoption-grid" class="grid grid-cols-3 gap-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== WISH CANDLE ALTAR DRAWER (소원초 · 운명 펫 소원 배달부) ==================== -->
+  <div id="wish-candle-drawer" class="drawer-backdrop" style="z-index: 97;" role="dialog" aria-modal="true">
+    <div class="drawer-sheet space-y-3.5 overflow-y-auto max-h-[84vh]">
+      <div class="w-10 h-1 bg-white/25 rounded-full mx-auto"></div>
+      <div class="flex items-center justify-between">
+        <h3 class="font-serif-kr text-base font-bold text-[#fef08a]">🕯️ 연회장 소원초 &amp; 운명 펫 배달부</h3>
+        <button id="btn-close-wish-candle" type="button" class="w-8 h-8 rounded-full bg-white/10 text-white/80 flex items-center justify-center">✕</button>
+      </div>
+
+      <div class="rounded-2xl p-3 bg-gradient-to-br from-amber-950/60 to-purple-950/60 border border-amber-300/45 space-y-2.5">
+        <div class="flex items-center gap-2.5">
+          <div class="w-11 h-11 rounded-full overflow-hidden border-2 border-amber-300 bg-black/40 shrink-0">
+            <img id="wish-pet-avatar-img" src="" alt="내 펫 아바타" class="w-full h-full object-cover" />
+          </div>
+          <div class="min-w-0">
+            <div id="wish-pet-avatar-label" class="text-xs font-extrabold text-amber-100">🐾 내 소원 배달부</div>
+            <div class="text-[10.5px] text-slate-300">소원을 적으면 내 운명 펫이 아바타가 되어 소원초에 띄워줘요!</div>
+          </div>
+        </div>
+        <div class="flex gap-1.5">
+          <input id="wish-input" type="text" maxlength="60" placeholder="소원 한 줄을 적어보세요 (예: 올해 꼭 좋은 인연 만나길!)" class="flex-1 px-3 py-2 rounded-xl bg-black/50 border border-amber-300/35 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-amber-300" />
+          <button id="btn-send-wish" type="button" class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-gradient-to-r from-amber-400 to-yellow-300 text-slate-950 shrink-0 active:scale-95 transition">🕯️ 띄우기</button>
+        </div>
+      </div>
+
+      <div class="space-y-1.5">
+        <div class="flex items-center justify-between text-xs">
+          <span class="font-bold text-amber-200">✨ 소원초 주변에 떠 있는 소원들</span>
+          <span class="text-[10px] text-slate-400">추후 전체 커뮤니티 연동 예정</span>
+        </div>
+        <div id="wish-list-box" class="space-y-1.5"></div>
+      </div>
     </div>
   </div>
 
@@ -5502,6 +5691,10 @@
   }
 
   function setModelMode(mode) {
+    if (mode === 'mini' && typeof window.openBanquetHall === 'function') {
+      window.openBanquetHall();
+      return;
+    }
     if (state.modelMode === mode) return;
     state.modelMode = mode;
     const isMini = mode === 'mini';
@@ -5790,8 +5983,7 @@
       goToCharacter(orbDx < 0 ? state.currentIdx + 1 : state.currentIdx - 1);
     } else if (Math.abs(orbDy) > 26 && Math.abs(orbDy) > Math.abs(orbDx)) {
       orbSpin.velX = orbDy > 0 ? 0.18 : -0.18;
-      if (orbDy > 0) setModelMode(state.modelMode === 'plus' ? 'mini' : 'plus');
-      else setModelMode(state.modelMode === 'mini' ? 'plus' : 'mini');
+      toggleModelMode();
     } else if (Math.abs(orbDx) < 12 && Math.abs(orbDy) < 12) {
       orbSpin.velY = 0.14;
       openCharNavigator();
@@ -11089,7 +11281,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       bCandleLight = new THREE.PointLight(0xffb74d, 2.2, 12);
       bCandleLight.position.set(0, 1.85, 0);
 
-      const candleLabel = makeNameSprite('🕯️ 소원초 (준비 중)', true);
+      const candleLabel = makeNameSprite('🕯️ 소원초 (소원 띄우기)', true);
       candleLabel.position.y = 2.15;
       altarGroup.add(base1, base2, candleBody, bFlameMesh, bFlameOuter, bCandleLight, candleLabel);
       bScene.add(altarGroup);
@@ -11141,7 +11333,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
               }
               if (cur.userData && cur.userData.isWishCandle) {
                 playChimeSound(880);
-                showToast('🕯️ 가운데 소원초는 곧 모두가 소원을 띄우는 공간으로 열릴 예정이에요!');
+                if (typeof window.openWishCandleDrawer === 'function') window.openWishCandleDrawer();
                 return;
               }
               cur = cur.parent;
@@ -11170,6 +11362,29 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
         const r = 3.15;
         const chibi = buildChibiCharacter3D(idx, unlocked);
         chibi.position.set(Math.sin(ang) * r, 0, Math.cos(ang) * r);
+        // Companion Destiny Pet Sprite beside master when Affinity Lv.2+
+        if (getAffinityLevel(c.id) >= 2 && c.pet && c.pet.openSrc) {
+          const pImg = new Image();
+          pImg.crossOrigin = 'anonymous';
+          pImg.onload = () => {
+            const pc = document.createElement('canvas');
+            pc.width = 160; pc.height = 160;
+            const pg = pc.getContext('2d');
+            pg.save();
+            pg.beginPath(); pg.arc(80, 80, 72, 0, Math.PI * 2); pg.closePath(); pg.clip();
+            pg.drawImage(pImg, 0, 0, 160, 160);
+            pg.restore();
+            pg.strokeStyle = '#fde68a'; pg.lineWidth = 6;
+            pg.beginPath(); pg.arc(80, 80, 72, 0, Math.PI * 2); pg.stroke();
+            const pTex = new THREE.CanvasTexture(pc);
+            pTex.encoding = THREE.sRGBEncoding;
+            const pSp = new THREE.Sprite(new THREE.SpriteMaterial({ map: pTex, transparent: true }));
+            pSp.scale.set(0.68, 0.68, 1);
+            pSp.position.set(0.68, 0.72, 0.25);
+            chibi.add(pSp);
+          };
+          pImg.src = c.pet.openSrc;
+        }
         // Face slightly outward/toward center-camera naturally
         chibi.lookAt(Math.sin(ang) * 7.0, 0, Math.cos(ang) * 7.0);
         bScene.add(chibi);
@@ -11257,7 +11472,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       const t = performance.now() * 0.001;
 
       bOrbitAngle += (bTargetOrbitAngle - bOrbitAngle) * 0.08;
-      const camR = 6.15;
+      const camR = (bCam && bCam.aspect < 0.72) ? 7.1 : 6.15;
       bCam.position.x = Math.sin(bOrbitAngle) * camR;
       bCam.position.z = Math.cos(bOrbitAngle) * camR;
       bCam.position.y = 2.35 + Math.sin(t * 0.7) * 0.06;
@@ -11298,24 +11513,34 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       bRenderer.render(bScene, bCam);
     }
 
+    function resizeBanquetCanvas() {
+      if (!bRenderer || !bCam || !banquetMount) return;
+      const rect = banquetMount.getBoundingClientRect();
+      const w = Math.max(280, Math.floor(rect.width || Math.min(window.innerWidth, 430)));
+      const h = Math.max(320, Math.floor(rect.height || (window.innerHeight - 120)));
+      const aspect = w / h;
+      bCam.aspect = aspect;
+      bCam.fov = aspect < 0.72 ? 54 : 44;
+      bCam.updateProjectionMatrix();
+      bRenderer.setSize(w, h, false);
+    }
+    window.addEventListener('resize', () => { if (banquetOpen) resizeBanquetCanvas(); });
+
     function openBanquetHall() {
       if (!banquetOverlay) return;
       banquetOverlay.classList.remove('hidden');
       banquetOverlay.classList.add('flex');
       banquetOpen = true;
       initBanquetScene();
-      if (bRenderer && bCam && banquetMount) {
-        const w = banquetMount.clientWidth || window.innerWidth;
-        const h = banquetMount.clientHeight || (window.innerHeight - 110);
-        bCam.aspect = w / h;
-        bCam.updateProjectionMatrix();
-        bRenderer.setSize(w, h);
-      }
+      resizeBanquetCanvas();
+      requestAnimationFrame(() => resizeBanquetCanvas());
       rebuildBanquetChibis();
       bTargetOrbitAngle = (state.currentIdx / CHARACTERS.length) * Math.PI * 2;
+      bOrbitAngle = bTargetOrbitAngle;
       playChimeSound(840);
       animateBanquet();
     }
+    document.getElementById('btn-open-banquet-top')?.addEventListener('click', openBanquetHall);
 
     function closeBanquetHall() {
       banquetOpen = false;
@@ -11330,6 +11555,334 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
     document.getElementById('btn-close-banquet')?.addEventListener('click', closeBanquetHall);
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && banquetOpen) closeBanquetHall();
+    });
+  })();
+
+
+  /* ==================== DESTINY PETS SYSTEM (ADOPTION, PAT-CARE, LOADING COMPANION, BANQUET PETS, WISH COURIER) ==================== */
+  (function initDestinyPetsSystem() {
+    const STORAGE_PET = 'destiny_pet_state_v1';
+    const STORAGE_WISHES = 'destiny_wishes_v1';
+    const PET_LUCK_TIPS = [
+      '오늘 따뜻한 물 한 잔으로 시작하면 귀인운이 맑아져요 ✨',
+      '잠깐 하늘을 올려다보면 뜻밖의 좋은 아이디어가 떠올라요 🌙',
+      '먼저 건네는 짧은 안부 인사가 오늘의 행운 열쇠예요 💌',
+      '마음이 급할수록 숨을 세 번 천천히 쉬면 복이 들어와요 🌿',
+      '오늘 입는 밝은 포인트 컬러가 대인운을 환하게 밝혀줘요 🎀',
+      '작은 칭찬 한 마디가 큰 복주머니가 되어 돌아오는 날이에요 🧧'
+    ];
+
+    function todayKey() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+    function getPetState() {
+      try {
+        const s = JSON.parse(localStorage.getItem(STORAGE_PET) || 'null') || {};
+        if (s.patDate !== todayKey()) { s.patDate = todayKey(); s.patCount = 0; }
+        if (typeof s.shards !== 'number') s.shards = 0;
+        if (typeof s.selectedIdx !== 'number') s.selectedIdx = -1;
+        return s;
+      } catch (_) {
+        return { patDate: todayKey(), patCount: 0, shards: 0, selectedIdx: -1 };
+      }
+    }
+    function savePetState(s) {
+      try { localStorage.setItem(STORAGE_PET, JSON.stringify(s)); } catch (_) {}
+    }
+    function isPetAdopted(idx) {
+      const c = CHARACTERS[idx];
+      if (!c || !c.pet) return false;
+      return (typeof window.getCharAffinityLevel === 'function' ? window.getCharAffinityLevel(c.id) : 1) >= 2;
+    }
+    function getActivePetIdx() {
+      const st = getPetState();
+      if (isPetAdopted(state.currentIdx)) return state.currentIdx;
+      if (st.selectedIdx >= 0 && isPetAdopted(st.selectedIdx)) return st.selectedIdx;
+      for (let i = 0; i < CHARACTERS.length; i++) {
+        if (isPetAdopted(i)) return i;
+      }
+      return -1;
+    }
+    window.getAdoptedCompanionPetIdx = getActivePetIdx;
+
+    /* ---- 1. FLOATING MAIN-STAGE DESTINY PET MASCOT ---- */
+    const floatingEl = document.getElementById('floating-destiny-pet');
+    const floatingImg = document.getElementById('floating-pet-img');
+    const tipBubble = document.getElementById('pet-tip-bubble');
+    let tipTimer = null;
+
+    function syncFloatingPet() {
+      if (!floatingEl || !floatingImg) return;
+      const pidx = getActivePetIdx();
+      if (pidx < 0 || !CHARACTERS[pidx]?.pet) {
+        floatingEl.classList.remove('visible');
+        return;
+      }
+      const pet = CHARACTERS[pidx].pet;
+      floatingImg.src = pet.openSrc;
+      floatingEl.classList.add('visible');
+    }
+    window.syncFloatingPet = syncFloatingPet;
+
+    floatingEl?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const pidx = getActivePetIdx();
+      if (pidx < 0) return;
+      const c = CHARACTERS[pidx];
+      const pet = c.pet;
+      if (typeof playPetSignatureSound === 'function') playPetSignatureSound(c.id);
+      if (floatingImg && pet.blinkSrc) {
+        floatingImg.src = pet.blinkSrc;
+        setTimeout(() => { if (floatingImg) floatingImg.src = pet.openSrc; }, 380);
+      }
+      if (tipBubble) {
+        const tip = PET_LUCK_TIPS[Math.floor(Math.random() * PET_LUCK_TIPS.length)];
+        tipBubble.textContent = `${pet.name}: ${tip}`;
+        tipBubble.classList.remove('hidden');
+        clearTimeout(tipTimer);
+        tipTimer = setTimeout(() => tipBubble.classList.add('hidden'), 3200);
+      }
+      openPetCareDrawer(pidx);
+    });
+
+    // Keep floating pet synced on character switch or affinity changes
+    const badgeNameObs = document.getElementById('badge-name');
+    if (badgeNameObs) {
+      new MutationObserver(() => syncFloatingPet()).observe(badgeNameObs, { childList: true, characterData: true, subtree: true });
+    }
+    const badgeAffObs = document.getElementById('badge-affinity-pill');
+    if (badgeAffObs) {
+      new MutationObserver(() => syncFloatingPet()).observe(badgeAffObs, { childList: true, characterData: true, subtree: true });
+    }
+    syncFloatingPet();
+
+    /* ---- 2. PET CARE DRAWER (쓰다듬기 -> 친밀도 XP & 복주머니 조각) ---- */
+    const petCareDrawer = document.getElementById('pet-care-drawer');
+    let careTargetIdx = 0;
+
+    function renderPetCareDrawer() {
+      const st = getPetState();
+      const pidx = isPetAdopted(careTargetIdx) ? careTargetIdx : Math.max(0, getActivePetIdx());
+      careTargetIdx = pidx;
+      const c = CHARACTERS[pidx];
+      const pet = c?.pet;
+      const adopted = isPetAdopted(pidx);
+
+      const img = document.getElementById('pet-care-img');
+      const title = document.getElementById('pet-care-title');
+      const mTag = document.getElementById('pet-care-master-tag');
+      const quote = document.getElementById('pet-care-quote');
+      const shardLbl = document.getElementById('pet-shard-label');
+      const patLbl = document.getElementById('pet-pat-count-label');
+      const shardBar = document.getElementById('pet-shard-bar');
+      const patBtn = document.getElementById('btn-pat-pet');
+
+      if (pet) {
+        if (img) img.src = pet.openSrc;
+        if (title) title.textContent = pet.name;
+        if (mTag) mTag.textContent = `${c.name}의 운명 펫`;
+        if (quote) quote.textContent = adopted
+          ? `"${(pet.lines && pet.lines[0] ? pet.lines[0].replace(/<[^>]+>/g, ' ') : '오늘도 반가워!')}"`
+          : `🔒 ${c.name} 친밀도 Lv.2 달성 시 입양할 수 있어요!`;
+      }
+      if (shardLbl) shardLbl.textContent = `🧧 복주머니 조각: ${st.shards} / 5`;
+      if (patLbl) patLbl.textContent = `오늘 쓰다듬기 ${st.patCount} / 3`;
+      if (shardBar) shardBar.style.width = `${Math.min(100, (st.shards / 5) * 100)}%`;
+      if (patBtn) {
+        const canPat = adopted && st.patCount < 3;
+        patBtn.disabled = !canPat;
+        patBtn.classList.toggle('opacity-50', !canPat);
+        patBtn.textContent = !adopted
+          ? `🔒 ${c.name} 친밀도 Lv.2 달성 후 쓰다듬기 가능`
+          : (st.patCount >= 3 ? '✅ 오늘 쓰다듬기 완료! 내일 또 놀아줘요' : `🤚 ${pet.name} 쓰다듬기 (${c.name} 친밀도 +8 XP · 조각 +1)`);
+      }
+
+      const grid = document.getElementById('pet-adoption-grid');
+      if (grid) {
+        grid.innerHTML = CHARACTERS.map((ch, idx) => {
+          const ok = isPetAdopted(idx);
+          const isSel = (st.selectedIdx === idx) || (st.selectedIdx < 0 && idx === pidx && ok);
+          return `<button type="button" data-pick-pet="${idx}" class="rounded-xl p-1.5 text-center border transition active:scale-95 ${
+            isSel ? 'bg-amber-400/25 border-amber-300' : (ok ? 'bg-white/5 border-white/15' : 'bg-black/35 border-white/10 opacity-60')
+          }">
+            <div class="w-12 h-12 mx-auto rounded-full overflow-hidden border ${ok ? 'border-amber-300/70' : 'border-slate-500/40 grayscale'}">
+              <img src="${ch.pet?.openSrc || ch.openSrc}" alt="${ch.pet?.name || ch.name}" class="w-full h-full object-cover" />
+            </div>
+            <div class="text-[10px] font-bold text-white truncate mt-1">${ch.pet?.name || ch.name}</div>
+            <div class="text-[9px] ${ok ? 'text-amber-200' : 'text-slate-400'}">${ok ? (isSel ? '★ 대표 펫' : '입양 완료') : '🔒 Lv.2'}</div>
+          </button>`;
+        }).join('');
+        grid.querySelectorAll('[data-pick-pet]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const idx = parseInt(btn.dataset.pickPet, 10);
+            careTargetIdx = idx;
+            if (isPetAdopted(idx)) {
+              const cur = getPetState();
+              cur.selectedIdx = idx;
+              savePetState(cur);
+              syncFloatingPet();
+              showToast(`🐾 ${CHARACTERS[idx].pet.name}을(를) 대표 운명 펫으로 설정했어요!`);
+            }
+            renderPetCareDrawer();
+          });
+        });
+      }
+    }
+
+    function openPetCareDrawer(idx = -1) {
+      careTargetIdx = idx >= 0 ? idx : Math.max(0, getActivePetIdx());
+      renderPetCareDrawer();
+      petCareDrawer?.classList.add('open');
+    }
+    window.openPetCareDrawer = openPetCareDrawer;
+    document.getElementById('btn-close-pet-care')?.addEventListener('click', () => petCareDrawer?.classList.remove('open'));
+    petCareDrawer?.addEventListener('click', (e) => { if (e.target === petCareDrawer) petCareDrawer.classList.remove('open'); });
+
+    document.getElementById('btn-pat-pet')?.addEventListener('click', () => {
+      const st = getPetState();
+      if (!isPetAdopted(careTargetIdx) || st.patCount >= 3) return;
+      const c = CHARACTERS[careTargetIdx];
+      const pet = c.pet;
+      st.patCount += 1;
+      st.shards += 1;
+      let craftedTicket = false;
+      if (st.shards >= 5) {
+        st.shards -= 5;
+        craftedTicket = true;
+        const curT = Number(localStorage.getItem('destiny_bonus_tickets') || '0') + 1;
+        localStorage.setItem('destiny_bonus_tickets', String(curT));
+        if (typeof state.ticketBalance === 'number') state.ticketBalance += 1;
+      }
+      savePetState(st);
+      if (typeof playPetSignatureSound === 'function') playPetSignatureSound(c.id);
+      if (typeof window.addCharacterAffinity === 'function') window.addCharacterAffinity(careTargetIdx, 8);
+      const img = document.getElementById('pet-care-img');
+      if (img && pet.blinkSrc) {
+        img.src = pet.blinkSrc;
+        setTimeout(() => { if (img) img.src = pet.openSrc; }, 450);
+      }
+      showToast(craftedTicket
+        ? `🎉 복주머니 조각 5개 완성! 무료 복주머니 +1개 & ${c.name} 친밀도 +8 XP!`
+        : `🐾 ${pet.name}이(가) 기뻐해요! ${c.name} 친밀도 +8 XP · 복주머니 조각 +1`);
+      renderPetCareDrawer();
+      syncFloatingPet();
+    });
+
+    /* ---- 3. CUTE PET LOADING COMPANION FOR ALL FORTUNE READINGS ---- */
+    const petLoaderEl = document.getElementById('pet-loading-overlay');
+    const petLoaderImg = document.getElementById('pet-loading-img');
+    const petLoaderName = document.getElementById('pet-loading-name');
+    const petLoaderMsg = document.getElementById('pet-loading-msg');
+    let petBlinkInterval = null;
+    let activeLoads = 0;
+
+    function showPetLoading(charId) {
+      if (!petLoaderEl || !petLoaderImg) return;
+      activeLoads++;
+      const c = CHARACTERS.find(ch => ch.id === charId) || CHARACTERS[state.currentIdx] || CHARACTERS[0];
+      const pet = c.pet;
+      if (petLoaderName) petLoaderName.textContent = `🐾 ${pet ? pet.name : c.name}`;
+      if (petLoaderMsg) petLoaderMsg.textContent = `${c.name}의 운세를 물어오는 중이에요… ✨`;
+      let blinkFlag = false;
+      petLoaderImg.src = pet ? pet.openSrc : c.openSrc;
+      petLoaderEl.classList.add('show');
+      clearInterval(petBlinkInterval);
+      petBlinkInterval = setInterval(() => {
+        blinkFlag = !blinkFlag;
+        if (pet && pet.blinkSrc) petLoaderImg.src = blinkFlag ? pet.blinkSrc : pet.openSrc;
+      }, 480);
+    }
+    function hidePetLoading() {
+      activeLoads = Math.max(0, activeLoads - 1);
+      if (activeLoads === 0) {
+        clearInterval(petBlinkInterval);
+        petLoaderEl?.classList.remove('show');
+      }
+    }
+    window.showPetLoading = showPetLoading;
+    window.hidePetLoading = hidePetLoading;
+
+    // Wrap askGeminiFortune transparently to show cute blinking pet loader during every reading!
+    if (typeof askGeminiFortune === 'function') {
+      const _origAskGemini = askGeminiFortune;
+      askGeminiFortune = async function(charId, category, details, question, fallbackText, subjectName = '') {
+        showPetLoading(charId);
+        try {
+          return await _origAskGemini(charId, category, details, question, fallbackText, subjectName);
+        } finally {
+          hidePetLoading();
+        }
+      };
+    }
+
+    /* ---- 4. WISH CANDLE ALTAR DRAWER (소원초 · 운명 펫 아바타 & 소원 배달부) ---- */
+    const wishDrawer = document.getElementById('wish-candle-drawer');
+    function getWishes() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_WISHES) || 'null') || [
+          { text: '올해 소중한 인연과 따뜻한 하루가 이어지길 바라요 ✨', petName: '아기 옥룡 청옥이', petImg: CHARACTERS[0].pet.openSrc, hearts: 12, ts: '방금 전' },
+          { text: '준비하는 시험과 면접에서 기분 좋은 합격 소식이 오길!', petName: '구름토끼 모모', petImg: CHARACTERS[4].pet.openSrc, hearts: 9, ts: '오늘' }
+        ];
+      } catch (_) { return []; }
+    }
+    function saveWishes(list) {
+      try { localStorage.setItem(STORAGE_WISHES, JSON.stringify(list)); } catch (_) {}
+    }
+
+    function renderWishCandleDrawer() {
+      const pidx = getActivePetIdx();
+      const pet = pidx >= 0 ? CHARACTERS[pidx].pet : CHARACTERS[0].pet;
+      const avImg = document.getElementById('wish-pet-avatar-img');
+      const avLbl = document.getElementById('wish-pet-avatar-label');
+      if (avImg && pet) avImg.src = pet.openSrc;
+      if (avLbl && pet) avLbl.textContent = pidx >= 0
+        ? `🐾 소원 배달부: ${pet.name} (내 운명 펫)`
+        : `🐾 임시 배달부: ${pet.name} (Lv.2 입양 시 내 펫으로 변경)`;
+
+      const box = document.getElementById('wish-list-box');
+      if (!box) return;
+      const list = getWishes();
+      box.innerHTML = list.map((w, idx) => `
+        <div class="rounded-xl p-2.5 bg-white/5 border border-amber-300/20 flex items-center gap-2.5">
+          <img src="${w.petImg}" alt="${w.petName}" class="w-9 h-9 rounded-full object-cover border border-amber-300/60 shrink-0" />
+          <div class="flex-1 min-w-0">
+            <div class="text-xs text-white leading-snug">${escapeHtmlSafe(w.text)}</div>
+            <div class="text-[9.5px] text-amber-200/75 mt-0.5">${w.petName} 배달 · ${w.ts}</div>
+          </div>
+          <button type="button" data-wish-heart="${idx}" class="px-2 py-1 rounded-full bg-rose-500/20 border border-rose-300/40 text-[10px] font-bold text-rose-100 shrink-0 active:scale-95">♥ ${w.hearts}</button>
+        </div>
+      `).join('');
+      box.querySelectorAll('[data-wish-heart]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.dataset.wishHeart, 10);
+          const cur = getWishes();
+          if (cur[idx]) { cur[idx].hearts = (cur[idx].hearts || 0) + 1; saveWishes(cur); renderWishCandleDrawer(); playChimeSound(880); }
+        });
+      });
+    }
+
+    window.openWishCandleDrawer = function() {
+      renderWishCandleDrawer();
+      wishDrawer?.classList.add('open');
+    };
+    document.getElementById('btn-close-wish-candle')?.addEventListener('click', () => wishDrawer?.classList.remove('open'));
+    wishDrawer?.addEventListener('click', (e) => { if (e.target === wishDrawer) wishDrawer.classList.remove('open'); });
+
+    document.getElementById('btn-send-wish')?.addEventListener('click', () => {
+      const inp = document.getElementById('wish-input');
+      const txt = (inp?.value || '').trim();
+      if (!txt) { showToast('소원 한 줄을 적어주세요 🕯️'); return; }
+      const pidx = getActivePetIdx();
+      const c = pidx >= 0 ? CHARACTERS[pidx] : CHARACTERS[0];
+      const pet = c.pet;
+      const list = getWishes();
+      list.unshift({ text: txt, petName: pet.name, petImg: pet.openSrc, hearts: 1, ts: '방금 전' });
+      saveWishes(list.slice(0, 20));
+      if (inp) inp.value = '';
+      if (typeof playPetSignatureSound === 'function') playPetSignatureSound(c.id);
+      showToast(`🕯️ ${pet.name}이(가) 소원초에 당신의 소원을 띄워 올렸어요!`);
+      renderWishCandleDrawer();
     });
   })();
 
