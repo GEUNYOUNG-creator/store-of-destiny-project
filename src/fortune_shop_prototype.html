@@ -2644,9 +2644,14 @@
         </div>
         <div class="text-[10px] text-amber-100/75 mt-0.5">Lv.5 달성 캐릭터가 귀여운 미니미로 등장 · 터치 시 1:1 대화</div>
       </div>
-      <button id="btn-close-banquet" type="button" class="px-3 py-1.5 rounded-full text-xs font-bold bg-white/10 hover:bg-white/20 text-amber-100 border border-amber-300/40 active:scale-95 transition">
-        ✕ 상점으로
-      </button>
+      <div class="flex items-center gap-1.5 shrink-0">
+        <button id="btn-banquet-skin-toggle" type="button" title="연회장 미니미 복장 전환" class="px-2.5 py-1.5 rounded-full text-[11px] font-extrabold bg-fuchsia-500/30 hover:bg-fuchsia-500/40 text-fuchsia-100 border border-fuchsia-300/60 active:scale-95 transition">
+          👗 특별 복장 ON
+        </button>
+        <button id="btn-close-banquet" type="button" class="px-2.5 py-1.5 rounded-full text-xs font-bold bg-white/10 hover:bg-white/20 text-amber-100 border border-amber-300/40 active:scale-95 transition">
+          ✕ 상점으로
+        </button>
+      </div>
     </div>
 
     <!-- 3D Three.js Banquet Hall Canvas -->
@@ -11107,7 +11112,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
         if (unlocked) {
           slotsHtml += `
             <button type="button" data-chibi-idx="${idx}" class="banquet-chibi-slot" style="left:${pos.left}; top:${pos.top}; z-index:${pos.z};">
-              <img src="./src/assets/banquet/chibi_${c.id}.png" alt="${c.name}" class="banquet-chibi-img" style="width:${sizePx}px; height:${sizePx}px; animation-delay:${delay}s;" />
+              <img src="./src/assets/banquet/chibi_${c.id}${(localStorage.getItem('destiny_use_lv4_skin_v1') !== '0') ? '_lv4' : ''}.png" alt="${c.name}" class="banquet-chibi-img" style="width:${sizePx}px; height:${sizePx}px; animation-delay:${delay}s;" />
               <span class="banquet-chibi-tag">${c.name} 💬</span>
             </button>`;
         } else {
@@ -11226,6 +11231,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
     }
 
     window.openBanquetHall = openBanquetHall;
+    window.refreshBanquetHallSkins = () => { if (banquetOpen) rebuildBanquetChibis(); };
     window.closeBanquetHall = closeBanquetHall;
     document.getElementById('btn-close-banquet')?.addEventListener('click', closeBanquetHall);
     window.addEventListener('keydown', (e) => {
@@ -11567,12 +11573,14 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
   /* ==================== LV.3+ LEFT-SIDE ORIGINAL / HIDDEN VOICE TOGGLE ==================== */
   (function initHiddenVoiceToggle() {
     const KEY = 'destiny_use_hidden_voice_v1';
-    let useHidden = localStorage.getItem(KEY) !== '0'; // default ON when Lv.3+
+    const getUseHidden = () => localStorage.getItem(KEY) !== '0';
+    let useHidden = getUseHidden();
     const btn = document.getElementById('btn-toggle-hidden-voice');
     const lbl = document.getElementById('hidden-voice-toggle-label');
 
     function isHiddenVoiceActiveFor(charId) {
       const lv = (typeof window.getCharAffinityLevel === 'function') ? window.getCharAffinityLevel(charId) : 1;
+      useHidden = getUseHidden();
       return lv >= 3 && useHidden;
     }
     window.isHiddenVoiceActiveFor = isHiddenVoiceActiveFor;
@@ -11581,6 +11589,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       if (!btn || !lbl) return;
       const cur = CHARACTERS[state.currentIdx];
       const lv = (cur && typeof window.getCharAffinityLevel === 'function') ? window.getCharAffinityLevel(cur.id) : 1;
+      useHidden = getUseHidden();
       if (lv >= 3) {
         btn.classList.remove('hidden');
         btn.classList.add('flex');
@@ -11654,7 +11663,8 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
   /* ==================== LV.4 SPECIAL OUTFIT SKIN TOGGLE (3D BODY MORPHING COMPATIBLE) ==================== */
   (function initLv4SpecialSkinToggle() {
     const SKIN_KEY = 'destiny_use_lv4_skin_v1';
-    let useSkin = localStorage.getItem(SKIN_KEY) !== '0'; // default ON when Lv.4+
+    const getUseSkin = () => localStorage.getItem(SKIN_KEY) !== '0';
+    let useSkin = getUseSkin();
     const skinBtn = document.getElementById('btn-toggle-lv4-skin');
     const skinLbl = document.getElementById('lv4-skin-toggle-label');
     const lv4Textures = [];
@@ -11681,6 +11691,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       const idx = state.currentIdx;
       const c = CHARACTERS[idx];
       if (!c) return;
+      useSkin = getUseSkin();
       const lv = (typeof window.getCharAffinityLevel === 'function') ? window.getCharAffinityLevel(c.id) : 1;
 
       if (skinBtn && skinLbl) {
@@ -11727,6 +11738,105 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
     const bName = document.getElementById('badge-name');
     if (bName) new MutationObserver(() => applyCurrentSkinIfUnlocked()).observe(bName, { childList: true, characterData: true, subtree: true });
     applyCurrentSkinIfUnlocked();
+  })();
+
+
+  /* ==================== ACCOUNT-SYNCED VOICE & OUTFIT PREFERENCES + BANQUET CHIBI SKIN TOGGLE ==================== */
+  (function initAccountPreferenceSync() {
+    const HV_KEY = 'destiny_use_hidden_voice_v1';
+    const SK_KEY = 'destiny_use_lv4_skin_v1';
+    let lastSyncedUserId = null;
+
+    function getPrefFlags() {
+      return {
+        use_hidden_voice: localStorage.getItem(HV_KEY) !== '0',
+        use_lv4_skin: localStorage.getItem(SK_KEY) !== '0'
+      };
+    }
+
+    function syncBanquetSkinBtnUI() {
+      const b = document.getElementById('btn-banquet-skin-toggle');
+      if (!b) return;
+      const on = localStorage.getItem(SK_KEY) !== '0';
+      b.textContent = on ? '👗 특별 복장 ON' : '👗 기본 복장';
+      b.className = on
+        ? 'px-2.5 py-1.5 rounded-full text-[11px] font-extrabold bg-fuchsia-500/30 hover:bg-fuchsia-500/40 text-fuchsia-100 border border-fuchsia-300/60 active:scale-95 transition'
+        : 'px-2.5 py-1.5 rounded-full text-[11px] font-bold bg-white/10 hover:bg-white/20 text-slate-200 border border-white/25 active:scale-95 transition';
+    }
+    window.syncBanquetSkinBtnUI = syncBanquetSkinBtnUI;
+
+    async function savePrefsToAccount() {
+      if (!state.currentUser || !state.currentUser.id || !state.apiBaseUrl) return;
+      const flags = getPrefFlags();
+      try {
+        await fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/user/preferences`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: String(state.currentUser.id),
+            use_hidden_voice: flags.use_hidden_voice,
+            use_lv4_skin: flags.use_lv4_skin
+          })
+        });
+      } catch (_) {}
+    }
+    window.saveUserPrefsToAccount = savePrefsToAccount;
+
+    async function loadPrefsFromAccount(force = false) {
+      if (!state.currentUser || !state.currentUser.id || !state.apiBaseUrl) return;
+      const uid = String(state.currentUser.id);
+      if (!force && lastSyncedUserId === uid) return;
+      lastSyncedUserId = uid;
+      try {
+        const resp = await fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/user/preferences?user_id=${encodeURIComponent(uid)}`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        if (typeof data.use_hidden_voice === 'boolean') {
+          localStorage.setItem(HV_KEY, data.use_hidden_voice ? '1' : '0');
+        }
+        if (typeof data.use_lv4_skin === 'boolean') {
+          localStorage.setItem(SK_KEY, data.use_lv4_skin ? '1' : '0');
+        }
+        if (typeof window.syncHiddenVoiceToggleUI === 'function') window.syncHiddenVoiceToggleUI();
+        if (typeof window.applyCurrentSkinIfUnlocked === 'function') window.applyCurrentSkinIfUnlocked();
+        syncBanquetSkinBtnUI();
+        if (typeof window.refreshBanquetHallSkins === 'function') window.refreshBanquetHallSkins();
+      } catch (_) {}
+    }
+    window.loadUserPrefsFromAccount = loadPrefsFromAccount;
+
+    // Wire Banquet Hall header skin toggle button (stays 100% synced with main left-side skin toggle!)
+    document.getElementById('btn-banquet-skin-toggle')?.addEventListener('click', () => {
+      const next = !(localStorage.getItem(SK_KEY) !== '0');
+      localStorage.setItem(SK_KEY, next ? '1' : '0');
+      syncBanquetSkinBtnUI();
+      if (typeof window.applyCurrentSkinIfUnlocked === 'function') window.applyCurrentSkinIfUnlocked();
+      if (typeof window.refreshBanquetHallSkins === 'function') window.refreshBanquetHallSkins();
+      savePrefsToAccount();
+      playChimeSound(next ? 860 : 680);
+      showToast(next ? '👗 연회장 미니미들을 특별 복장으로 갈아입혔어요!' : '✨ 연회장 미니미들을 기본 복장으로 바꿨어요.');
+    });
+
+    // Save whenever main-screen voice or skin buttons are clicked
+    document.getElementById('btn-toggle-hidden-voice')?.addEventListener('click', () => {
+      setTimeout(() => savePrefsToAccount(), 50);
+    });
+    document.getElementById('btn-toggle-lv4-skin')?.addEventListener('click', () => {
+      setTimeout(() => {
+        syncBanquetSkinBtnUI();
+        if (typeof window.refreshBanquetHallSkins === 'function') window.refreshBanquetHallSkins();
+        savePrefsToAccount();
+      }, 50);
+    });
+
+    // Periodically detect login state changes (Google/Kakao/Demo login) and auto-restore saved preferences!
+    syncBanquetSkinBtnUI();
+    setTimeout(() => loadPrefsFromAccount(false), 600);
+    setInterval(() => {
+      if (state.currentUser && state.currentUser.id && String(state.currentUser.id) !== lastSyncedUserId) {
+        loadPrefsFromAccount(true);
+      }
+    }, 1800);
   })();
 
   if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) {
