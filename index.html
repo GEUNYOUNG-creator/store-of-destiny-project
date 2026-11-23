@@ -3247,53 +3247,37 @@
       vRelief = 0.0;
 
       if (uMotion > 0.5) {
-        float anchor = smoothstep(0.0, 0.20, uv.y);
-
-        // 1. True 3D Sculpted Z-Depth Relief (face dome + torso volume for real 3D perspective turn)
+        // Gentle 3D sculpted volume (subtle depth for pointer tilt, zero dizzying wave)
         float faceDome = exp(-pow(length((uv - uFaceUv) * vec2(2.6, 2.2)), 2.0));
-        float torsoDome = exp(-pow(length((uv - uChestUv) * vec2(1.85, 1.45)), 2.0));
-        float relief = clamp(faceDome * 0.95 + torsoDome * 0.72, 0.0, 1.2);
-        pos.z += relief * 0.22 * anchor;
+        float torsoDome = exp(-pow(length((uv - uChestUv) * vec2(1.9, 1.5)), 2.0));
+        float relief = clamp(faceDome * 0.7 + torsoDome * 0.55, 0.0, 1.0);
+        pos.z += relief * 0.14;
         vRelief = relief;
 
-        // 2. Independent Head & Neck Pivot Bone (head rotates cleanly around neck without warping face!)
-        vec2 neckPivot = vec2(uFaceUv.x, uFaceUv.y - 0.145);
-        float headMask = smoothstep(-0.02, 0.15, uv.y - neckPivot.y) * smoothstep(0.48, 0.16, abs(uv.x - neckPivot.x));
-        float headRoll = (sin(uTime * 0.82) * 0.028 + uPointer.x * 0.042 + sin(uTime * 2.4) * 0.012 * uSpeakPulse) * headMask;
-        vec2 rel = pos.xy - (neckPivot - 0.5) * 2.4;
-        float cs = cos(headRoll), sn = sin(headRoll);
-        vec2 rotRel = vec2(rel.x * cs - rel.y * sn, rel.x * sn + rel.y * cs);
-        pos.xy = mix(pos.xy, (neckPivot - 0.5) * 2.4 + rotRel, headMask);
-        // Subtle 3D head nod (pitch) + gaze turn (yaw) synced with studio voice
-        float headNod = (sin(uTime * 1.15) * 0.012 - uPointer.y * 0.032 - uSpeakPulse * 0.034) * headMask;
-        pos.y += headNod;
-        pos.z += ((uv.x - neckPivot.x) * (uPointer.x * 0.18 + sin(uTime * 0.65) * 0.05) + uSpeakPulse * 0.025) * headMask;
-
-        // 3. Independent Chest & Shoulder Breathing Bone (natural inhale/exhale)
+        // Protect face/eyes 100% from body morphing
         float faceDist = length((uv - uFaceUv) * vec2(1.3, 1.5));
-        float faceProtect = smoothstep(0.16, 0.30, faceDist);
-        float breath = sin(uTime * 1.52) * 0.5 + 0.5;
-        float chestMask = exp(-pow(length((uv - uChestUv) * vec2(1.9, 2.2)), 2.0)) * faceProtect * anchor;
-        pos.y += breath * 0.024 * chestMask;
-        pos.z += breath * 0.048 * chestMask;
-        pos.x += (uv.x - 0.5) * breath * 0.022 * chestMask;
+        float faceProtect = smoothstep(0.18, 0.32, faceDist);
 
-        // 4. Upper-body organic sway + secondary hair/sleeve trailing motion
-        float upperSway = sin(uTime * 0.78) * 0.018 * smoothstep(0.18, 0.72, uv.y) * anchor;
-        pos.x += upperSway;
-        float sideEdge = smoothstep(0.13, 0.38, abs(uv.x - 0.5)) * smoothstep(0.12, 0.42, uv.y) * faceProtect;
-        float trailWave = sin(uTime * 1.85 - uv.y * 3.6 + (uv.x > 0.5 ? 0.5 : -0.5));
-        pos.x += trailWave * 0.018 * sideEdge;
-        pos.z += trailWave * 0.024 * sideEdge;
+        // 1. Calm, natural chest breathing body morph (zero idle wobble/wave)
+        float breath = sin(uTime * 1.45) * 0.5 + 0.5;
+        float chestMask = exp(-pow(length((uv - uChestUv) * vec2(2.05, 2.35)), 2.0)) * faceProtect;
+        pos.y += breath * 0.014 * chestMask;
+        pos.z += breath * 0.036 * chestMask;
+        pos.x += (uv.x - 0.5) * breath * 0.014 * chestMask;
 
-        // 5. Touch-only Shy Recoil / Warm Response Morph
+        // 2. Touch-only clean body recoil morph
         if (uTapImpulse > 0.002) {
           float tapDist = length((uv - uTapUv) * vec2(1.2, 1.35));
-          float localMask = exp(-tapDist * tapDist * 6.0) * faceProtect;
-          pos.z -= uTapImpulse * 0.14 * localMask;
+          float localMask = exp(-tapDist * tapDist * 6.5) * faceProtect;
+          pos.z -= uTapImpulse * 0.15 * localMask;
           vec2 toCenter = vec2(0.5, 0.42) - uv;
-          pos.xy += toCenter * uTapImpulse * 0.055 * localMask;
-          vMorphGlow = uTapImpulse * exp(-tapDist * tapDist * 8.5);
+          pos.xy += toCenter * uTapImpulse * 0.06 * localMask;
+
+          float shoulderMask = exp(-pow((uv.y - 0.42) / 0.24, 2.0)) * faceProtect;
+          pos.y -= uTapImpulse * 0.020 * shoulderMask;
+          pos.x -= (uv.x - 0.5) * uTapImpulse * 0.028 * shoulderMask;
+
+          vMorphGlow = uTapImpulse * exp(-tapDist * tapDist * 9.0);
         }
       }
 
@@ -3402,7 +3386,7 @@
       const tMask = loader.load(`./src/assets/cutouts/${c.id}_mask.png`, () => {
         if (idx === state.currentIdx && state.modelMode !== 'mini' && charMaterial) {
           charMaterial.uniforms.uTexMask.value = tMask;
-          charMaterial.uniforms.uHasMask.value = 1.0;
+          charMaterial.uniforms.uHasMask.value = 0.0;
         }
       });
       tMask.minFilter = THREE.LinearFilter;
@@ -3412,7 +3396,7 @@
       const tBg = loader.load(`./src/assets/cutouts/${c.id}_bg.jpg`, () => {
         if (idx === state.currentIdx && state.modelMode !== 'mini' && bgMaterial && bgMesh) {
           bgMaterial.uniforms.uTexBg.value = tBg;
-          bgMesh.visible = true;
+          bgMesh.visible = false;
         }
       });
       tBg.minFilter = THREE.LinearFilter;
@@ -3676,7 +3660,7 @@
       const tMask = (!isMini && maskTextures[idx] && maskTextures[idx].image) ? maskTextures[idx] : null;
       if (tMask) {
         charMaterial.uniforms.uTexMask.value = tMask;
-        charMaterial.uniforms.uHasMask.value = 1.0;
+        charMaterial.uniforms.uHasMask.value = 0.0;
       } else {
         charMaterial.uniforms.uHasMask.value = 0.0;
       }
@@ -3686,7 +3670,7 @@
         if (tBg) {
           bgMaterial.uniforms.uTexBg.value = tBg;
           bgMaterial.uniforms.uUvOffsetY.value = uvOff;
-          bgMesh.visible = true;
+          bgMesh.visible = false;
         } else {
           bgMesh.visible = false;
         }
@@ -3897,20 +3881,14 @@
       }
 
       if (state.motionEnabled) {
+        // Calm, zero-dizzy motion: gently follows pointer + subtle breathing & touch body morph only
         const flinch = rigPhys.tapImpulse;
-        const idleTurnY = Math.sin(t * 0.55) * 0.042 + rigPhys.curX * 0.14;
-        const idleTurnX = Math.sin(t * 0.72) * 0.015 - rigPhys.curY * 0.055;
-        charMesh.rotation.y = idleTurnY - flinch * (rigPhys.tapUv[0] - 0.5) * 0.14;
-        charMesh.rotation.x = idleTurnX + flinch * 0.045;
-        const calmBreath = Math.sin(t * 1.52) * 0.012;
-        charMesh.position.x = rigPhys.curX * 0.032 + Math.sin(t * 0.68) * 0.010;
-        charMesh.position.y = calmBreath - flinch * 0.025;
-        charMesh.position.z = -flinch * 0.07;
-
-        if (bgMesh && bgMesh.visible) {
-          bgMesh.position.x = -rigPhys.curX * 0.075 - Math.sin(t * 0.55) * 0.012;
-          bgMesh.position.y = -rigPhys.curY * 0.032;
-        }
+        charMesh.rotation.y = rigPhys.curX * 0.075 - flinch * (rigPhys.tapUv[0] - 0.5) * 0.12;
+        charMesh.rotation.x = -rigPhys.curY * 0.038 + flinch * 0.04;
+        const calmBreath = Math.sin(t * 1.45) * 0.005;
+        charMesh.position.x = rigPhys.curX * 0.018;
+        charMesh.position.y = calmBreath - rigPhys.curY * 0.010 - flinch * 0.022;
+        charMesh.position.z = -flinch * 0.065;
       } else {
         charMesh.rotation.set(0, 0, 0);
         charMesh.position.set(0, 0, 0);
