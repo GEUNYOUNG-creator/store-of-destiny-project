@@ -10992,7 +10992,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       openBanquetHall();
     });
 
-    /* ---- 3D CIRCULAR BANQUET HALL ENGINE (THREE.JS) ---- */
+    /* ---- ZERO-BLACK-SCREEN 3D-PROJECTED CIRCULAR BANQUET HALL ENGINE (60FPS CANVAS 2D + 3D PERSPECTIVE) ---- */
     const banquetOverlay = document.getElementById('banquet-overlay');
     const banquetMount = document.getElementById('banquet-3d-mount');
     const banquetFocusCard = document.getElementById('banquet-focus-card');
@@ -11003,308 +11003,61 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
     const banquetUnlockedBadge = document.getElementById('banquet-unlocked-badge');
 
     let banquetOpen = false;
-    let bScene = null, bCam = null, bRenderer = null, bAnimId = null;
-    let bChibiGroups = [], bFlameMesh = null, bFlameOuter = null, bCandleLight = null, bEmbers = null;
+    let bCanvas = null, bCtx = null, bAnimId = null;
     let bOrbitAngle = 0, bTargetOrbitAngle = 0;
     let bFocusedIdx = -1;
     let bDragActive = false, bDragLastX = 0, bDragMoved = 0;
-    const bRaycaster = new THREE.Raycaster();
-    const bMouse = new THREE.Vector2();
+    let bHitTargets = []; // sorted front-to-back clickable targets each frame
 
-    // Cute Chibi Character Style Definitions (matching 1000040394.jpg chibi aesthetics!)
-    const CHIBI_STYLES = [
-      { id: 'saju',   hair: 0x1e1824, outfit: 0x221b22, accent: 0xe6c67c, skin: 0xffe4d6, eye: 0x6b2135, prop: 'hairpin' },
-      { id: 'blood',  hair: 0xf4ecf7, outfit: 0x2b1622, accent: 0xf472b6, skin: 0xffe8e2, eye: 0xe11d48, prop: 'wings'   },
-      { id: 'zodiac', hair: 0xfde68a, outfit: 0x4c1d95, accent: 0xc084fc, skin: 0xffe8dc, eye: 0x6366f1, prop: 'witchhat'},
-      { id: 'tarot',  hair: 0xd8b4fe, outfit: 0x3b1566, accent: 0xfbbf24, skin: 0xffe6dc, eye: 0x7e22ce, prop: 'veil'    },
-      { id: 'mbti',   hair: 0xf6c978, outfit: 0xf1f5f9, accent: 0x60a5fa, skin: 0xffe7db, eye: 0x2563eb, prop: 'glasses' },
-      { id: 'face',   hair: 0x3f2a1d, outfit: 0xf5f0dc, accent: 0x10b981, skin: 0xffe3d3, eye: 0x78350f, prop: 'mirror'  },
-      { id: 'palm',   hair: 0xcbd5e1, outfit: 0x0f4c5c, accent: 0xfbbf24, skin: 0xffe5d8, eye: 0x14b8a6, prop: 'loupe'   },
-      { id: 'sasang', hair: 0x1c2520, outfit: 0x34d399, accent: 0xfef08a, skin: 0xffe5d6, eye: 0x065f46, prop: 'gourd'   },
-      { id: 'dream',  hair: 0x312e81, outfit: 0x5b21b6, accent: 0xfef08a, skin: 0xffe7de, eye: 0x8b5cf6, prop: 'moon'    }
+    const bCharImgs = [];
+    const bPetImgs = [];
+    CHARACTERS.forEach((c, i) => {
+      const im = new Image(); im.src = c.openSrc; bCharImgs[i] = im;
+      if (c.pet && c.pet.openSrc) {
+        const pim = new Image(); pim.src = c.pet.openSrc; bPetImgs[i] = pim;
+      }
+    });
+
+    const CHIBI_ACCENTS = [
+      { outfit: '#2b1e26', trim: '#e6c67c', hat: '☯' },
+      { outfit: '#3b1528', trim: '#f472b6', hat: '🦇' },
+      { outfit: '#3b1d7a', trim: '#c084fc', hat: '🧙‍♀️' },
+      { outfit: '#2e1054', trim: '#fbbf24', hat: '🌙' },
+      { outfit: '#1e3a5f', trim: '#60a5fa', hat: '👓' },
+      { outfit: '#1b4332', trim: '#fde68a', hat: '🪞' },
+      { outfit: '#0f4c5c', trim: '#5eead4', hat: '🔍' },
+      { outfit: '#14532d', trim: '#6ee7b7', hat: '🌿' },
+      { outfit: '#312e81', trim: '#ddd6fe', hat: '✨' }
     ];
 
-    function makeChibiFaceTexture(eyeHex) {
-      const c = document.createElement('canvas');
-      c.width = 256; c.height = 256;
-      const g = c.getContext('2d');
-      g.fillStyle = '#ffe5d8';
-      g.fillRect(0, 0, 256, 256);
-      const ec = '#' + eyeHex.toString(16).padStart(6, '0');
-      // Big sparkling chibi anime eyes
-      [84, 172].forEach((ex) => {
-        g.fillStyle = '#241620';
-        g.beginPath(); g.ellipse(ex, 132, 22, 26, 0, 0, Math.PI * 2); g.fill();
-        g.fillStyle = ec;
-        g.beginPath(); g.ellipse(ex, 136, 17, 20, 0, 0, Math.PI * 2); g.fill();
-        g.fillStyle = '#ffffff';
-        g.beginPath(); g.arc(ex - 7, 124, 6.5, 0, Math.PI * 2); g.fill();
-        g.beginPath(); g.arc(ex + 6, 144, 3.2, 0, Math.PI * 2); g.fill();
-      });
-      // Rosy chibi blush
-      g.fillStyle = 'rgba(255, 130, 160, 0.42)';
-      g.beginPath(); g.ellipse(54, 158, 16, 9, 0, 0, Math.PI * 2); g.fill();
-      g.beginPath(); g.ellipse(202, 158, 16, 9, 0, 0, Math.PI * 2); g.fill();
-      // Cute smile
-      g.strokeStyle = '#c45b6f';
-      g.lineWidth = 4;
-      g.lineCap = 'round';
-      g.beginPath(); g.arc(128, 160, 12, 0.15 * Math.PI, 0.85 * Math.PI); g.stroke();
-      const tex = new THREE.CanvasTexture(c);
-      tex.encoding = THREE.sRGBEncoding;
-      return tex;
-    }
+    const bEmberParticles = Array.from({ length: 42 }, () => ({
+      a: Math.random() * Math.PI * 2,
+      r: 0.4 + Math.random() * 4.2,
+      y: Math.random() * 3.6,
+      s: 1.4 + Math.random() * 2.4,
+      v: 0.008 + Math.random() * 0.012
+    }));
 
-    function makeNameSprite(label, unlocked) {
-      const c = document.createElement('canvas');
-      c.width = 256; c.height = 72;
-      const g = c.getContext('2d');
-      g.fillStyle = unlocked ? 'rgba(30, 16, 56, 0.88)' : 'rgba(20, 20, 34, 0.72)';
-      g.strokeStyle = unlocked ? '#fde68a' : 'rgba(148, 163, 184, 0.5)';
-      g.lineWidth = 3;
-      g.beginPath(); g.roundRect(12, 10, 232, 52, 26); g.fill(); g.stroke();
-      g.fillStyle = unlocked ? '#fff7d6' : '#cbd5e1';
-      g.font = 'bold 24px "Noto Sans KR", sans-serif';
-      g.textAlign = 'center'; g.textBaseline = 'middle';
-      g.fillText(label, 128, 37);
-      const tex = new THREE.CanvasTexture(c);
-      tex.encoding = THREE.sRGBEncoding;
-      const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false });
-      const sp = new THREE.Sprite(mat);
-      sp.scale.set(1.25, 0.35, 1);
-      return sp;
-    }
-
-    function buildChibiCharacter3D(idx, unlocked) {
-      const cfg = CHARACTERS[idx];
-      const st = CHIBI_STYLES[idx] || CHIBI_STYLES[0];
-      const grp = new THREE.Group();
-      grp.userData = { charIdx: idx, unlocked };
-
-      const op = unlocked ? 1.0 : 0.34;
-      const trans = !unlocked;
-      const mkMat = (hex, rough = 0.45, metal = 0.1) => new THREE.MeshStandardMaterial({
-        color: unlocked ? hex : 0x6366f1,
-        roughness: rough, metalness: metal,
-        transparent: trans, opacity: op,
-        emissive: unlocked ? 0x000000 : 0x1e1b4b,
-        emissiveIntensity: unlocked ? 0 : 0.45
-      });
-
-      // Floor pedestal glow ring
-      const ringGeo = new THREE.RingGeometry(0.42, 0.52, 28);
-      const ringMat = new THREE.MeshBasicMaterial({
-        color: unlocked ? st.accent : 0x64748b,
-        side: THREE.DoubleSide, transparent: true, opacity: unlocked ? 0.85 : 0.3
-      });
-      const ring = new THREE.Mesh(ringGeo, ringMat);
-      ring.rotation.x = -Math.PI / 2;
-      ring.position.y = 0.02;
-      grp.add(ring);
-
-      // Cute Chibi Body (Hanbok/Dress bell silhouette)
-      const body = new THREE.Mesh(new THREE.ConeGeometry(0.36, 0.72, 20), mkMat(st.outfit, 0.55));
-      body.position.y = 0.38;
-      grp.add(body);
-
-      // Outfit gold/ribbon collar accent
-      const collar = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.045, 10, 20), mkMat(st.accent, 0.3, 0.45));
-      collar.rotation.x = Math.PI / 2;
-      collar.position.y = 0.68;
-      grp.add(collar);
-
-      // Tiny cute arms
-      const armGeo = new THREE.CapsuleGeometry ? new THREE.SphereGeometry(0.095, 12, 12) : new THREE.SphereGeometry(0.095, 12, 12);
-      const leftArm = new THREE.Mesh(armGeo, mkMat(st.outfit, 0.5));
-      leftArm.scale.set(0.85, 1.5, 0.85);
-      leftArm.position.set(-0.30, 0.54, 0.06);
-      leftArm.rotation.z = 0.45;
-      grp.add(leftArm);
-      const rightArm = new THREE.Mesh(armGeo, mkMat(st.outfit, 0.5));
-      rightArm.scale.set(0.85, 1.5, 0.85);
-      rightArm.position.set(0.30, 0.54, 0.06);
-      rightArm.rotation.z = -0.45;
-      grp.add(rightArm);
-      grp.userData.leftArm = leftArm;
-      grp.userData.rightArm = rightArm;
-
-      // Big Adorable Chibi Head (2-head-tall proportions!)
-      const headGroup = new THREE.Group();
-      headGroup.position.y = 1.06;
-      const headMat = unlocked
-        ? new THREE.MeshStandardMaterial({ map: makeChibiFaceTexture(st.eye), roughness: 0.42 })
-        : mkMat(0x818cf8, 0.4);
-      const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 24, 24), headMat);
-      head.rotation.y = -Math.PI / 2;
-      headGroup.add(head);
-
-      // Chibi Hair Dome + Side Locks
-      const hairMat = mkMat(st.hair, 0.48);
-      const hairCap = new THREE.Mesh(new THREE.SphereGeometry(0.455, 22, 18, 0, Math.PI * 2, 0, Math.PI * 0.62), hairMat);
-      hairCap.position.y = 0.03;
-      hairCap.rotation.x = -0.18;
-      headGroup.add(hairCap);
-      [-0.36, 0.36].forEach((sx) => {
-        const lock = new THREE.Mesh(new THREE.SphereGeometry(0.14, 14, 14), hairMat);
-        lock.scale.set(0.85, 1.85, 0.9);
-        lock.position.set(sx, -0.16, 0.04);
-        headGroup.add(lock);
-      });
-
-      // Signature Character Accessory / Prop
-      if (st.prop === 'witchhat') {
-        const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.56, 0.58, 0.05, 22), mkMat(0x4c1d95, 0.4));
-        brim.position.y = 0.36;
-        const cone = new THREE.Mesh(new THREE.ConeGeometry(0.32, 0.62, 18), mkMat(0x5b21b6, 0.4));
-        cone.position.set(-0.04, 0.66, -0.02); cone.rotation.z = 0.16;
-        headGroup.add(brim, cone);
-      } else if (st.prop === 'wings') {
-        [-0.38, 0.38].forEach((wx) => {
-          const wing = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.42, 4), mkMat(0x9f1239, 0.35));
-          wing.position.set(wx, 0.56, -0.22); wing.rotation.z = wx < 0 ? 0.9 : -0.9;
-          grp.add(wing);
-        });
-      } else if (st.prop === 'glasses') {
-        [-0.14, 0.14].forEach((gx) => {
-          const gRing = new THREE.Mesh(new THREE.TorusGeometry(0.095, 0.015, 8, 18), mkMat(0xe6c67c, 0.2, 0.8));
-          gRing.position.set(gx, -0.02, 0.40);
-          headGroup.add(gRing);
-        });
-      } else if (st.prop === 'veil') {
-        const veil = new THREE.Mesh(new THREE.ConeGeometry(0.50, 0.68, 20, 1, true), mkMat(0x7e22ce, 0.5));
-        veil.position.set(0, 0.16, -0.08);
-        headGroup.add(veil);
-      } else if (st.prop === 'hairpin' || st.prop === 'gourd') {
-        const bun = new THREE.Mesh(new THREE.SphereGeometry(0.17, 14, 14), hairMat);
-        bun.position.set(0, 0.44, -0.06);
-        const pin = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.52, 8), mkMat(0xfde68a, 0.2, 0.8));
-        pin.rotation.z = Math.PI / 2.2; pin.position.set(0, 0.44, -0.04);
-        headGroup.add(bun, pin);
-      } else if (st.prop === 'moon') {
-        const moon = new THREE.Mesh(new THREE.TorusGeometry(0.12, 0.035, 10, 18, Math.PI * 1.4), mkMat(0xfef08a, 0.2, 0.6));
-        moon.position.set(0.38, 0.55, 0.28);
-        grp.add(moon);
-      } else if (st.prop === 'mirror' || st.prop === 'loupe') {
-        const rim = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.025, 10, 18), mkMat(0xe6c67c, 0.2, 0.85));
-        rim.position.set(0.38, 0.58, 0.24);
-        grp.add(rim);
-      }
-
-      grp.add(headGroup);
-      grp.userData.headGroup = headGroup;
-
-      // Floating Nameplate Sprite
-      const lv = getAffinityLevel(cfg.id);
-      const label = unlocked ? `${cfg.icon} ${cfg.name} · 💬` : `🔒 ${cfg.name} (Lv.${lv}/5)`;
-      const sp = makeNameSprite(label, unlocked);
-      sp.position.y = 1.82;
-      grp.add(sp);
-
-      return grp;
+    function drawRoundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
     }
 
     function initBanquetScene() {
-      if (bRenderer || !banquetMount || typeof THREE === 'undefined') return;
-      const w = banquetMount.clientWidth || window.innerWidth;
-      const h = banquetMount.clientHeight || (window.innerHeight - 110);
-
-      bScene = new THREE.Scene();
-      bScene.background = new THREE.Color(0x0c081c);
-      bScene.fog = new THREE.FogExp2(0x0c081c, 0.055);
-
-      bCam = new THREE.PerspectiveCamera(44, w / h, 0.1, 40);
-      bCam.position.set(0, 2.45, 6.2);
-      bCam.lookAt(0, 0.95, 0);
-
-      bRenderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-      bRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-      bRenderer.setSize(w, h);
-      bRenderer.outputEncoding = THREE.sRGBEncoding;
+      if (bCanvas || !banquetMount) return;
+      bCanvas = document.createElement('canvas');
+      bCanvas.style.width = '100%';
+      bCanvas.style.height = '100%';
+      bCanvas.style.display = 'block';
+      bCtx = bCanvas.getContext('2d');
       banquetMount.innerHTML = '';
-      banquetMount.appendChild(bRenderer.domElement);
+      banquetMount.appendChild(bCanvas);
 
-      // Warm cozy shop lighting
-      bScene.add(new THREE.HemisphereLight(0xffe9c8, 0x261645, 0.95));
-      const dir = new THREE.DirectionalLight(0xfff4df, 0.85);
-      dir.position.set(4, 7, 5);
-      bScene.add(dir);
-
-      // Circular Banquet Hall Floor & Inlaid Magic Rings
-      const floor = new THREE.Mesh(
-        new THREE.CylinderGeometry(5.6, 5.8, 0.26, 48),
-        new THREE.MeshStandardMaterial({ color: 0x241638, roughness: 0.65, metalness: 0.15 })
-      );
-      floor.position.y = -0.13;
-      bScene.add(floor);
-
-      [1.35, 3.15, 4.95].forEach((r, i) => {
-        const gRing = new THREE.Mesh(
-          new THREE.RingGeometry(r - 0.035, r + 0.035, 64),
-          new THREE.MeshBasicMaterial({ color: i === 0 ? 0xfde68a : 0xc084fc, side: THREE.DoubleSide, transparent: true, opacity: i === 0 ? 0.65 : 0.35 })
-        );
-        gRing.rotation.x = -Math.PI / 2;
-        gRing.position.y = 0.01;
-        bScene.add(gRing);
-      });
-
-      // Circular Wooden Pillars & 9 Hanging Golden Lanterns around perimeter
-      for (let i = 0; i < 9; i++) {
-        const ang = (i / 9) * Math.PI * 2;
-        const px = Math.sin(ang) * 5.25;
-        const pz = Math.cos(ang) * 5.25;
-        const pillar = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.14, 0.18, 4.2, 12),
-          new THREE.MeshStandardMaterial({ color: 0x3b234a, roughness: 0.7 })
-        );
-        pillar.position.set(px, 2.0, pz);
-        bScene.add(pillar);
-
-        const lantern = new THREE.Mesh(
-          new THREE.SphereGeometry(0.22, 14, 14),
-          new THREE.MeshBasicMaterial({ color: 0xfde047 })
-        );
-        lantern.scale.set(0.85, 1.2, 0.85);
-        lantern.position.set(Math.sin(ang) * 4.55, 3.15, Math.cos(ang) * 4.55);
-        bScene.add(lantern);
-      }
-
-      // CENTER WISH CANDLE ALTAR (소원초 제단)
-      const altarGroup = new THREE.Group();
-      altarGroup.userData = { isWishCandle: true };
-      const base1 = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 1.15, 0.28, 32), new THREE.MeshStandardMaterial({ color: 0x3a2459, roughness: 0.4, metalness: 0.3 }));
-      base1.position.y = 0.14;
-      const base2 = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.72, 0.22, 32), new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.3, metalness: 0.7 }));
-      base2.position.y = 0.38;
-      const candleBody = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.36, 0.92, 24), new THREE.MeshStandardMaterial({ color: 0xfff8e7, roughness: 0.55, emissive: 0x4a2e08, emissiveIntensity: 0.25 }));
-      candleBody.position.y = 0.95;
-      bFlameMesh = new THREE.Mesh(new THREE.ConeGeometry(0.11, 0.34, 14), new THREE.MeshBasicMaterial({ color: 0xfffbeb }));
-      bFlameMesh.position.y = 1.58;
-      bFlameOuter = new THREE.Mesh(new THREE.SphereGeometry(0.19, 14, 14), new THREE.MeshBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.42 }));
-      bFlameOuter.scale.set(0.85, 1.35, 0.85);
-      bFlameOuter.position.y = 1.56;
-      bCandleLight = new THREE.PointLight(0xffb74d, 2.2, 12);
-      bCandleLight.position.set(0, 1.85, 0);
-
-      const candleLabel = makeNameSprite('🕯️ 소원초 (소원 띄우기)', true);
-      candleLabel.position.y = 2.15;
-      altarGroup.add(base1, base2, candleBody, bFlameMesh, bFlameOuter, bCandleLight, candleLabel);
-      bScene.add(altarGroup);
-
-      // Floating Golden Wish Embers
-      const eCount = 70;
-      const ePos = new Float32Array(eCount * 3);
-      for (let i = 0; i < eCount; i++) {
-        ePos[i * 3] = (Math.random() - 0.5) * 9.5;
-        ePos[i * 3 + 1] = Math.random() * 4.2;
-        ePos[i * 3 + 2] = (Math.random() - 0.5) * 9.5;
-      }
-      const eGeo = new THREE.BufferGeometry();
-      eGeo.setAttribute('position', new THREE.BufferAttribute(ePos, 3));
-      bEmbers = new THREE.Points(eGeo, new THREE.PointsMaterial({ color: 0xfde68a, size: 0.08, transparent: true, opacity: 0.78 }));
-      bScene.add(bEmbers);
-
-      // Pointer drag (360 orbit) + Tap Raycast
-      const el = bRenderer.domElement;
       const onDown = (e) => {
         bDragActive = true; bDragMoved = 0;
         bDragLastX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -11315,96 +11068,66 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
         const dx = cx - bDragLastX;
         bDragLastX = cx;
         bDragMoved += Math.abs(dx);
-        bTargetOrbitAngle -= dx * 0.0085;
+        bTargetOrbitAngle -= dx * 0.0095;
       };
       const onUp = (e) => {
         if (!bDragActive) return;
         bDragActive = false;
-        if (bDragMoved < 10) {
-          const rect = el.getBoundingClientRect();
-          const cx = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
-          const cy = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
-          bMouse.x = ((cx - rect.left) / rect.width) * 2 - 1;
-          bMouse.y = -((cy - rect.top) / rect.height) * 2 + 1;
-          bRaycaster.setFromCamera(bMouse, bCam);
-          const hits = bRaycaster.intersectObjects(bScene.children, true);
-          for (const h of hits) {
-            let cur = h.object;
-            while (cur) {
-              if (cur.userData && typeof cur.userData.charIdx === 'number') {
-                handleBanquetChibiTap(cur.userData.charIdx);
-                return;
-              }
-              if (cur.userData && cur.userData.isWishCandle) {
+        if (bDragMoved < 12 && bCanvas) {
+          const rect = bCanvas.getBoundingClientRect();
+          const cx = (e.changedTouches ? e.changedTouches[0].clientX : e.clientX) - rect.left;
+          const cy = (e.changedTouches ? e.changedTouches[0].clientY : e.clientY) - rect.top;
+          for (let i = bHitTargets.length - 1; i >= 0; i--) {
+            const ht = bHitTargets[i];
+            const dist = Math.hypot(cx - ht.x, cy - ht.y);
+            if (dist <= ht.r) {
+              if (ht.type === 'candle') {
                 playChimeSound(880);
                 if (typeof window.openWishCandleDrawer === 'function') window.openWishCandleDrawer();
                 return;
               }
-              cur = cur.parent;
+              if (ht.type === 'char') {
+                handleBanquetChibiTap(ht.idx, true);
+                return;
+              }
             }
           }
         }
       };
-      el.addEventListener('mousedown', onDown);
+      bCanvas.addEventListener('mousedown', onDown);
       window.addEventListener('mousemove', onMove);
       window.addEventListener('mouseup', onUp);
-      el.addEventListener('touchstart', onDown, { passive: true });
-      el.addEventListener('touchmove', onMove, { passive: true });
-      el.addEventListener('touchend', onUp);
+      bCanvas.addEventListener('touchstart', onDown, { passive: true });
+      bCanvas.addEventListener('touchmove', onMove, { passive: true });
+      bCanvas.addEventListener('touchend', onUp);
     }
 
+    function resizeBanquetCanvas() {
+      if (!bCanvas || !banquetMount) return;
+      const rect = banquetMount.getBoundingClientRect();
+      const w = Math.max(280, Math.floor(rect.width || Math.min(window.innerWidth, 430)));
+      const h = Math.max(320, Math.floor(rect.height || (window.innerHeight - 120)));
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      bCanvas.width = Math.floor(w * dpr);
+      bCanvas.height = Math.floor(h * dpr);
+      if (bCtx) bCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    window.addEventListener('resize', () => { if (banquetOpen) resizeBanquetCanvas(); });
+
     function rebuildBanquetChibis() {
-      if (!bScene) return;
-      bChibiGroups.forEach(g => bScene.remove(g));
-      bChibiGroups = [];
       let unlockedCount = 0;
-
-      CHARACTERS.forEach((c, idx) => {
-        const unlocked = getAffinityLevel(c.id) >= 5;
-        if (unlocked) unlockedCount++;
-        const ang = (idx / CHARACTERS.length) * Math.PI * 2;
-        const r = 3.15;
-        const chibi = buildChibiCharacter3D(idx, unlocked);
-        chibi.position.set(Math.sin(ang) * r, 0, Math.cos(ang) * r);
-        // Companion Destiny Pet Sprite beside master when Affinity Lv.2+
-        if (getAffinityLevel(c.id) >= 2 && c.pet && c.pet.openSrc) {
-          const pImg = new Image();
-          pImg.crossOrigin = 'anonymous';
-          pImg.onload = () => {
-            const pc = document.createElement('canvas');
-            pc.width = 160; pc.height = 160;
-            const pg = pc.getContext('2d');
-            pg.save();
-            pg.beginPath(); pg.arc(80, 80, 72, 0, Math.PI * 2); pg.closePath(); pg.clip();
-            pg.drawImage(pImg, 0, 0, 160, 160);
-            pg.restore();
-            pg.strokeStyle = '#fde68a'; pg.lineWidth = 6;
-            pg.beginPath(); pg.arc(80, 80, 72, 0, Math.PI * 2); pg.stroke();
-            const pTex = new THREE.CanvasTexture(pc);
-            pTex.encoding = THREE.sRGBEncoding;
-            const pSp = new THREE.Sprite(new THREE.SpriteMaterial({ map: pTex, transparent: true }));
-            pSp.scale.set(0.68, 0.68, 1);
-            pSp.position.set(0.68, 0.72, 0.25);
-            chibi.add(pSp);
-          };
-          pImg.src = c.pet.openSrc;
-        }
-        // Face slightly outward/toward center-camera naturally
-        chibi.lookAt(Math.sin(ang) * 7.0, 0, Math.cos(ang) * 7.0);
-        bScene.add(chibi);
-        bChibiGroups.push(chibi);
-      });
-
+      CHARACTERS.forEach((c) => { if (getAffinityLevel(c.id) >= 5) unlockedCount++; });
       if (banquetUnlockedBadge) banquetUnlockedBadge.textContent = `${unlockedCount} / ${CHARACTERS.length}명`;
 
       if (banquetDock) {
         banquetDock.innerHTML = CHARACTERS.map((c, idx) => {
           const unlocked = getAffinityLevel(c.id) >= 5;
+          const lv = getAffinityLevel(c.id);
           return `<button type="button" data-bdock-idx="${idx}" class="px-2.5 py-1.5 rounded-full text-[11px] font-bold shrink-0 border transition active:scale-95 ${
             unlocked
-              ? 'bg-amber-400/20 border-amber-300/60 text-amber-100'
-              : 'bg-white/5 border-white/15 text-slate-400'
-          }">${c.icon} ${c.name} ${unlocked ? '💬' : '🔒'}</button>`;
+              ? 'bg-amber-400/25 border-amber-300/70 text-amber-100'
+              : 'bg-white/8 border-white/15 text-slate-300'
+          }">${c.icon} ${c.name} ${unlocked ? '💬' : `Lv.${lv}`}</button>`;
         }).join('');
         banquetDock.querySelectorAll('[data-bdock-idx]').forEach(btn => {
           btn.addEventListener('click', () => {
@@ -11417,8 +11140,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
 
     function focusBanquetCharacter(idx) {
       bFocusedIdx = idx;
-      const ang = (idx / CHARACTERS.length) * Math.PI * 2;
-      bTargetOrbitAngle = ang;
+      bTargetOrbitAngle = (idx / CHARACTERS.length) * Math.PI * 2;
       handleBanquetChibiTap(idx, false);
     }
 
@@ -11428,7 +11150,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       bFocusedIdx = idx;
       const lv = getAffinityLevel(c.id);
       const unlocked = lv >= 5;
-      playChimeSound(unlocked ? 880 : 540);
+      playChimeSound(unlocked ? 880 : 560);
 
       if (banquetFocusCard && banquetFocusName && banquetFocusDesc && banquetStartChatBtn) {
         banquetFocusCard.classList.remove('hidden');
@@ -11439,7 +11161,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
           banquetStartChatBtn.disabled = false;
           banquetStartChatBtn.classList.remove('opacity-50');
         } else {
-          banquetFocusDesc.textContent = `현재 친밀도 Lv.${lv} · Lv.5가 되면 연회장에 초대되어 대화할 수 있어요.`;
+          banquetFocusDesc.textContent = `현재 친밀도 Lv.${lv} · Lv.5가 되면 연회장에서 단둘이 대화할 수 있어요.`;
           banquetStartChatBtn.textContent = `🔒 Lv.5 해금`;
           banquetStartChatBtn.disabled = true;
           banquetStartChatBtn.classList.add('opacity-50');
@@ -11471,64 +11193,234 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
     });
 
     function animateBanquet() {
-      if (!banquetOpen) return;
+      if (!banquetOpen || !bCtx || !bCanvas) return;
       bAnimId = requestAnimationFrame(animateBanquet);
+
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const W = bCanvas.width / dpr;
+      const H = bCanvas.height / dpr;
+      const ctx = bCtx;
       const t = performance.now() * 0.001;
+      bOrbitAngle += (bTargetOrbitAngle - bOrbitAngle) * 0.09;
 
-      bOrbitAngle += (bTargetOrbitAngle - bOrbitAngle) * 0.08;
-      const camR = (bCam && bCam.aspect < 0.72) ? 7.1 : 6.15;
-      bCam.position.x = Math.sin(bOrbitAngle) * camR;
-      bCam.position.z = Math.cos(bOrbitAngle) * camR;
-      bCam.position.y = 2.35 + Math.sin(t * 0.7) * 0.06;
-      bCam.lookAt(0, 0.92, 0);
+      // 1. Cozy Moonlit Circular Shop Backdrop
+      const sky = ctx.createLinearGradient(0, 0, 0, H);
+      sky.addColorStop(0, '#130b2c');
+      sky.addColorStop(0.5, '#221445');
+      sky.addColorStop(1, '#120a24');
+      ctx.fillStyle = sky;
+      ctx.fillRect(0, 0, W, H);
 
-      // Flickering center wish candle
-      if (bFlameMesh && bFlameOuter && bCandleLight) {
-        const fl = 1.0 + Math.sin(t * 14.0) * 0.08 + Math.cos(t * 9.3) * 0.06;
-        bFlameMesh.scale.set(1, fl, 1);
-        bFlameOuter.scale.set(0.85 * fl, 1.35 * fl, 0.85 * fl);
-        bCandleLight.intensity = 2.0 + Math.sin(t * 12.0) * 0.28;
+      // Warm ambient candlelight aura behind center
+      const cx = W * 0.5;
+      const horizonY = H * 0.54;
+      const aura = ctx.createRadialGradient(cx, horizonY - 24, 10, cx, horizonY, Math.max(W, H) * 0.65);
+      aura.addColorStop(0, 'rgba(253, 211, 104, 0.28)');
+      aura.addColorStop(0.45, 'rgba(168, 85, 247, 0.14)');
+      aura.addColorStop(1, 'rgba(12, 8, 28, 0)');
+      ctx.fillStyle = aura;
+      ctx.fillRect(0, 0, W, H);
+
+      // Helper: 3D world (x, y, z) -> 2D screen with perspective
+      const camDist = 6.2;
+      const focal = Math.min(W, H) * 0.92;
+      function proj(wx, wy, wz) {
+        const cosA = Math.cos(-bOrbitAngle), sinA = Math.sin(-bOrbitAngle);
+        const rx = wx * cosA - wz * sinA;
+        const rz = wx * sinA + wz * cosA;
+        const depth = camDist - rz;
+        if (depth < 0.8) return null;
+        const sc = focal / depth;
+        return { x: cx + rx * sc, y: horizonY + (1.15 - wy) * sc * 0.58, sc, rz };
       }
 
-      // Cute bouncing chibi animation
-      bChibiGroups.forEach((g, idx) => {
-        const unlocked = g.userData.unlocked;
-        const bob = unlocked ? Math.abs(Math.sin(t * 2.6 + idx)) * 0.09 : Math.sin(t * 1.2 + idx) * 0.02;
-        g.position.y = bob;
-        if (g.userData.headGroup) {
-          g.userData.headGroup.rotation.z = Math.sin(t * 1.9 + idx) * (unlocked ? 0.09 : 0.02);
+      // 2. Circular Wooden Rotunda Floor & Golden Magic Rings
+      const floorRx = W * 0.48;
+      const floorRy = H * 0.21;
+      const floorY = horizonY + H * 0.11;
+      const floorGrad = ctx.createRadialGradient(cx, floorY, 10, cx, floorY, floorRx);
+      floorGrad.addColorStop(0, '#3e245c');
+      floorGrad.addColorStop(0.6, '#26153d');
+      floorGrad.addColorStop(1, '#140b24');
+      ctx.fillStyle = floorGrad;
+      ctx.beginPath(); ctx.ellipse(cx, floorY, floorRx, floorRy, 0, 0, Math.PI * 2); ctx.fill();
+
+      [0.32, 0.66, 0.95].forEach((k, i) => {
+        ctx.strokeStyle = i === 0 ? 'rgba(253,230,138,0.55)' : 'rgba(192,132,252,0.32)';
+        ctx.lineWidth = i === 0 ? 2 : 1.2;
+        ctx.beginPath(); ctx.ellipse(cx, floorY, floorRx * k, floorRy * k, 0, 0, Math.PI * 2); ctx.stroke();
+      });
+
+      // 3. Collect all 3D renderables (9 Lanterns + Center Wish Candle + 9 Chibi Characters) and depth-sort (back to front)
+      const items = [];
+      for (let i = 0; i < 9; i++) {
+        const ang = (i / 9) * Math.PI * 2;
+        const p = proj(Math.sin(ang) * 4.1, 3.05, Math.cos(ang) * 4.1);
+        if (p) items.push({ kind: 'lantern', p, idx: i });
+      }
+      const cp = proj(0, 0.0, 0);
+      if (cp) items.push({ kind: 'candle', p: cp });
+
+      CHARACTERS.forEach((c, idx) => {
+        const ang = (idx / CHARACTERS.length) * Math.PI * 2;
+        const r = 2.65;
+        const p = proj(Math.sin(ang) * r, 0.0, Math.cos(ang) * r);
+        if (p) items.push({ kind: 'char', p, idx, c });
+      });
+
+      // Sort back-to-front by rz (smaller rz = farther away)
+      items.sort((a, b) => a.p.rz - b.p.rz);
+      bHitTargets = [];
+
+      items.forEach((it) => {
+        const { x, y, sc } = it.p;
+        if (it.kind === 'lantern') {
+          const r = Math.max(5, sc * 0.14);
+          const lg = ctx.createRadialGradient(x, y, 1, x, y, r * 3.2);
+          lg.addColorStop(0, 'rgba(254, 240, 138, 0.95)');
+          lg.addColorStop(0.35, 'rgba(251, 191, 36, 0.42)');
+          lg.addColorStop(1, 'rgba(251, 191, 36, 0)');
+          ctx.fillStyle = lg;
+          ctx.beginPath(); ctx.arc(x, y, r * 3.2, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath(); ctx.ellipse(x, y, r * 0.72, r * 1.05, 0, 0, Math.PI * 2); ctx.fill();
+          return;
         }
-        if (unlocked && g.userData.rightArm) {
-          g.userData.rightArm.rotation.z = -0.45 - Math.sin(t * 3.8 + idx) * 0.22;
+
+        if (it.kind === 'candle') {
+          const cw = sc * 0.34, ch = sc * 0.62;
+          // Altar pedestal
+          ctx.fillStyle = '#4c2c72';
+          ctx.beginPath(); ctx.ellipse(x, y + 6, cw * 1.45, cw * 0.48, 0, 0, Math.PI * 2); ctx.fill();
+          ctx.strokeStyle = '#fde68a'; ctx.lineWidth = 1.6; ctx.stroke();
+          // Ivory candle pillar
+          const cg = ctx.createLinearGradient(x - cw * 0.5, y - ch, x + cw * 0.5, y);
+          cg.addColorStop(0, '#fffbeb'); cg.addColorStop(1, '#f3d9a4');
+          ctx.fillStyle = cg;
+          drawRoundRect(ctx, x - cw * 0.45, y - ch, cw * 0.9, ch, cw * 0.18);
+          ctx.fill();
+          // Flickering flame
+          const fl = 1 + Math.sin(t * 13) * 0.1 + Math.cos(t * 8.5) * 0.08;
+          const fy = y - ch - cw * 0.35;
+          const fg = ctx.createRadialGradient(x, fy, 2, x, fy, cw * 1.5 * fl);
+          fg.addColorStop(0, 'rgba(255,255,235,0.98)');
+          fg.addColorStop(0.35, 'rgba(251,191,36,0.65)');
+          fg.addColorStop(1, 'rgba(251,146,60,0)');
+          ctx.fillStyle = fg;
+          ctx.beginPath(); ctx.arc(x, fy, cw * 1.5 * fl, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = '#fffbeb';
+          ctx.beginPath(); ctx.ellipse(x, fy, cw * 0.18, cw * 0.34 * fl, 0, 0, Math.PI * 2); ctx.fill();
+          // Candle pill label
+          const lw = 112, lh = 22;
+          ctx.fillStyle = 'rgba(28, 16, 52, 0.88)';
+          ctx.strokeStyle = '#fde68a'; ctx.lineWidth = 1.3;
+          drawRoundRect(ctx, x - lw / 2, fy - cw * 0.95 - lh, lw, lh, 11);
+          ctx.fill(); ctx.stroke();
+          ctx.fillStyle = '#fef08a'; ctx.font = 'bold 10.5px "Noto Sans KR", sans-serif';
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText('🕯️ 소원초 (터치)', x, fy - cw * 0.95 - lh / 2);
+          bHitTargets.push({ type: 'candle', x, y: y - ch * 0.55, r: Math.max(36, cw * 1.3) });
+          return;
+        }
+
+        if (it.kind === 'char') {
+          const idx = it.idx;
+          const c = it.c;
+          const lv = getAffinityLevel(c.id);
+          const unlocked = lv >= 5;
+          const hasPet = lv >= 2 && bPetImgs[idx] && bPetImgs[idx].complete;
+          const st = CHIBI_ACCENTS[idx] || CHIBI_ACCENTS[0];
+          const bob = unlocked ? Math.abs(Math.sin(t * 2.8 + idx)) * (sc * 0.08) : Math.sin(t * 1.3 + idx) * (sc * 0.02);
+          const baseY = y - bob;
+          const headR = Math.max(15, sc * 0.34);
+          const bodyH = headR * 0.95;
+
+          ctx.save();
+          // Floor glow ring
+          ctx.fillStyle = unlocked ? 'rgba(253, 230, 138, 0.28)' : 'rgba(148, 163, 184, 0.14)';
+          ctx.beginPath(); ctx.ellipse(x, y + 6, headR * 0.95, headR * 0.32, 0, 0, Math.PI * 2); ctx.fill();
+
+          if (!unlocked) ctx.globalAlpha = 0.55;
+
+          // Cute Chibi Body (bell dress / hanbok)
+          ctx.fillStyle = st.outfit;
+          ctx.beginPath();
+          ctx.moveTo(x - headR * 0.38, baseY - bodyH * 0.85);
+          ctx.lineTo(x + headR * 0.38, baseY - bodyH * 0.85);
+          ctx.lineTo(x + headR * 0.68, baseY);
+          ctx.lineTo(x - headR * 0.68, baseY);
+          ctx.closePath();
+          ctx.fill();
+          ctx.strokeStyle = st.trim; ctx.lineWidth = 1.6; ctx.stroke();
+
+          // Big Adorable Chibi Portrait Head (high-res character face clipped cleanly inside golden frame!)
+          const headY = baseY - bodyH - headR * 0.62;
+          ctx.save();
+          ctx.beginPath(); ctx.arc(x, headY, headR, 0, Math.PI * 2); ctx.closePath(); ctx.clip();
+          const img = bCharImgs[idx];
+          if (img && img.complete && img.naturalWidth > 0) {
+            if (!unlocked) ctx.filter = 'grayscale(75%) brightness(0.75)';
+            const iw = img.naturalWidth, ih = img.naturalHeight;
+            const cropSize = Math.min(iw, ih) * 0.62;
+            const sx = (iw - cropSize) * 0.5;
+            const sy = ih * 0.05;
+            ctx.drawImage(img, sx, sy, cropSize, cropSize, x - headR, headY - headR, headR * 2, headR * 2);
+            ctx.filter = 'none';
+          } else {
+            ctx.fillStyle = '#3b2458'; ctx.fillRect(x - headR, headY - headR, headR * 2, headR * 2);
+          }
+          ctx.restore();
+
+          // Golden Chibi Halo Rim
+          ctx.strokeStyle = unlocked ? '#fde68a' : 'rgba(148,163,184,0.6)';
+          ctx.lineWidth = unlocked ? 2.6 : 1.5;
+          ctx.beginPath(); ctx.arc(x, headY, headR, 0, Math.PI * 2); ctx.stroke();
+
+          // Cute Lv.2+ Companion Pet hovering beside master!
+          if (hasPet) {
+            const petR = headR * 0.44;
+            const px = x + headR * 1.12;
+            const py = baseY - bodyH * 0.65 + Math.sin(t * 3.4 + idx) * 4;
+            ctx.save();
+            ctx.globalAlpha = 1.0;
+            ctx.beginPath(); ctx.arc(px, py, petR, 0, Math.PI * 2); ctx.closePath(); ctx.clip();
+            ctx.drawImage(bPetImgs[idx], px - petR, py - petR, petR * 2, petR * 2);
+            ctx.restore();
+            ctx.strokeStyle = '#fde68a'; ctx.lineWidth = 1.6;
+            ctx.beginPath(); ctx.arc(px, py, petR, 0, Math.PI * 2); ctx.stroke();
+          }
+
+          // Floating Nameplate
+          ctx.globalAlpha = 1.0;
+          const lbl = unlocked ? `${c.icon} ${c.name} 💬` : `🔒 ${c.name} Lv.${lv}`;
+          const nw = Math.max(76, lbl.length * 8.5 + 16), nh = 20;
+          const ny = headY - headR - nh - 5;
+          ctx.fillStyle = unlocked ? 'rgba(30, 14, 58, 0.92)' : 'rgba(15, 18, 34, 0.8)';
+          ctx.strokeStyle = unlocked ? '#fde68a' : 'rgba(148,163,184,0.45)';
+          ctx.lineWidth = 1.2;
+          drawRoundRect(ctx, x - nw / 2, ny, nw, nh, 10);
+          ctx.fill(); ctx.stroke();
+          ctx.fillStyle = unlocked ? '#fff7d6' : '#cbd5e1';
+          ctx.font = 'bold 10px "Noto Sans KR", sans-serif';
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText(lbl, x, ny + nh / 2);
+
+          ctx.restore();
+          bHitTargets.push({ type: 'char', idx, x, y: headY + headR * 0.35, r: Math.max(30, headR * 1.25) });
         }
       });
 
-      // Rising golden embers
-      if (bEmbers) {
-        const pos = bEmbers.geometry.attributes.position;
-        for (let i = 0; i < pos.count; i++) {
-          let y = pos.getY(i) + 0.007;
-          if (y > 4.2) y = 0.2;
-          pos.setY(i, y);
+      // 4. Rising Golden Wish Embers
+      ctx.fillStyle = 'rgba(254, 240, 138, 0.75)';
+      bEmberParticles.forEach((em) => {
+        em.y += em.v;
+        if (em.y > 3.6) em.y = 0.1;
+        const p = proj(Math.cos(em.a + t * 0.15) * em.r, em.y, Math.sin(em.a + t * 0.15) * em.r);
+        if (p) {
+          ctx.beginPath(); ctx.arc(p.x, p.y, em.s, 0, Math.PI * 2); ctx.fill();
         }
-        pos.needsUpdate = true;
-      }
-
-      bRenderer.render(bScene, bCam);
+      });
     }
-
-    function resizeBanquetCanvas() {
-      if (!bRenderer || !bCam || !banquetMount) return;
-      const rect = banquetMount.getBoundingClientRect();
-      const w = Math.max(280, Math.floor(rect.width || Math.min(window.innerWidth, 430)));
-      const h = Math.max(320, Math.floor(rect.height || (window.innerHeight - 120)));
-      const aspect = w / h;
-      bCam.aspect = aspect;
-      bCam.fov = aspect < 0.72 ? 54 : 44;
-      bCam.updateProjectionMatrix();
-      bRenderer.setSize(w, h, false);
-    }
-    window.addEventListener('resize', () => { if (banquetOpen) resizeBanquetCanvas(); });
 
     function openBanquetHall() {
       if (!banquetOverlay) return;
@@ -11618,12 +11510,14 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
 
     function syncFloatingPet() {
       if (!floatingEl || !floatingImg) return;
-      const pidx = getActivePetIdx();
-      if (pidx < 0 || !CHARACTERS[pidx]?.pet) {
+      // 현재 화면의 마스터 본인이 Lv.2+ 입양 완료된 경우에만 해당 마스터의 펫을 표시! (다른 마스터 창에서는 숨김)
+      const curIdx = state.currentIdx;
+      if (!isPetAdopted(curIdx) || !CHARACTERS[curIdx]?.pet) {
         floatingEl.classList.remove('visible');
+        if (tipBubble) tipBubble.classList.add('hidden');
         return;
       }
-      const pet = CHARACTERS[pidx].pet;
+      const pet = CHARACTERS[curIdx].pet;
       floatingImg.src = pet.openSrc;
       floatingEl.classList.add('visible');
     }
@@ -11631,8 +11525,8 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
 
     floatingEl?.addEventListener('click', (e) => {
       e.stopPropagation();
-      const pidx = getActivePetIdx();
-      if (pidx < 0) return;
+      const pidx = state.currentIdx;
+      if (!isPetAdopted(pidx)) return;
       const c = CHARACTERS[pidx];
       const pet = c.pet;
       if (typeof playPetSignatureSound === 'function') playPetSignatureSound(c.id);
