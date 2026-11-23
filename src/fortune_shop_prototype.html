@@ -1343,6 +1343,10 @@
         <span>👑</span>
         <span>운명플러스</span>
       </button>
+      <button id="btn-toggle-hidden-voice" type="button" title="원래 보이스 / 히든 보이스 전환 (친밀도 Lv.3+)" class="hidden items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-rose-500/35 to-amber-500/30 border border-rose-300/65 text-[10px] font-extrabold text-rose-100 hover:brightness-110 active:scale-95 transition">
+        <span>💖</span>
+        <span id="hidden-voice-toggle-label">히든 보이스</span>
+      </button>
     </div>
 
     <div class="text-center">
@@ -4655,7 +4659,7 @@
       }
       this.stop();
       const seq = this.reqSeq;
-      const url = `./assets/voices/${cid}_${kind}.mp3?v=2`;
+      const url = `./assets/voices/${cid}_${kind}.mp3?v=3`;
       const audio = new Audio(url);
       audio.volume = 1.0;
 
@@ -11884,6 +11888,93 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       showToast(`🕯️ ${pet.name}이(가) 소원초에 당신의 소원을 띄워 올렸어요!`);
       renderWishCandleDrawer();
     });
+  })();
+
+
+  /* ==================== LV.3+ LEFT-SIDE ORIGINAL / HIDDEN VOICE TOGGLE ==================== */
+  (function initHiddenVoiceToggle() {
+    const KEY = 'destiny_use_hidden_voice_v1';
+    let useHidden = localStorage.getItem(KEY) !== '0'; // default ON when Lv.3+
+    const btn = document.getElementById('btn-toggle-hidden-voice');
+    const lbl = document.getElementById('hidden-voice-toggle-label');
+
+    function isHiddenVoiceActiveFor(charId) {
+      const lv = (typeof window.getCharAffinityLevel === 'function') ? window.getCharAffinityLevel(charId) : 1;
+      return lv >= 3 && useHidden;
+    }
+    window.isHiddenVoiceActiveFor = isHiddenVoiceActiveFor;
+
+    function syncHiddenVoiceToggleUI() {
+      if (!btn || !lbl) return;
+      const cur = CHARACTERS[state.currentIdx];
+      const lv = (cur && typeof window.getCharAffinityLevel === 'function') ? window.getCharAffinityLevel(cur.id) : 1;
+      if (lv >= 3) {
+        btn.classList.remove('hidden');
+        btn.classList.add('flex');
+        lbl.textContent = useHidden ? '히든 보이스 ON' : '원래 보이스';
+        btn.className = useHidden
+          ? 'flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-rose-500/35 to-amber-500/30 border border-rose-300/65 text-[10px] font-extrabold text-rose-100 hover:brightness-110 active:scale-95 transition'
+          : 'flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-black/55 border border-white/25 text-[10px] font-bold text-slate-200 hover:bg-black/75 active:scale-95 transition';
+      } else {
+        btn.classList.add('hidden');
+        btn.classList.remove('flex');
+      }
+    }
+    window.syncHiddenVoiceToggleUI = syncHiddenVoiceToggleUI;
+
+    // Override voiceEngine.speakGreet to respect ON/OFF toggle
+    const _prevSpeakGreet = voiceEngine.speakGreet.bind(voiceEngine);
+    voiceEngine.speakGreet = function(charIdx) {
+      const c = CHARACTERS[charIdx];
+      if (!c) return;
+      if (isHiddenVoiceActiveFor(c.id)) {
+        this.playStudioClip(c.id, 'hidden');
+      } else {
+        this.playStudioClip(c.id, 'greet');
+      }
+    };
+
+    // Override top-right 보이스 button to also respect ON/OFF toggle
+    const vBtn = document.getElementById('btn-voice-speak');
+    if (vBtn) {
+      const nv = vBtn.cloneNode(true);
+      vBtn.parentNode.replaceChild(nv, vBtn);
+      nv.addEventListener('click', () => {
+        if (voiceEngine.speaking) { voiceEngine.stop(); return; }
+        if (!state.voiceEnabled) { state.voiceEnabled = true; if (typeof syncVoiceToggleUI === 'function') syncVoiceToggleUI(); }
+        const c = CHARACTERS[state.currentIdx];
+        if (!c) return;
+        if (isHiddenVoiceActiveFor(c.id)) {
+          voiceEngine.playStudioClip(c.id, 'hidden');
+          showToast(`💖 ${c.name} 히든 보이스 재생 중`);
+        } else {
+          voiceEngine.playStudioClip(c.id, 'greet');
+          showToast(`🎙️ ${c.name} 원래 보이스 재생 중`);
+        }
+      });
+    }
+
+    btn?.addEventListener('click', () => {
+      useHidden = !useHidden;
+      localStorage.setItem(KEY, useHidden ? '1' : '0');
+      syncHiddenVoiceToggleUI();
+      const c = CHARACTERS[state.currentIdx];
+      if (c && state.voiceEnabled) {
+        voiceEngine.playStudioClip(c.id, useHidden ? 'hidden' : 'greet');
+      }
+      showToast(useHidden ? '💖 히든 보이스 듣기 ON' : '🎙️ 원래 보이스 듣기로 전환했어요');
+    });
+
+    // Keep toggle visibility synced whenever character or affinity badge changes
+    const affPill = document.getElementById('badge-affinity-pill');
+    if (affPill) {
+      new MutationObserver(() => syncHiddenVoiceToggleUI()).observe(affPill, { childList: true, characterData: true, subtree: true });
+    }
+    const bName = document.getElementById('badge-name');
+    if (bName) {
+      new MutationObserver(() => syncHiddenVoiceToggleUI()).observe(bName, { childList: true, characterData: true, subtree: true });
+    }
+    syncHiddenVoiceToggleUI();
   })();
 
   if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) {
