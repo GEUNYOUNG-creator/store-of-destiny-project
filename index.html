@@ -2716,7 +2716,7 @@
           <span class="font-serif-kr text-base font-extrabold text-[#fde68a]">🕯️ 운명상점 연회장</span>
           <span id="banquet-unlocked-badge" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500/30 text-rose-100 border border-rose-300/50">0 / 9명</span>
         </div>
-        <div class="text-[10px] text-amber-100/75 mt-0.5">미니미들이 연회장을 자유롭게 돌아다녀요 · 아래 이름표에서 1:1 대화 &amp; 복장 변경</div>
+        <div class="text-[10px] text-amber-100/75 mt-0.5">소원초를 둘러싼 9인 미니미 &amp; 산책하는 펫 · 아래 이름표에서 1:1 대화·복장 변경</div>
       </div>
       <div class="flex items-center gap-1.5 shrink-0">
         <button id="btn-close-banquet" type="button" class="px-2.5 py-1.5 rounded-full text-xs font-bold bg-white/10 hover:bg-white/20 text-amber-100 border border-amber-300/40 active:scale-95 transition">
@@ -11186,65 +11186,63 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
 
     // 9 Harmonious Floor Positions arranged in a cozy arc around the Center Wish Candle!
     const CHIBI_POSITIONS = [
-      { left: '50%', top: '86%', z: 86, scale: 1.06 }, // 0 연화
-      { left: '22%', top: '79%', z: 79, scale: 1.02 }, // 1 루미
-      { left: '78%', top: '79%', z: 79, scale: 1.02 }, // 2 스텔라
-      { left: '16%', top: '62%', z: 62, scale: 0.98 }, // 3 셀레네
-      { left: '84%', top: '62%', z: 62, scale: 0.98 }, // 4 하린
-      { left: '25%', top: '45%', z: 45, scale: 0.94 }, // 5 아린
-      { left: '75%', top: '45%', z: 45, scale: 0.94 }, // 6 서연
-      { left: '36%', top: '38%', z: 38, scale: 0.92 }, // 7 다온
-      { left: '64%', top: '38%', z: 38, scale: 0.92 }  // 8 몽화
+      { left: '50%', top: '82%', z: 82, scale: 1.08 }, // 0 연화 (정면 하단)
+      { left: '24%', top: '76%', z: 76, scale: 1.04 }, // 1 루미 (좌하단)
+      { left: '76%', top: '76%', z: 76, scale: 1.04 }, // 2 스텔라 (우하단)
+      { left: '15%', top: '60%', z: 60, scale: 1.00 }, // 3 셀레네 (좌중단)
+      { left: '85%', top: '60%', z: 60, scale: 1.00 }, // 4 하린 (우중단)
+      { left: '22%', top: '44%', z: 44, scale: 0.96 }, // 5 아린 (좌상단)
+      { left: '78%', top: '44%', z: 44, scale: 0.96 }, // 6 서연 (우상단)
+      { left: '37%', top: '36%', z: 36, scale: 0.93 }, // 7 다온 (상단 좌)
+      { left: '63%', top: '36%', z: 36, scale: 0.93 }  // 8 몽화 (상단 우)
     ];
     const PET_INIT_POSITIONS = [
-      { left: '37%', top: '90%' }, { left: '14%', top: '87%' }, { left: '86%', top: '87%' },
+      { left: '38%', top: '90%' }, { left: '14%', top: '87%' }, { left: '86%', top: '87%' },
       { left: '28%', top: '69%' }, { left: '72%', top: '69%' }, { left: '15%', top: '50%' },
-      { left: '85%', top: '50%' }, { left: '48%', top: '36%' }, { left: '62%', top: '90%' }
+      { left: '85%', top: '50%' }, { left: '50%', top: '33%' }, { left: '62%', top: '90%' }
     ];
 
-            let banquetRoamTimers = [];
+                let banquetRoamTimers = [];
     function stopBanquetRoaming() {
       banquetRoamTimers.forEach((id) => clearTimeout(id));
       banquetRoamTimers = [];
     }
 
-    // Top-down 3/4 circular zodiac floor waypoints (avoids center Wish Candle at left 40..60%, top 43..60%)
+    // Safe circular floor waypoints for PETS ONLY (masters stand calmly in a ring around the Wish Candle!)
     const ROAM_SPOTS = [
-      { left: 50, top: 88 }, { left: 34, top: 87 }, { left: 66, top: 87 },
-      { left: 18, top: 82 }, { left: 82, top: 82 }, { left: 26, top: 75 },
-      { left: 74, top: 75 }, { left: 15, top: 68 }, { left: 85, top: 68 },
-      { left: 26, top: 64 }, { left: 74, top: 64 }, { left: 16, top: 55 },
-      { left: 84, top: 55 }, { left: 22, top: 46 }, { left: 78, top: 46 },
-      { left: 32, top: 39 }, { left: 68, top: 39 }, { left: 48, top: 36 },
-      { left: 40, top: 74 }, { left: 60, top: 74 }
+      { left: 50, top: 89 }, { left: 34, top: 89 }, { left: 66, top: 89 },
+      { left: 16, top: 85 }, { left: 84, top: 85 }, { left: 32, top: 73 },
+      { left: 68, top: 73 }, { left: 20, top: 68 }, { left: 80, top: 68 },
+      { left: 32, top: 62 }, { left: 68, top: 62 }, { left: 16, top: 51 },
+      { left: 84, top: 51 }, { left: 32, top: 47 }, { left: 68, top: 47 },
+      { left: 50, top: 34 }, { left: 40, top: 86 }, { left: 60, top: 86 }
     ];
 
     function startBanquetRoaming() {
       stopBanquetRoaming();
       if (!banquetMount) return;
-      const actors = Array.from(banquetMount.querySelectorAll('.banquet-chibi-slot[data-unlocked="1"], .banquet-pet-actor'));
-      actors.forEach((slot, orderIdx) => {
-        const isPet = slot.classList.contains('banquet-pet-actor');
+      // Only pets move around; masters remain calmly stationed in a circle around the Wish Candle!
+      const pets = Array.from(banquetMount.querySelectorAll('.banquet-pet-actor'));
+      pets.forEach((slot, orderIdx) => {
         let curLeft = parseFloat(slot.dataset.curLeft || '50');
-        let curTop = parseFloat(slot.dataset.curTop || '78');
+        let curTop = parseFloat(slot.dataset.curTop || '86');
 
         function scheduleNextMove() {
           if (!banquetOpen) return;
-          const waitMs = (isPet ? 1100 : 1800) + Math.random() * (isPet ? 1900 : 2500) + orderIdx * 110;
+          const waitMs = 1200 + Math.random() * 2000 + orderIdx * 130;
           const tid = setTimeout(() => {
             if (!banquetOpen) return;
             const candidates = ROAM_SPOTS.filter((sp) => {
               const d = Math.hypot(sp.left - curLeft, sp.top - curTop);
-              return d >= 9 && d <= (isPet ? 34 : 38);
+              return d >= 9 && d <= 36;
             });
             const pool = candidates.length ? candidates : ROAM_SPOTS;
             const next = pool[Math.floor(Math.random() * pool.length)];
-            // Add slight organic jitter so chibis & pets never stack on the exact same pixel
             const jL = Math.max(12, Math.min(88, next.left + (Math.random() * 6 - 3)));
-            const jT = Math.max(35, Math.min(91, next.top + (Math.random() * 4 - 2)));
+            const jT = Math.max(33, Math.min(91, next.top + (Math.random() * 4 - 2)));
             const dx = jL - curLeft;
             const dist = Math.hypot(dx, jT - curTop);
-            const durSec = Math.max(isPet ? 1.1 : 1.5, Math.min(isPet ? 2.5 : 3.4, dist * (isPet ? 0.075 : 0.095)));
+            const durSec = Math.max(1.2, Math.min(2.6, dist * 0.08));
 
             slot.style.transition = `left ${durSec.toFixed(2)}s ease-in-out, top ${durSec.toFixed(2)}s ease-in-out`;
             slot.style.left = `${jL.toFixed(1)}%`;
@@ -11272,6 +11270,26 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       });
     }
 
+    function getChibiImgUrl(charId) {
+      const m = (typeof window.getCharSkinMode === 'function') ? window.getCharSkinMode(charId) : 'default';
+      return `./src/assets/banquet/chibi_${charId}${m !== 'default' ? ('_' + m) : ''}.png?v=6`;
+    }
+
+    // In-place smooth outfit swap (NEVER destroys DOM or makes character disappear!)
+    function updateBanquetChibiSpritesInPlace() {
+      if (!banquetMount) return;
+      CHARACTERS.forEach((c, idx) => {
+        const img = banquetMount.querySelector(`.banquet-chibi-slot[data-chibi-idx="${idx}"] img.banquet-chibi-img`);
+        if (!img) return;
+        const nextUrl = getChibiImgUrl(c.id);
+        if (img.getAttribute('src') === nextUrl) return;
+        const pre = new Image();
+        pre.onload = () => { img.src = nextUrl; };
+        pre.onerror = () => { img.src = `./src/assets/banquet/chibi_${c.id}.png?v=6`; };
+        pre.src = nextUrl;
+      });
+    }
+
     function rebuildBanquetChibis() {
       if (!banquetMount) return;
       stopBanquetRoaming();
@@ -11287,14 +11305,13 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
         if (petUnlocked) petCount++;
 
         const pos = CHIBI_POSITIONS[idx] || { left: '50%', top: '80%', z: 80, scale: 1 };
-        const leftNum = parseFloat(pos.left);
         const topNum = parseFloat(pos.top);
         const sizePx = Math.round(76 * pos.scale);
 
         if (unlocked) {
           slotsHtml += `
-            <div data-chibi-idx="${idx}" data-unlocked="1" data-cur-left="${leftNum}" data-cur-top="${topNum}" class="banquet-chibi-slot" style="left:${pos.left}; top:${pos.top}; z-index:${Math.round(topNum)};">
-              <img src="./src/assets/banquet/chibi_${c.id}${(window.getCharSkinMode && window.getCharSkinMode(c.id) !== 'default') ? ('_' + window.getCharSkinMode(c.id)) : ''}.png?v=4" alt="${c.name}" class="banquet-chibi-img" style="width:${sizePx}px; height:${sizePx}px;" />
+            <div data-chibi-idx="${idx}" data-unlocked="1" class="banquet-chibi-slot" style="left:${pos.left}; top:${pos.top}; z-index:${Math.round(topNum)};">
+              <img src="${getChibiImgUrl(c.id)}" onerror="this.onerror=null;this.src='./src/assets/banquet/chibi_${c.id}.png?v=6';" alt="${c.name}" class="banquet-chibi-img" style="width:${sizePx}px; height:${sizePx}px;" />
               <span class="banquet-chibi-tag">${c.name}</span>
             </div>`;
         } else {
@@ -11304,7 +11321,6 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
             </div>`;
         }
 
-        // Lv.2+ Adopted 2D Mini Pet roaming alongside masters on the top-down floor!
         if (petUnlocked) {
           const pPos = PET_INIT_POSITIONS[idx] || { left: '50%', top: '88%' };
           const pL = parseFloat(pPos.left);
@@ -11312,7 +11328,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
           const petName = c.pet?.name || `${c.name} 펫`;
           slotsHtml += `
             <div data-pet-idx="${idx}" data-cur-left="${pL}" data-cur-top="${pT}" class="banquet-pet-actor" style="left:${pPos.left}; top:${pPos.top}; z-index:${Math.round(pT)};">
-              <img src="./src/assets/banquet/pet_${c.id}.png?v=1" alt="${petName}" class="banquet-pet-img" />
+              <img src="./src/assets/banquet/pet_${c.id}.png?v=2" alt="${petName}" class="banquet-pet-img" />
               <span class="banquet-pet-tag">🐾 ${petName}</span>
             </div>`;
         }
@@ -11439,7 +11455,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
     }
 
     window.openBanquetHall = openBanquetHall;
-    window.refreshBanquetHallSkins = () => { if (banquetOpen) rebuildBanquetChibis(); };
+    window.refreshBanquetHallSkins = () => { if (banquetOpen) updateBanquetChibiSpritesInPlace(); };
     window.closeBanquetHall = closeBanquetHall;
     document.getElementById('btn-close-banquet')?.addEventListener('click', closeBanquetHall);
     window.addEventListener('keydown', (e) => {
