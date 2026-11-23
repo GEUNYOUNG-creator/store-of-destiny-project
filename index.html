@@ -1336,6 +1336,23 @@
       z-index: 12;
     }
 
+  
+    /* Crisp Razor-Sharp Banquet Chibi Rendering & Left Outfit Picker */
+    .banquet-chibi-img {
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: high-quality;
+      will-change: transform;
+      backface-visibility: hidden;
+      transform: translate3d(0, 0, 0);
+    }
+    #left-skin-picker {
+      display: none;
+      flex-direction: column;
+      gap: 3px;
+      margin-top: 2px;
+    }
+    #left-skin-picker.visible { display: flex; }
+
   </style>
 </head>
 <body>
@@ -1416,10 +1433,14 @@
         <span>💖</span>
         <span id="hidden-voice-toggle-label">히든 보이스</span>
       </button>
-      <button id="btn-toggle-lv4-skin" type="button" title="특별 복장 스킨 전환 (친밀도 Lv.4+)" class="hidden items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-fuchsia-500/35 to-amber-500/30 border border-fuchsia-300/65 text-[10px] font-extrabold text-fuchsia-100 hover:brightness-110 active:scale-95 transition">
-        <span>👗</span>
-        <span id="lv4-skin-toggle-label">특별 복장 ON</span>
-      </button>
+      <div id="left-skin-picker" class="mt-0.5">
+        <div class="flex items-center gap-0.5 p-0.5 rounded-full bg-black/65 border border-fuchsia-300/55 backdrop-blur-md shadow-md">
+          <button type="button" data-left-skin="default" class="left-skin-tab px-1.5 py-0.5 rounded-full text-[9px] font-extrabold transition">기본</button>
+          <button type="button" data-left-skin="sexy" class="left-skin-tab px-1.5 py-0.5 rounded-full text-[9px] font-extrabold transition">매혹</button>
+          <button type="button" data-left-skin="cute" class="left-skin-tab px-1.5 py-0.5 rounded-full text-[9px] font-extrabold transition">큐티</button>
+          <button type="button" data-left-skin="smart" class="left-skin-tab px-1.5 py-0.5 rounded-full text-[9px] font-extrabold transition">지적</button>
+        </div>
+      </div>
     </div>
 
     <div class="text-center">
@@ -2645,9 +2666,6 @@
         <div class="text-[10px] text-amber-100/75 mt-0.5">Lv.5 달성 캐릭터가 귀여운 미니미로 등장 · 터치 시 1:1 대화</div>
       </div>
       <div class="flex items-center gap-1.5 shrink-0">
-        <button id="btn-banquet-skin-toggle" type="button" title="연회장 미니미 복장 전환" class="px-2.5 py-1.5 rounded-full text-[11px] font-extrabold bg-fuchsia-500/30 hover:bg-fuchsia-500/40 text-fuchsia-100 border border-fuchsia-300/60 active:scale-95 transition">
-          👗 특별 복장 ON
-        </button>
         <button id="btn-close-banquet" type="button" class="px-2.5 py-1.5 rounded-full text-xs font-bold bg-white/10 hover:bg-white/20 text-amber-100 border border-amber-300/40 active:scale-95 transition">
           ✕ 상점으로
         </button>
@@ -2657,16 +2675,28 @@
     <!-- 3D Three.js Banquet Hall Canvas -->
     <div id="banquet-canvas-wrap" class="relative flex-1 w-full overflow-hidden touch-none">
       <div id="banquet-3d-mount" class="w-full h-full"></div>
-      <!-- Floating Selected Character Action Card -->
-      <div id="banquet-focus-card" class="hidden absolute left-1/2 -translate-x-1/2 bottom-3 z-20 w-[90%] max-w-[360px] rounded-2xl p-3 bg-[#150e2b]/92 backdrop-blur-md border border-amber-300/55 shadow-[0_12px_32px_rgba(0,0,0,0.65)]">
+      <!-- Floating Selected Character Action Card (대화하기 + 개별 복장 선택 칸) -->
+      <div id="banquet-focus-card" class="hidden absolute left-1/2 -translate-x-1/2 bottom-3 z-20 w-[92%] max-w-[370px] rounded-2xl p-3 bg-[#150e2b]/95 backdrop-blur-md border border-amber-300/60 shadow-[0_12px_32px_rgba(0,0,0,0.72)] space-y-2.5">
         <div class="flex items-center justify-between gap-2">
           <div class="min-w-0">
             <div id="banquet-focus-name" class="font-serif-kr text-sm font-extrabold text-[#fde68a]">연화</div>
             <div id="banquet-focus-desc" class="text-[11px] text-slate-200 mt-0.5 truncate">친밀도 Lv.5 · 연회장 1:1 비밀 대화 가능</div>
           </div>
-          <button id="btn-banquet-start-chat" type="button" class="px-3.5 py-2 rounded-xl text-xs font-extrabold bg-gradient-to-r from-amber-400 to-rose-400 text-slate-950 shadow-md active:scale-95 transition shrink-0">
-            💬 대화하기
-          </button>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button id="btn-banquet-start-chat" type="button" class="px-3 py-1.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-amber-400 to-rose-400 text-slate-950 shadow-md active:scale-95 transition">
+              💬 대화하기
+            </button>
+            <button id="btn-close-banquet-focus" type="button" class="w-7 h-7 rounded-full bg-white/10 text-white/80 text-xs flex items-center justify-center">✕</button>
+          </div>
+        </div>
+        <div id="banquet-focus-skin-row" class="pt-2 border-t border-white/10 flex items-center justify-between gap-1.5">
+          <span class="text-[10.5px] font-bold text-amber-200 shrink-0">👗 복장</span>
+          <div class="grid grid-cols-4 gap-1 flex-1">
+            <button type="button" data-bfocus-skin="default" class="bfocus-skin-btn py-1 rounded-lg text-[10.5px] font-bold border transition active:scale-95">✨ 기본</button>
+            <button type="button" data-bfocus-skin="sexy" class="bfocus-skin-btn py-1 rounded-lg text-[10.5px] font-bold border transition active:scale-95">💃 매혹</button>
+            <button type="button" data-bfocus-skin="cute" class="bfocus-skin-btn py-1 rounded-lg text-[10.5px] font-bold border transition active:scale-95">🎀 큐티</button>
+            <button type="button" data-bfocus-skin="smart" class="bfocus-skin-btn py-1 rounded-lg text-[10.5px] font-bold border transition active:scale-95">👓 지적</button>
+          </div>
         </div>
       </div>
     </div>
@@ -4258,8 +4288,9 @@
     if (charMesh) charMesh.visible = !hasGlb && !isUnderConstruction;
 
     if (charMaterial && !isUnderConstruction) {
-      const tOpen = isMini ? petOpenTextures[idx] : openTextures[idx];
-      const tBlink = isMini ? petBlinkTextures[idx] : blinkTextures[idx];
+      const resolvedSkin = (!isMini && typeof window.getResolvedCharTextures === 'function') ? window.getResolvedCharTextures(idx) : null;
+      const tOpen = resolvedSkin ? resolvedSkin.open : (isMini ? petOpenTextures[idx] : openTextures[idx]);
+      const tBlink = resolvedSkin ? resolvedSkin.blink : (isMini ? petBlinkTextures[idx] : blinkTextures[idx]);
       if (tOpen) charMaterial.uniforms.uTexOpen.value = tOpen;
       if (tBlink) charMaterial.uniforms.uTexBlink.value = tBlink;
       const uvOff = isMini ? (cfg.pet.uvOffsetY ?? 0.08) : (cfg.uvOffsetY ?? 0.10);
@@ -4296,7 +4327,8 @@
         particleSystem.material.color.setHex(cfg.particleColor);
       }
     }
-    const bgSrc = (isMini && cfg.pet) ? cfg.pet.openSrc : cfg.openSrc;
+    const _skinBg = (!isMini && typeof window.getResolvedCharTextures === 'function') ? window.getResolvedCharTextures(idx)?.bgUrl : null;
+    const bgSrc = _skinBg || ((isMini && cfg.pet) ? cfg.pet.openSrc : cfg.openSrc);
     stageBgAura.style.backgroundImage = `url('${bgSrc}')`;
     rigPhys.blinkState = 1;
     rigPhys.bounceVel = 0.04;
@@ -11085,15 +11117,15 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
 
     // 9 Harmonious Floor Positions arranged in a cozy arc around the Center Wish Candle!
     const CHIBI_POSITIONS = [
-      { left: '50%', top: '92%', z: 18, scale: 1.06 }, // 0 연화 (앞 중앙)
-      { left: '20%', top: '87%', z: 17, scale: 1.00 }, // 1 루미 (앞 좌)
-      { left: '80%', top: '87%', z: 17, scale: 1.00 }, // 2 스텔라 (앞 우)
-      { left: '15%', top: '74%', z: 15, scale: 0.94 }, // 3 셀레네 (중 좌)
-      { left: '85%', top: '74%', z: 15, scale: 0.94 }, // 4 하린 (중 우)
-      { left: '31%', top: '66%', z: 13, scale: 0.88 }, // 5 아린 (중상 좌)
-      { left: '69%', top: '66%', z: 13, scale: 0.88 }, // 6 서연 (중상 우)
-      { left: '22%', top: '57%', z: 11, scale: 0.82 }, // 7 다온 (뒤 좌)
-      { left: '78%', top: '57%', z: 11, scale: 0.82 }  // 8 몽화 (뒤 우)
+      { left: '50%', top: '92%', z: 18, scale: 1.12 }, // 0 연화 (앞 중앙)
+      { left: '20%', top: '87%', z: 17, scale: 1.06 }, // 1 루미 (앞 좌)
+      { left: '80%', top: '87%', z: 17, scale: 1.06 }, // 2 스텔라 (앞 우)
+      { left: '16%', top: '74%', z: 15, scale: 1.02 }, // 3 셀레네 (중 좌)
+      { left: '84%', top: '74%', z: 15, scale: 1.02 }, // 4 하린 (중 우)
+      { left: '31%', top: '66%', z: 13, scale: 0.98 }, // 5 아린 (중상 좌)
+      { left: '69%', top: '66%', z: 13, scale: 0.98 }, // 6 서연 (중상 우)
+      { left: '22%', top: '57%', z: 11, scale: 0.95 }, // 7 다온 (뒤 좌)
+      { left: '78%', top: '57%', z: 11, scale: 0.95 }  // 8 몽화 (뒤 우)
     ];
 
     function rebuildBanquetChibis() {
@@ -11112,7 +11144,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
         if (unlocked) {
           slotsHtml += `
             <button type="button" data-chibi-idx="${idx}" class="banquet-chibi-slot" style="left:${pos.left}; top:${pos.top}; z-index:${pos.z};">
-              <img src="./src/assets/banquet/chibi_${c.id}${(window.getDestinySkinMode && window.getDestinySkinMode() !== 'default') ? ('_' + window.getDestinySkinMode()) : ''}.png" alt="${c.name}" class="banquet-chibi-img" style="width:${sizePx}px; height:${sizePx}px; animation-delay:${delay}s;" />
+              <img src="./src/assets/banquet/chibi_${c.id}${(window.getCharSkinMode && window.getCharSkinMode(c.id) !== 'default') ? ('_' + window.getCharSkinMode(c.id)) : ''}.png" alt="${c.name}" class="banquet-chibi-img" style="width:${sizePx}px; height:${sizePx}px; animation-delay:${delay}s;" />
               <span class="banquet-chibi-tag">${c.name} 💬</span>
             </button>`;
         } else {
@@ -11140,7 +11172,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       banquetMount.querySelectorAll('[data-chibi-idx]').forEach((btn) => {
         btn.addEventListener('click', () => {
           const idx = parseInt(btn.dataset.chibiIdx, 10);
-          handleBanquetChibiTap(idx, true);
+          handleBanquetChibiTap(idx, false);
         });
       });
 
@@ -11169,6 +11201,8 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       const c = CHARACTERS[idx];
       if (!c) return;
       bFocusedIdx = idx;
+      window.__banquetFocusedIdx = idx;
+      if (typeof window.syncBanquetFocusSkinButtons === 'function') window.syncBanquetFocusSkinButtons(idx);
       const lv = getAffinityLevel(c.id);
       const unlocked = lv >= 5;
       playChimeSound(unlocked ? 880 : 560);
@@ -11661,36 +11695,62 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
 
 
 
-  /* ==================== LV.4+ 4-MODE OUTFIT SKINS (기본 · 매혹 · 큐티 · 지적) + BANQUET CHIBIS + ACCOUNT SYNC ==================== */
-  (function initFourModeSkinAndPrefSync() {
-    const HV_KEY = 'destiny_use_hidden_voice_v1';
-    const MODE_KEY = 'destiny_skin_mode_v2';
+
+  /* ==================== PER-CHARACTER OUTFIT & VOICE MANAGER (ZERO-FLASH PRELOAD + BANQUET PER-CHAR CARD + ACCOUNT SYNC) ==================== */
+  (function initPerCharacterSkinAndVoiceEngine() {
+    const HV_MAP_KEY = 'destiny_char_voices_v3';
+    const SK_MAP_KEY = 'destiny_char_skins_v3';
     const MODES = ['default', 'sexy', 'cute', 'smart'];
     const MODE_META = {
-      default: { label: '기본 복장', icon: '✨', toast: '기본 복장으로 돌아왔어요.', cls: 'bg-black/55 border-white/25 text-slate-200' },
-      sexy:    { label: '매혹 복장', icon: '💃', toast: '매혹(섹시) 특별 복장으로 갈아입었어요!', cls: 'bg-gradient-to-r from-rose-600/45 to-amber-500/35 border-rose-300/70 text-rose-100' },
-      cute:    { label: '큐티 복장', icon: '🎀', toast: '큐티 특별 복장으로 갈아입었어요!', cls: 'bg-gradient-to-r from-pink-500/40 to-purple-500/35 border-pink-300/70 text-pink-100' },
-      smart:   { label: '지적 복장', icon: '👓', toast: '지적 특별 복장으로 갈아입었어요!', cls: 'bg-gradient-to-r from-sky-600/40 to-indigo-500/35 border-sky-300/70 text-sky-100' }
+      default: { label: '기본', icon: '✨', toast: '기본 복장으로 바꿨어요.', activeCls: 'bg-white/25 text-white border-white/50' },
+      sexy:    { label: '매혹', icon: '💃', toast: '매혹 복장으로 갈아입었어요!', activeCls: 'bg-rose-500/45 text-rose-100 border-rose-300/80' },
+      cute:    { label: '큐티', icon: '🎀', toast: '큐티 복장으로 갈아입었어요!', activeCls: 'bg-pink-500/45 text-pink-100 border-pink-300/80' },
+      smart:   { label: '지적', icon: '👓', toast: '지적 복장으로 갈아입었어요!', activeCls: 'bg-sky-500/45 text-sky-100 border-sky-300/80' }
     };
 
-    function getSkinMode() {
-      const v = localStorage.getItem(MODE_KEY) || 'default';
-      return MODES.includes(v) ? v : 'default';
+    function loadMap(key) {
+      try { return JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch (_) { return {}; }
     }
-    function setSkinMode(m) {
-      localStorage.setItem(MODE_KEY, MODES.includes(m) ? m : 'default');
+    function saveMap(key, obj) {
+      try { localStorage.setItem(key, JSON.stringify(obj)); } catch (_) {}
     }
-    window.getDestinySkinMode = getSkinMode;
 
-    // Lazy Three.js texture cache: skinTexCache[`${charId}_${mode}`]
+    function getCharSkinMode(charId) {
+      const m = loadMap(SK_MAP_KEY)[charId];
+      return MODES.includes(m) ? m : 'default';
+    }
+    function setCharSkinMode(charId, mode) {
+      const map = loadMap(SK_MAP_KEY);
+      map[charId] = MODES.includes(mode) ? mode : 'default';
+      saveMap(SK_MAP_KEY, map);
+    }
+    function getCharHiddenVoiceOn(charId) {
+      const map = loadMap(HV_MAP_KEY);
+      if (typeof map[charId] === 'boolean') return map[charId];
+      return localStorage.getItem('destiny_use_hidden_voice_v1') !== '0';
+    }
+    function setCharHiddenVoiceOn(charId, val) {
+      const map = loadMap(HV_MAP_KEY);
+      map[charId] = !!val;
+      saveMap(HV_MAP_KEY, map);
+      localStorage.setItem('destiny_use_hidden_voice_v1', val ? '1' : '0');
+    }
+
+    window.getCharSkinMode = getCharSkinMode;
+    window.getDestinySkinMode = () => {
+      const c = CHARACTERS[state.currentIdx];
+      return c ? getCharSkinMode(c.id) : 'default';
+    };
+
+    // Preload Three.js textures for instant zero-flash switching!
     const skinTexCache = {};
     const texLoader = (typeof THREE !== 'undefined') ? new THREE.TextureLoader() : null;
-    function getSkinTexture(charId, mode, onReady) {
+    function ensureSkinTexture(charId, mode, onLoadCb) {
+      if (!texLoader || mode === 'default') return null;
       const k = `${charId}_${mode}`;
       if (skinTexCache[k]) return skinTexCache[k];
-      if (!texLoader) return null;
       const t = texLoader.load(`./src/assets/skins/${charId}_${mode}.jpg`, () => {
-        if (onReady) onReady();
+        if (onLoadCb) onLoadCb(t);
       });
       t.minFilter = THREE.LinearFilter;
       t.magFilter = THREE.LinearFilter;
@@ -11698,72 +11758,118 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       skinTexCache[k] = t;
       return t;
     }
-
-    const skinBtn = document.getElementById('btn-toggle-lv4-skin');
-    const skinLbl = document.getElementById('lv4-skin-toggle-label');
-
-    function syncBanquetSkinBtnUI() {
-      const b = document.getElementById('btn-banquet-skin-toggle');
-      if (!b) return;
-      const mode = getSkinMode();
-      const meta = MODE_META[mode];
-      b.textContent = `${meta.icon} ${meta.label}`;
-      b.className = `px-2.5 py-1.5 rounded-full text-[11px] font-extrabold border active:scale-95 transition ${meta.cls}`;
+    function preloadSkinsForChar(idx) {
+      const c = CHARACTERS[idx];
+      if (!c) return;
+      ['sexy', 'cute', 'smart'].forEach((m) => ensureSkinTexture(c.id, m));
     }
-    window.syncBanquetSkinBtnUI = syncBanquetSkinBtnUI;
+    // Preload all 9 characters' currently chosen skins right away so switching characters NEVER flashes!
+    setTimeout(() => {
+      CHARACTERS.forEach((c) => {
+        const m = getCharSkinMode(c.id);
+        if (m !== 'default') ensureSkinTexture(c.id, m);
+      });
+      preloadSkinsForChar(state.currentIdx);
+    }, 300);
+
+    // Synchronous texture resolver called directly inside showCharacter3D() -> ZERO flash!
+    window.getResolvedCharTextures = function(idx) {
+      const c = CHARACTERS[idx];
+      if (!c || state.modelMode === 'mini') return null;
+      const lv = (typeof window.getCharAffinityLevel === 'function') ? window.getCharAffinityLevel(c.id) : 1;
+      const mode = getCharSkinMode(c.id);
+      if (lv >= 4 && mode !== 'default') {
+        const tex = ensureSkinTexture(c.id, mode, () => {
+          if (state.currentIdx === idx && getCharSkinMode(c.id) === mode) applyCurrentSkinIfUnlocked();
+        });
+        if (tex && tex.image) {
+          return { open: tex, blink: tex, bgUrl: `./src/assets/skins/${c.id}_${mode}.jpg` };
+        }
+      }
+      return null;
+    };
+
+    function syncLeftSkinPickerUI() {
+      const picker = document.getElementById('left-skin-picker');
+      const cur = CHARACTERS[state.currentIdx];
+      if (!picker || !cur) return;
+      const lv = (typeof window.getCharAffinityLevel === 'function') ? window.getCharAffinityLevel(cur.id) : 1;
+      if (lv >= 4) {
+        picker.classList.add('visible');
+        preloadSkinsForChar(state.currentIdx);
+        const curMode = getCharSkinMode(cur.id);
+        picker.querySelectorAll('.left-skin-tab').forEach((btn) => {
+          const m = btn.dataset.leftSkin;
+          const act = m === curMode;
+          btn.className = `left-skin-tab px-1.5 py-0.5 rounded-full text-[9px] font-extrabold transition ${
+            act ? MODE_META[m].activeCls + ' border' : 'text-slate-300 hover:text-white'
+          }`;
+        });
+      } else {
+        picker.classList.remove('visible');
+      }
+    }
+
+    function syncLeftHiddenVoiceUI() {
+      const btn = document.getElementById('btn-toggle-hidden-voice');
+      const lbl = document.getElementById('hidden-voice-toggle-label');
+      const cur = CHARACTERS[state.currentIdx];
+      if (!btn || !lbl || !cur) return;
+      const lv = (typeof window.getCharAffinityLevel === 'function') ? window.getCharAffinityLevel(cur.id) : 1;
+      const on = getCharHiddenVoiceOn(cur.id);
+      if (lv >= 3) {
+        btn.classList.remove('hidden');
+        btn.classList.add('flex');
+        lbl.textContent = on ? '히든 보이스 ON' : '원래 보이스';
+        btn.className = on
+          ? 'flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-rose-500/35 to-amber-500/30 border border-rose-300/65 text-[10px] font-extrabold text-rose-100 hover:brightness-110 active:scale-95 transition'
+          : 'flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-black/55 border border-white/25 text-[10px] font-bold text-slate-200 hover:bg-black/75 active:scale-95 transition';
+      } else {
+        btn.classList.add('hidden');
+        btn.classList.remove('flex');
+      }
+    }
+    window.syncHiddenVoiceToggleUI = syncLeftHiddenVoiceUI;
+    window.isHiddenVoiceActiveFor = function(charId) {
+      const lv = (typeof window.getCharAffinityLevel === 'function') ? window.getCharAffinityLevel(charId) : 1;
+      return lv >= 3 && getCharHiddenVoiceOn(charId);
+    };
 
     function applyCurrentSkinIfUnlocked() {
       const idx = state.currentIdx;
       const c = CHARACTERS[idx];
       if (!c) return;
-      const lv = (typeof window.getCharAffinityLevel === 'function') ? window.getCharAffinityLevel(c.id) : 1;
-      const mode = getSkinMode();
-      const meta = MODE_META[mode];
-
-      if (skinBtn && skinLbl) {
-        if (lv >= 4) {
-          skinBtn.classList.remove('hidden');
-          skinBtn.classList.add('flex');
-          const iconSpan = skinBtn.querySelector('span:first-child');
-          if (iconSpan) iconSpan.textContent = meta.icon;
-          skinLbl.textContent = meta.label;
-          skinBtn.className = `flex items-center gap-1 px-2.5 py-0.5 rounded-full border text-[10px] font-extrabold hover:brightness-110 active:scale-95 transition ${meta.cls}`;
-        } else {
-          skinBtn.classList.add('hidden');
-          skinBtn.classList.remove('flex');
-        }
-      }
+      syncLeftSkinPickerUI();
+      syncLeftHiddenVoiceUI();
 
       if (charMaterial && state.modelMode !== 'mini') {
-        if (lv >= 4 && mode !== 'default') {
-          const tex = getSkinTexture(c.id, mode, () => {
-            if (state.currentIdx === idx && getSkinMode() === mode) applyCurrentSkinIfUnlocked();
-          });
-          if (tex && tex.image) {
-            charMaterial.uniforms.uTexOpen.value = tex;
-            charMaterial.uniforms.uTexBlink.value = tex;
-            if (stageBgAura) stageBgAura.style.backgroundImage = `url('./src/assets/skins/${c.id}_${mode}.jpg')`;
-          }
+        const resolved = window.getResolvedCharTextures(idx);
+        if (resolved) {
+          charMaterial.uniforms.uTexOpen.value = resolved.open;
+          charMaterial.uniforms.uTexBlink.value = resolved.blink;
+          if (stageBgAura) stageBgAura.style.backgroundImage = `url('${resolved.bgUrl}')`;
         } else {
           if (openTextures[idx]) charMaterial.uniforms.uTexOpen.value = openTextures[idx];
           if (blinkTextures[idx]) charMaterial.uniforms.uTexBlink.value = blinkTextures[idx];
           if (stageBgAura) stageBgAura.style.backgroundImage = `url('${c.openSrc}')`;
         }
       }
-      syncBanquetSkinBtnUI();
     }
     window.applyCurrentSkinIfUnlocked = applyCurrentSkinIfUnlocked;
 
     async function savePrefsToAccount() {
       if (!state.currentUser || !state.currentUser.id || !state.apiBaseUrl) return;
+      const cur = CHARACTERS[state.currentIdx];
       try {
         await fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/user/preferences`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             user_id: String(state.currentUser.id),
-            use_hidden_voice: localStorage.getItem(HV_KEY) !== '0',
-            skin_mode: getSkinMode()
+            use_hidden_voice: cur ? getCharHiddenVoiceOn(cur.id) : true,
+            skin_mode: cur ? getCharSkinMode(cur.id) : 'default',
+            skin_modes_map: loadMap(SK_MAP_KEY),
+            voice_modes_map: loadMap(HV_MAP_KEY)
           })
         });
       } catch (_) {}
@@ -11780,42 +11886,99 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
         const resp = await fetch(`${state.apiBaseUrl.replace(/\/$/, '')}/api/user/preferences?user_id=${encodeURIComponent(uid)}`);
         if (!resp.ok) return;
         const data = await resp.json();
-        if (typeof data.use_hidden_voice === 'boolean') localStorage.setItem(HV_KEY, data.use_hidden_voice ? '1' : '0');
-        if (data.skin_mode && MODES.includes(data.skin_mode)) setSkinMode(data.skin_mode);
-        if (typeof window.syncHiddenVoiceToggleUI === 'function') window.syncHiddenVoiceToggleUI();
+        if (data.skin_modes_map && typeof data.skin_modes_map === 'object' && Object.keys(data.skin_modes_map).length) {
+          saveMap(SK_MAP_KEY, data.skin_modes_map);
+        }
+        if (data.voice_modes_map && typeof data.voice_modes_map === 'object' && Object.keys(data.voice_modes_map).length) {
+          saveMap(HV_MAP_KEY, data.voice_modes_map);
+        }
+        CHARACTERS.forEach((c) => {
+          const m = getCharSkinMode(c.id);
+          if (m !== 'default') ensureSkinTexture(c.id, m);
+        });
         applyCurrentSkinIfUnlocked();
         if (typeof window.refreshBanquetHallSkins === 'function') window.refreshBanquetHallSkins();
       } catch (_) {}
     }
 
-    function cycleSkinMode(fromBanquet = false) {
-      const cur = getSkinMode();
-      const next = MODES[(MODES.indexOf(cur) + 1) % MODES.length];
-      setSkinMode(next);
-      applyCurrentSkinIfUnlocked();
-      if (typeof window.refreshBanquetHallSkins === 'function') window.refreshBanquetHallSkins();
-      savePrefsToAccount();
-      playChimeSound(next === 'default' ? 680 : 860);
-      const meta = MODE_META[next];
-      const c = CHARACTERS[state.currentIdx];
-      showToast(fromBanquet ? `${meta.icon} 연회장 미니미를 ${meta.label}으로 바꿨어요!` : `${meta.icon} ${c.name} ${meta.toast}`);
-    }
-
-    if (skinBtn) {
-      const nb = skinBtn.cloneNode(true);
-      skinBtn.parentNode.replaceChild(nb, skinBtn);
-      nb.addEventListener('click', () => cycleSkinMode(false));
-    }
-    const bSkinBtn = document.getElementById('btn-banquet-skin-toggle');
-    if (bSkinBtn) {
-      const nbb = bSkinBtn.cloneNode(true);
-      bSkinBtn.parentNode.replaceChild(nbb, bSkinBtn);
-      nbb.addEventListener('click', () => cycleSkinMode(true));
-    }
-    document.getElementById('btn-toggle-hidden-voice')?.addEventListener('click', () => {
-      setTimeout(() => savePrefsToAccount(), 50);
+    // Left-side 4-tab outfit picker click handlers (instant switch for CURRENT character!)
+    document.querySelectorAll('.left-skin-tab').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const c = CHARACTERS[state.currentIdx];
+        if (!c) return;
+        const mode = btn.dataset.leftSkin || 'default';
+        setCharSkinMode(c.id, mode);
+        if (mode !== 'default') {
+          ensureSkinTexture(c.id, mode, () => applyCurrentSkinIfUnlocked());
+        }
+        applyCurrentSkinIfUnlocked();
+        if (typeof window.refreshBanquetHallSkins === 'function') window.refreshBanquetHallSkins();
+        savePrefsToAccount();
+        playChimeSound(mode === 'default' ? 680 : 860);
+        showToast(`${MODE_META[mode].icon} ${c.name} ${MODE_META[mode].toast}`);
+      });
     });
 
+    // Left-side hidden voice toggle -> per-character!
+    const oldHvBtn = document.getElementById('btn-toggle-hidden-voice');
+    if (oldHvBtn) {
+      const newHvBtn = oldHvBtn.cloneNode(true);
+      oldHvBtn.parentNode.replaceChild(newHvBtn, oldHvBtn);
+      newHvBtn.addEventListener('click', () => {
+        const c = CHARACTERS[state.currentIdx];
+        if (!c) return;
+        const next = !getCharHiddenVoiceOn(c.id);
+        setCharHiddenVoiceOn(c.id, next);
+        syncLeftHiddenVoiceUI();
+        savePrefsToAccount();
+        if (state.voiceEnabled) voiceEngine.playStudioClip(c.id, next ? 'hidden' : 'greet');
+        showToast(next ? `💖 ${c.name} 히든 보이스 ON` : `🎙️ ${c.name} 원래 보이스로 전환`);
+      });
+    }
+
+    // Banquet Hall Per-Character Focus Card Outfit Buttons!
+    window.syncBanquetFocusSkinButtons = function(idx) {
+      const row = document.getElementById('banquet-focus-skin-row');
+      const c = CHARACTERS[idx];
+      if (!row || !c) return;
+      const lv = (typeof window.getCharAffinityLevel === 'function') ? window.getCharAffinityLevel(c.id) : 1;
+      const curMode = getCharSkinMode(c.id);
+      row.querySelectorAll('.bfocus-skin-btn').forEach((btn) => {
+        const m = btn.dataset.bfocusSkin;
+        const act = m === curMode;
+        btn.disabled = lv < 4;
+        btn.className = `bfocus-skin-btn py-1 rounded-lg text-[10.5px] font-bold border transition active:scale-95 ${
+          lv < 4
+            ? 'bg-white/5 border-white/10 text-slate-500 opacity-50'
+            : (act ? MODE_META[m].activeCls : 'bg-white/8 border-white/15 text-slate-200')
+        }`;
+      });
+    };
+
+    document.querySelectorAll('.bfocus-skin-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const idx = window.__banquetFocusedIdx;
+        if (typeof idx !== 'number' || idx < 0) return;
+        const c = CHARACTERS[idx];
+        if (!c) return;
+        const lv = (typeof window.getCharAffinityLevel === 'function') ? window.getCharAffinityLevel(c.id) : 1;
+        if (lv < 4) { showToast(`🔒 ${c.name} 친밀도 Lv.4 달성 시 복장을 바꿀 수 있어요.`); return; }
+        const mode = btn.dataset.bfocusSkin || 'default';
+        setCharSkinMode(c.id, mode);
+        if (mode !== 'default') ensureSkinTexture(c.id, mode);
+        window.syncBanquetFocusSkinButtons(idx);
+        if (typeof window.refreshBanquetHallSkins === 'function') window.refreshBanquetHallSkins();
+        if (idx === state.currentIdx) applyCurrentSkinIfUnlocked();
+        savePrefsToAccount();
+        playChimeSound(mode === 'default' ? 680 : 860);
+        showToast(`${MODE_META[mode].icon} ${c.name} ${MODE_META[mode].toast}`);
+      });
+    });
+    document.getElementById('btn-close-banquet-focus')?.addEventListener('click', () => {
+      document.getElementById('banquet-focus-card')?.classList.add('hidden');
+    });
+
+    // Sync whenever affinity pill or character badge changes
     const affPill = document.getElementById('badge-affinity-pill');
     if (affPill) new MutationObserver(() => applyCurrentSkinIfUnlocked()).observe(affPill, { childList: true, characterData: true, subtree: true });
     const bName = document.getElementById('badge-name');

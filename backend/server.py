@@ -524,6 +524,8 @@ class UserPreferencesRequest(BaseModel):
     user_id: str
     use_hidden_voice: bool = True
     skin_mode: str = "default"
+    skin_modes_map: dict = {}
+    voice_modes_map: dict = {}
 
 def _ensure_pref_table():
     try:
@@ -533,32 +535,45 @@ def _ensure_pref_table():
                 use_hidden_voice INTEGER DEFAULT 1,
                 use_lv4_skin INTEGER DEFAULT 1,
                 skin_mode TEXT DEFAULT 'default',
+                skin_modes_json TEXT DEFAULT '{}',
+                voice_modes_json TEXT DEFAULT '{}',
                 updated_at TEXT
             )
         """)
     except Exception:
         pass
-    try:
-        db_execute("ALTER TABLE user_preferences ADD COLUMN skin_mode TEXT DEFAULT 'default'")
-    except Exception:
-        pass
+    for col in ("skin_mode TEXT DEFAULT 'default'", "skin_modes_json TEXT DEFAULT '{}'", "voice_modes_json TEXT DEFAULT '{}'"):
+        try:
+            db_execute(f"ALTER TABLE user_preferences ADD COLUMN {col}")
+        except Exception:
+            pass
 
 @app.get("/api/user/preferences")
 async def get_user_preferences(user_id: str):
     _ensure_pref_table()
     row = db_execute(
-        "SELECT use_hidden_voice, skin_mode FROM user_preferences WHERE user_id = ?",
+        "SELECT use_hidden_voice, skin_mode, skin_modes_json, voice_modes_json FROM user_preferences WHERE user_id = ?",
         (user_id,),
         fetch="one"
     )
     if not row:
-        return {"use_hidden_voice": True, "skin_mode": "default"}
+        return {"use_hidden_voice": True, "skin_mode": "default", "skin_modes_map": {}, "voice_modes_map": {}}
     mode = row.get("skin_mode") if isinstance(row, dict) else row["skin_mode"]
     if mode not in ("default", "sexy", "cute", "smart"):
         mode = "default"
+    try:
+        sm = json.loads((row.get("skin_modes_json") if isinstance(row, dict) else row["skin_modes_json"]) or "{}")
+    except Exception:
+        sm = {}
+    try:
+        vm = json.loads((row.get("voice_modes_json") if isinstance(row, dict) else row["voice_modes_json"]) or "{}")
+    except Exception:
+        vm = {}
     return {
         "use_hidden_voice": bool(row["use_hidden_voice"]),
         "skin_mode": mode,
+        "skin_modes_map": sm if isinstance(sm, dict) else {},
+        "voice_modes_map": vm if isinstance(vm, dict) else {},
     }
 
 @app.post("/api/user/preferences")
@@ -568,18 +583,20 @@ async def save_user_preferences(req: UserPreferencesRequest):
     hv = 1 if req.use_hidden_voice else 0
     mode = req.skin_mode if req.skin_mode in ("default", "sexy", "cute", "smart") else "default"
     sk = 0 if mode == "default" else 1
+    sm_json = json.dumps(req.skin_modes_map or {}, ensure_ascii=False)
+    vm_json = json.dumps(req.voice_modes_map or {}, ensure_ascii=False)
     existing = db_execute("SELECT user_id FROM user_preferences WHERE user_id = ?", (req.user_id,), fetch="one")
     if existing:
         db_execute(
-            "UPDATE user_preferences SET use_hidden_voice = ?, use_lv4_skin = ?, skin_mode = ?, updated_at = ? WHERE user_id = ?",
-            (hv, sk, mode, now, req.user_id)
+            "UPDATE user_preferences SET use_hidden_voice = ?, use_lv4_skin = ?, skin_mode = ?, skin_modes_json = ?, voice_modes_json = ?, updated_at = ? WHERE user_id = ?",
+            (hv, sk, mode, sm_json, vm_json, now, req.user_id)
         )
     else:
         db_execute(
-            "INSERT INTO user_preferences (user_id, use_hidden_voice, use_lv4_skin, skin_mode, updated_at) VALUES (?, ?, ?, ?, ?)",
-            (req.user_id, hv, sk, mode, now)
+            "INSERT INTO user_preferences (user_id, use_hidden_voice, use_lv4_skin, skin_mode, skin_modes_json, voice_modes_json, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (req.user_id, hv, sk, mode, sm_json, vm_json, now)
         )
-    return {"ok": True, "use_hidden_voice": req.use_hidden_voice, "skin_mode": mode}
+    return {"ok": True, "use_hidden_voice": req.use_hidden_voice, "skin_mode": mode, "skin_modes_map": req.skin_modes_map, "voice_modes_map": req.voice_modes_map}
 
 @app.post("/api/chat")
 async def chat_with_character(req: ChatRequest):
