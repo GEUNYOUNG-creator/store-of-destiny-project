@@ -1248,7 +1248,7 @@
       max-width: 430px;
       height: 100dvh;
       margin: 0 auto;
-      z-index: 92;
+      z-index: 999;
       background: #0b0818;
       padding-top: env(safe-area-inset-top, 0px);
       padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -1261,7 +1261,14 @@
       overflow: hidden;
       touch-action: none;
     }
-    #banquet-3d-mount, #banquet-3d-mount canvas {
+    #banquet-3d-mount {
+      position: absolute !important;
+      top: 0; left: 0; right: 0; bottom: 0;
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+    #banquet-3d-mount canvas {
       width: 100% !important;
       height: 100% !important;
       display: block;
@@ -1270,7 +1277,8 @@
   
     /* 2D Illustrated Banquet Hall & Chibi Sprites */
     #banquet-2d-stage {
-      position: relative;
+      position: absolute;
+      inset: 0;
       width: 100%;
       height: 100%;
       background-image: url('./src/assets/banquet/banquet_bg.jpg');
@@ -2655,7 +2663,7 @@
 
 
   <!-- ==================== 3D CIRCULAR BANQUET HALL OVERLAY (연회장) ==================== -->
-  <div id="banquet-overlay" class="fixed inset-0 z-[92] hidden flex-col bg-[#0b0818] text-white select-none">
+  <div id="banquet-overlay" class="fixed inset-0 z-[999] hidden flex-col bg-[#0b0818] text-white select-none">
     <!-- Top Header -->
     <div class="relative z-20 flex items-center justify-between px-3.5 py-2.5 bg-gradient-to-b from-[#130c29]/95 via-[#130c29]/80 to-transparent border-b border-amber-300/20">
       <div>
@@ -4771,7 +4779,7 @@
       }
       this.stop();
       const seq = this.reqSeq;
-      const url = `./assets/voices/${cid}_${kind}.mp3?v=3`;
+      const url = `./assets/voices/${cid}_${kind}.mp3?v=6`;
       const audio = new Audio(url);
       audio.volume = 1.0;
 
@@ -11164,6 +11172,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
 
       banquetMount.innerHTML = `
         <div id="banquet-2d-stage">
+          <img src="./src/assets/banquet/banquet_bg.jpg?v=3" alt="" class="absolute inset-0 w-full h-full object-cover pointer-events-none select-none" style="object-position:center 48%;" />
           <button id="banquet-candle-hotspot" type="button" title="소원초 열기">
             <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-950/85 border border-amber-300/75 text-amber-100 shadow-lg">🕯️ 소원초</span>
           </button>
@@ -11258,6 +11267,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       if (!banquetOverlay) return;
       banquetOverlay.classList.remove('hidden');
       banquetOverlay.classList.add('flex');
+      banquetOverlay.style.display = 'flex';
       banquetOpen = true;
       rebuildBanquetChibis();
       playChimeSound(840);
@@ -11266,8 +11276,11 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
 
     function closeBanquetHall() {
       banquetOpen = false;
-      banquetOverlay?.classList.add('hidden');
-      banquetOverlay?.classList.remove('flex');
+      if (banquetOverlay) {
+        banquetOverlay.classList.add('hidden');
+        banquetOverlay.classList.remove('flex');
+        banquetOverlay.style.display = 'none';
+      }
       banquetFocusCard?.classList.add('hidden');
     }
 
@@ -11611,94 +11624,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
   })();
 
 
-  /* ==================== LV.3+ LEFT-SIDE ORIGINAL / HIDDEN VOICE TOGGLE ==================== */
-  (function initHiddenVoiceToggle() {
-    const KEY = 'destiny_use_hidden_voice_v1';
-    const getUseHidden = () => localStorage.getItem(KEY) !== '0';
-    let useHidden = getUseHidden();
-    const btn = document.getElementById('btn-toggle-hidden-voice');
-    const lbl = document.getElementById('hidden-voice-toggle-label');
-
-    function isHiddenVoiceActiveFor(charId) {
-      const lv = (typeof window.getCharAffinityLevel === 'function') ? window.getCharAffinityLevel(charId) : 1;
-      useHidden = getUseHidden();
-      return lv >= 3 && useHidden;
-    }
-    window.isHiddenVoiceActiveFor = isHiddenVoiceActiveFor;
-
-    function syncHiddenVoiceToggleUI() {
-      if (!btn || !lbl) return;
-      const cur = CHARACTERS[state.currentIdx];
-      const lv = (cur && typeof window.getCharAffinityLevel === 'function') ? window.getCharAffinityLevel(cur.id) : 1;
-      useHidden = getUseHidden();
-      if (lv >= 3) {
-        btn.classList.remove('hidden');
-        btn.classList.add('flex');
-        lbl.textContent = useHidden ? '히든 보이스 ON' : '원래 보이스';
-        btn.className = useHidden
-          ? 'flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-rose-500/35 to-amber-500/30 border border-rose-300/65 text-[10px] font-extrabold text-rose-100 hover:brightness-110 active:scale-95 transition'
-          : 'flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-black/55 border border-white/25 text-[10px] font-bold text-slate-200 hover:bg-black/75 active:scale-95 transition';
-      } else {
-        btn.classList.add('hidden');
-        btn.classList.remove('flex');
-      }
-    }
-    window.syncHiddenVoiceToggleUI = syncHiddenVoiceToggleUI;
-
-    // Override voiceEngine.speakGreet to respect ON/OFF toggle
-    const _prevSpeakGreet = voiceEngine.speakGreet.bind(voiceEngine);
-    voiceEngine.speakGreet = function(charIdx) {
-      const c = CHARACTERS[charIdx];
-      if (!c) return;
-      if (isHiddenVoiceActiveFor(c.id)) {
-        this.playStudioClip(c.id, 'hidden');
-      } else {
-        this.playStudioClip(c.id, 'greet');
-      }
-    };
-
-    // Override top-right 보이스 button to also respect ON/OFF toggle
-    const vBtn = document.getElementById('btn-voice-speak');
-    if (vBtn) {
-      const nv = vBtn.cloneNode(true);
-      vBtn.parentNode.replaceChild(nv, vBtn);
-      nv.addEventListener('click', () => {
-        if (voiceEngine.speaking) { voiceEngine.stop(); return; }
-        if (!state.voiceEnabled) { state.voiceEnabled = true; if (typeof syncVoiceToggleUI === 'function') syncVoiceToggleUI(); }
-        const c = CHARACTERS[state.currentIdx];
-        if (!c) return;
-        if (isHiddenVoiceActiveFor(c.id)) {
-          voiceEngine.playStudioClip(c.id, 'hidden');
-          showToast(`💖 ${c.name} 히든 보이스 재생 중`);
-        } else {
-          voiceEngine.playStudioClip(c.id, 'greet');
-          showToast(`🎙️ ${c.name} 원래 보이스 재생 중`);
-        }
-      });
-    }
-
-    btn?.addEventListener('click', () => {
-      useHidden = !useHidden;
-      localStorage.setItem(KEY, useHidden ? '1' : '0');
-      syncHiddenVoiceToggleUI();
-      const c = CHARACTERS[state.currentIdx];
-      if (c && state.voiceEnabled) {
-        voiceEngine.playStudioClip(c.id, useHidden ? 'hidden' : 'greet');
-      }
-      showToast(useHidden ? '💖 히든 보이스 듣기 ON' : '🎙️ 원래 보이스 듣기로 전환했어요');
-    });
-
-    // Keep toggle visibility synced whenever character or affinity badge changes
-    const affPill = document.getElementById('badge-affinity-pill');
-    if (affPill) {
-      new MutationObserver(() => syncHiddenVoiceToggleUI()).observe(affPill, { childList: true, characterData: true, subtree: true });
-    }
-    const bName = document.getElementById('badge-name');
-    if (bName) {
-      new MutationObserver(() => syncHiddenVoiceToggleUI()).observe(bName, { childList: true, characterData: true, subtree: true });
-    }
-    syncHiddenVoiceToggleUI();
-  })();
+  /* Legacy global voice toggle consolidated into initPerCharacterSkinAndVoiceEngine */
 
 
 
@@ -11748,12 +11674,11 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       return c ? getCharSkinMode(c.id) : 'default';
     };
 
-    // Reliable Texture Cache with callback queue + auto-apply on load + error retry!
+    // Bulletproof native Image() -> THREE.Texture(img) cache with instant WebGL upload!
     const skinTexEntries = {};
-    const texLoader = (typeof THREE !== 'undefined') ? new THREE.TextureLoader() : null;
 
-    function ensureSkinTexture(charId, mode, onLoadCb) {
-      if (!texLoader || !charId || mode === 'default') return null;
+    function ensureSkinTexture(charId, mode, onLoadCb, showErr = false) {
+      if (typeof THREE === 'undefined' || !charId || mode === 'default') return null;
       const k = `${charId}_${mode}`;
       let entry = skinTexEntries[k];
       if (entry) {
@@ -11765,33 +11690,31 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       }
       entry = { tex: null, loaded: false, callbacks: onLoadCb ? [onLoadCb] : [] };
       skinTexEntries[k] = entry;
-      const url = `./src/assets/skins/${charId}_${mode}.jpg?v=2`;
-      const t = texLoader.load(
-        url,
-        (loadedTex) => {
-          loadedTex.minFilter = THREE.LinearFilter;
-          loadedTex.magFilter = THREE.LinearFilter;
-          loadedTex.encoding = THREE.sRGBEncoding;
-          loadedTex.needsUpdate = true;
-          entry.tex = loadedTex;
-          entry.loaded = true;
-          const cbs = entry.callbacks.splice(0);
-          cbs.forEach((fn) => { try { fn(loadedTex); } catch (_) {} });
-          const cur = CHARACTERS[state.currentIdx];
-          if (cur && cur.id === charId && getCharSkinMode(charId) === mode) {
-            applyCurrentSkinIfUnlocked();
-          }
-        },
-        undefined,
-        () => {
-          // Remove failed entry so next attempt retries cleanly
-          delete skinTexEntries[k];
+      const url = `./src/assets/skins/${charId}_${mode}.jpg?v=3`;
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const tex = new THREE.Texture(img);
+        tex.minFilter = THREE.LinearFilter;
+        tex.magFilter = THREE.LinearFilter;
+        tex.encoding = THREE.sRGBEncoding;
+        tex.needsUpdate = true;
+        entry.tex = tex;
+        entry.loaded = true;
+        const cbs = entry.callbacks.splice(0);
+        cbs.forEach((fn) => { try { fn(tex); } catch (_) {} });
+        const cur = CHARACTERS[state.currentIdx];
+        if (cur && cur.id === charId && getCharSkinMode(charId) === mode) {
+          applyCurrentSkinIfUnlocked();
         }
-      );
-      t.minFilter = THREE.LinearFilter;
-      t.magFilter = THREE.LinearFilter;
-      t.encoding = THREE.sRGBEncoding;
-      entry.tex = t;
+      };
+      img.onerror = () => {
+        delete skinTexEntries[k];
+        if (showErr && typeof showToast === 'function') {
+          showToast('⚠️ 복장 이미지를 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.');
+        }
+      };
+      img.src = url;
       return entry;
     }
 
@@ -11924,9 +11847,11 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       if (charMaterial && state.modelMode !== 'mini') {
         const resolved = window.getResolvedCharTextures(idx);
         if (resolved) {
+          resolved.open.needsUpdate = true;
           charMaterial.uniforms.uTexOpen.value = resolved.open;
           charMaterial.uniforms.uTexBlink.value = resolved.blink;
           charMaterial.uniformsNeedUpdate = true;
+          if (typeof resizeThree === 'function') resizeThree();
           if (stageBgAura) stageBgAura.style.backgroundImage = `url('${resolved.bgUrl}')`;
         } else {
           if (openTextures[idx]) charMaterial.uniforms.uTexOpen.value = openTextures[idx];
@@ -11992,7 +11917,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
         const mode = btn.dataset.leftSkin || 'default';
         setCharSkinMode(c.id, mode);
         if (mode !== 'default') {
-          ensureSkinTexture(c.id, mode, () => applyCurrentSkinIfUnlocked());
+          ensureSkinTexture(c.id, mode, () => applyCurrentSkinIfUnlocked(), true);
         }
         applyCurrentSkinIfUnlocked();
         if (typeof window.refreshBanquetHallSkins === 'function') window.refreshBanquetHallSkins();

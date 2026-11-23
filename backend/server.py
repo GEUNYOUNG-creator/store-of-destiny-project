@@ -873,7 +873,7 @@ def list_history(user_id: Optional[str] = None, limit: int = 30):
 def serve_index():
     index_path = os.path.join(os.path.dirname(__file__), "..", "index.html")
     if os.path.exists(index_path):
-        return FileResponse(index_path)
+        return FileResponse(index_path, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     return {"message": "운명상점 MVP API 서버가 실행 중입니다."}
 
 @app.get("/manifest.json")
@@ -884,7 +884,7 @@ def serve_manifest():
 @app.get("/sw.js")
 def serve_sw():
     p = os.path.join(os.path.dirname(__file__), "..", "sw.js")
-    return FileResponse(p, media_type="application/javascript")
+    return FileResponse(p, media_type="application/javascript", headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
 
 @app.get("/icon-192.png")
 def serve_icon192():

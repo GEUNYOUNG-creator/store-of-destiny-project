@@ -1,5 +1,5 @@
-const CACHE_NAME = 'fortune-shop-pwa-v6';
-const CORE_ASSETS = ['/', '/manifest.json', '/icon-192.png', '/icon-512.png', '/og-preview.jpg'];
+const CACHE_NAME = 'fortune-shop-pwa-v7';
+const CORE_ASSETS = ['/manifest.json', '/icon-192.png', '/icon-512.png', '/og-preview.jpg'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE_NAME).then((c) => c.addAll(CORE_ASSETS)).then(() => self.skipWaiting()));
@@ -14,7 +14,18 @@ self.addEventListener('activate', (e) => {
 
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
-  if (url.pathname.startsWith('/api/') || (url.pathname.endsWith('.mp4') || url.pathname.endsWith('.mp3') || url.pathname.endsWith('.glb')) || e.request.method !== 'GET') return;
+  if (
+    e.request.method !== 'GET' ||
+    url.pathname === '/' ||
+    url.pathname.endsWith('.html') ||
+    url.pathname.startsWith('/api/') ||
+    url.pathname.startsWith('/src/assets/') ||
+    url.pathname.endsWith('.mp4') ||
+    url.pathname.endsWith('.mp3') ||
+    url.pathname.endsWith('.glb')
+  ) {
+    return;
+  }
   e.respondWith(
     fetch(e.request).then((res) => {
       if (res && res.status === 200 && url.origin === self.location.origin) {
