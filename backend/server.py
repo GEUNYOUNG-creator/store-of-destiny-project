@@ -892,6 +892,28 @@ async def consume_user_ticket(req: TicketConsumeRequest):
     db_execute("UPDATE users SET ticket_count = ? WHERE id = ?", (cur - 1, req.user_id))
     return {"ok": True, "is_plus": False, "ticket_count": cur - 1}
 
+@app.get("/src/assets/banquet/{filename}")
+async def serve_banquet_asset(filename: str):
+    safe = os.path.basename(filename)
+    if not safe.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
+        raise HTTPException(status_code=400, detail="Invalid banquet asset")
+    p = os.path.join(os.path.dirname(__file__), "..", "src", "assets", "banquet", safe)
+    if not os.path.exists(p):
+        raise HTTPException(status_code=404, detail="Banquet asset not found")
+    media = "image/png" if safe.lower().endswith(".png") else "image/jpeg"
+    return FileResponse(p, media_type=media)
+
+@app.get("/src/assets/skins/{filename}")
+async def serve_skin_asset(filename: str):
+    safe = os.path.basename(filename)
+    if not safe.lower().endswith((".png", ".jpg", ".jpeg", ".webp")):
+        raise HTTPException(status_code=400, detail="Invalid skin asset")
+    p = os.path.join(os.path.dirname(__file__), "..", "src", "assets", "skins", safe)
+    if not os.path.exists(p):
+        raise HTTPException(status_code=404, detail="Skin asset not found")
+    media = "image/png" if safe.lower().endswith(".png") else "image/jpeg"
+    return FileResponse(p, media_type=media)
+
 @app.get("/src/assets/cutouts/{filename}")
 async def serve_cutout_asset(filename: str):
     safe = os.path.basename(filename)

@@ -17,7 +17,7 @@ for (const f of filesToCopy) {
 }
 
 // Copy studio voices & spouse portraits cleanly into www/src/assets/
-for (const sub of ['src/assets/voices', 'src/assets/spouses', 'src/assets/models', 'src/assets/cutouts']) {
+for (const sub of ['src/assets/voices', 'src/assets/spouses', 'src/assets/models', 'src/assets/cutouts', 'src/assets/banquet', 'src/assets/skins']) {
   const srcDir = path.join(root, sub);
   if (fs.existsSync(srcDir)) {
     const dstDir = path.join(out, sub);
