@@ -1039,108 +1039,191 @@
     #admob-banner-slot.hidden-plus { display: none; }
 
 
-    /* ==================== CHARACTER-THEMED OBJECT INPUT FRAMES (HIGH READABILITY) ==================== */
-    /* 5. 아린 · 청동거울 관상 프레임 (Antique Bronze Mirror Bezel) */
+
+    /* ==================== BESPOKE SKEUOMORPHIC OBJECT UI FRAMES (V13) ==================== */
+    /* 5. 아린 · 청동거울 (Ornate Antique Bronze Mirror Silhouette) */
     .face-study-card {
       position: relative;
-      border-radius: 34px 34px 20px 20px !important;
-      border: 2.5px solid #c9a255 !important;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.45), inset 0 0 0 3px rgba(201,162,85,0.28), inset 0 18px 34px rgba(255,250,230,0.45) !important;
+      background: linear-gradient(135deg, #f5f2e4 0%, #e4ecdc 42%, #faf7ed 50%, #d8e5d3 100%) !important;
+      border-radius: 68px 68px 26px 26px !important;
+      border: 4px solid #b6893a !important;
+      box-shadow:
+        0 14px 34px rgba(0,0,0,0.52),
+        inset 0 0 0 3px #6b4b1a,
+        inset 0 0 0 6px rgba(246, 224, 160, 0.55),
+        inset 0 22px 40px rgba(255, 255, 255, 0.55) !important;
+      padding: 20px 16px 18px 16px !important;
       overflow: hidden;
     }
     .face-study-card::before {
-      content: '🪞 청동거울';
+      content: '❖  청동거울 관상경  ❖';
       display: block;
       width: fit-content;
-      margin: -4px auto 8px auto;
-      padding: 2px 12px;
+      margin: -6px auto 10px auto;
+      padding: 3px 16px;
       border-radius: 9999px;
-      background: linear-gradient(90deg, #6e4e1e, #b88b3d, #6e4e1e);
-      color: #fff6db;
-      font-size: 10px;
+      background: linear-gradient(90deg, #5c3f14, #a87b2f, #5c3f14);
+      border: 1px solid #f3d997;
+      color: #fff6dc;
+      font-family: 'Gowun Batang', serif;
+      font-size: 10.5px;
       font-weight: 800;
-      letter-spacing: 0.08em;
-      box-shadow: 0 2px 8px rgba(110,78,30,0.45);
+      letter-spacing: 0.12em;
+      box-shadow: 0 3px 10px rgba(92, 63, 20, 0.45);
     }
-
-    /* 6. 서연 · 황금 돋보기 손금 프레임 (Golden Magnifying Loupe Lens) */
-    .palm-atelier-card {
-      position: relative;
-      border-radius: 28px !important;
-      border: 2.5px solid rgba(240, 198, 102, 0.82) !important;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.52), inset 0 0 0 3px rgba(94,234,212,0.18), inset 0 0 36px rgba(251,191,36,0.08) !important;
-      overflow: hidden;
-    }
-    .palm-atelier-card::before {
-      content: '🔍 황금 돋보기 렌즈';
-      display: block;
-      width: fit-content;
-      margin: -2px auto 8px auto;
-      padding: 2px 12px;
-      border-radius: 9999px;
-      background: linear-gradient(90deg, rgba(15,118,110,0.9), rgba(217,158,48,0.85));
-      border: 1px solid rgba(253,230,138,0.65);
-      color: #fef9c3;
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 0.06em;
-    }
-    .palm-atelier-card::after {
+    .face-study-card::after {
       content: '';
       position: absolute;
-      right: -28px;
-      bottom: -28px;
-      width: 110px;
-      height: 110px;
-      border-radius: 9999px;
-      border: 2px dashed rgba(251, 191, 36, 0.25);
+      inset: 0;
+      background: linear-gradient(122deg, transparent 22%, rgba(255,255,255,0.42) 30%, transparent 38%);
       pointer-events: none;
     }
 
-    /* 7. 다온 · 어약방 옥빛 처방전·약장 프레임 (Korean Apothecary Jade Scroll) */
-    .sasang-card-frame {
+    /* 6. 서연 · 황금 돋보기 렌즈 (Golden Magnifying Loupe + Handle) */
+    .palm-atelier-card {
       position: relative;
-      background: linear-gradient(155deg, rgba(14, 48, 39, 0.96), rgba(9, 27, 24, 0.98)) !important;
-      border: 2px solid rgba(110, 231, 183, 0.58) !important;
-      border-radius: 22px !important;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.48), inset 0 0 0 3px rgba(230,198,124,0.16) !important;
+      background:
+        radial-gradient(circle at 30% 20%, rgba(153, 246, 228, 0.16), transparent 48%),
+        linear-gradient(155deg, rgba(11, 46, 52, 0.96), rgba(7, 25, 31, 0.98)) !important;
+      border-radius: 42px !important;
+      border: 4.5px solid #e0b14b !important;
+      box-shadow:
+        0 14px 36px rgba(0,0,0,0.58),
+        inset 0 0 0 3px rgba(102, 70, 18, 0.85),
+        inset 0 0 0 6px rgba(253, 230, 138, 0.25),
+        inset 0 0 42px rgba(45, 212, 191, 0.14) !important;
+      padding: 18px 16px 20px 16px !important;
+      margin-bottom: 10px;
+      overflow: visible !important;
     }
-    .sasang-card-frame::before {
-      content: '🌿 어약방 사상체질 처방전';
+    .palm-atelier-card::before {
+      content: '🔍  황금 돋보기 렌즈  ·  손금 관찰경';
       display: block;
       width: fit-content;
-      margin: -6px auto 8px auto;
-      padding: 2px 12px;
+      margin: -6px auto 10px auto;
+      padding: 3px 14px;
       border-radius: 9999px;
-      background: linear-gradient(90deg, #115e4b, #1d7a62);
-      border: 1px solid rgba(230,198,124,0.55);
-      color: #fef3c7;
+      background: linear-gradient(90deg, #785013, #d4a13a, #785013);
+      border: 1px solid #fef08a;
+      color: #fffbeb;
+      font-family: 'Gowun Batang', serif;
       font-size: 10px;
       font-weight: 800;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.08em;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+    }
+    .palm-atelier-card::after {
+      /* Golden magnifying glass handle extending cleanly at bottom-right */
+      content: '';
+      position: absolute;
+      right: 16px;
+      bottom: -15px;
+      width: 58px;
+      height: 14px;
+      border-radius: 9999px;
+      background: linear-gradient(180deg, #f5d27a, #8a5b18 55%, #4a2d0a);
+      border: 1.5px solid #fde68a;
+      transform: rotate(24deg);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.55);
+      pointer-events: none;
+      z-index: 2;
     }
 
-    /* 8. 몽화 · 달빛 드림캐처 꿈일기장 프레임 (Moonlit Dreamcatcher Diary) */
+    /* 7. 다온 · 어약방 한지 처방전 (Traditional Korean Hanji Medical Prescription Sheet) */
+    .sasang-card-frame {
+      position: relative;
+      background:
+        repeating-linear-gradient(
+          90deg,
+          transparent 0px,
+          transparent 38px,
+          rgba(43, 99, 78, 0.06) 38px,
+          rgba(43, 99, 78, 0.06) 39px
+        ),
+        linear-gradient(180deg, #f8f3e6 0%, #efe6cf 100%) !important;
+      color: #163329 !important;
+      border: 2.5px solid #235c47 !important;
+      border-radius: 14px !important;
+      box-shadow:
+        0 14px 30px rgba(0,0,0,0.45),
+        inset 0 0 0 4px #f8f3e6,
+        inset 0 0 0 5.5px rgba(35, 92, 71, 0.45) !important;
+      padding: 18px 15px 16px 15px !important;
+      overflow: hidden;
+    }
+    .sasang-card-frame::before {
+      content: '四象';
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #b91c1c;
+      border-radius: 6px;
+      color: #b91c1c;
+      background: rgba(185, 28, 28, 0.06);
+      font-family: 'Gowun Batang', serif;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      transform: rotate(-6deg);
+      pointer-events: none;
+    }
+    .sasang-card-frame::after {
+      content: none !important;
+    }
+    .sasang-hanji-divider {
+      height: 2px;
+      background: linear-gradient(90deg, #235c47, rgba(35,92,71,0.25), #235c47);
+      margin: 8px 0 10px 0;
+    }
+
+    /* 8. 몽화 · 달빛 드림캐처 해몽서 (Moonlit Velvet Grimoire & Ruled Dream Journal) */
     .dream-card-frame {
       position: relative;
-      background: linear-gradient(155deg, rgba(35, 20, 72, 0.96), rgba(15, 10, 34, 0.98)) !important;
-      border: 2px solid rgba(196, 181, 253, 0.60) !important;
-      border-radius: 26px 26px 20px 20px !important;
-      box-shadow: 0 12px 32px rgba(0,0,0,0.52), inset 0 0 0 3px rgba(253,224,71,0.12), inset 0 16px 32px rgba(167,139,250,0.12) !important;
+      background:
+        radial-gradient(circle at 50% 0%, rgba(192, 132, 252, 0.24), transparent 55%),
+        linear-gradient(165deg, #24144b 0%, #140c2d 62%, #0c071c 100%) !important;
+      border: 2.5px solid #d4af37 !important;
+      border-radius: 36px 36px 18px 18px !important;
+      box-shadow:
+        0 14px 36px rgba(0,0,0,0.58),
+        inset 0 0 0 3px rgba(76, 29, 149, 0.75),
+        inset 0 0 0 5px rgba(253, 224, 71, 0.28) !important;
+      padding: 18px 15px 16px 15px !important;
+      overflow: hidden;
     }
     .dream-card-frame::before {
-      content: '🌙 달빛 드림캐처 해몽서';
+      content: '✦  🌙  달빛 드림캐처 해몽서  🌙  ✦';
       display: block;
       width: fit-content;
-      margin: -6px auto 8px auto;
-      padding: 2px 12px;
+      margin: -4px auto 10px auto;
+      padding: 3px 14px;
       border-radius: 9999px;
-      background: linear-gradient(90deg, #4c1d95, #7c3aed, #4c1d95);
-      border: 1px solid rgba(253,224,71,0.55);
+      background: linear-gradient(90deg, #3b1778, #6d28d9, #3b1778);
+      border: 1px solid #fde047;
       color: #fef9c3;
+      font-family: 'Gowun Batang', serif;
       font-size: 10px;
       font-weight: 800;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.08em;
+      box-shadow: 0 3px 12px rgba(109, 40, 217, 0.45);
+    }
+    .dream-journal-textarea {
+      background:
+        repeating-linear-gradient(
+          180deg,
+          rgba(255,255,255,0.03) 0px,
+          rgba(255,255,255,0.03) 23px,
+          rgba(253, 224, 71, 0.14) 23px,
+          rgba(253, 224, 71, 0.14) 24px
+        ),
+        rgba(9, 6, 22, 0.72) !important;
+      line-height: 24px !important;
+      border: 1.5px solid rgba(212, 175, 55, 0.50) !important;
     }
 
   </style>
@@ -1778,73 +1861,73 @@
       </div>
     </div>
 
-    <!-- PANEL 7: SASANG MEDICINE (사상의학 · 다온) -->
+    <!-- PANEL 7: SASANG MEDICINE (사상의학 · 다온 — 한지 어약방 처방전 UI) -->
     <div id="panel-7" class="char-panel hidden space-y-3 pt-2">
-      <div class="sasang-card-frame p-4">
-        <div class="flex items-center justify-between mb-2">
-          <div>
-            <div class="text-[10px] font-bold tracking-wider text-emerald-300">동의수세보원 사상체질 한의원</div>
-            <h2 class="font-serif-kr text-lg font-extrabold text-[#ecfdf5]">🌿 다온의 사상의학 체질관</h2>
-          </div>
-          <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-400/20 text-emerald-100 border border-emerald-300/45">동의수세보원 4체질</span>
+      <div class="sasang-card-frame">
+        <div class="pr-10">
+          <div class="text-[10px] font-extrabold tracking-widest text-[#235c47]">동의수세보원 · 어약방 체질 처방전(處方箋)</div>
+          <h2 class="font-serif-kr text-[19px] font-extrabold text-[#122b22] mt-0.5">🌿 다온의 사상의학 처방전</h2>
         </div>
+        <div class="sasang-hanji-divider"></div>
 
         <!-- Top Sub Tabs: 진단 vs 도감 -->
-        <div class="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-black/35 border border-emerald-300/25 mb-3">
-          <button type="button" data-sasang-tab="analyze" class="sasang-tab-btn py-1.5 rounded-lg text-xs font-bold bg-emerald-500/40 text-white border border-emerald-300/50 transition">🌿 체질 진단 · 전신 촬영</button>
-          <button type="button" data-sasang-tab="guide" class="sasang-tab-btn py-1.5 rounded-lg text-xs font-bold text-emerald-200/80 transition">📖 사상의학 도감</button>
+        <div class="grid grid-cols-2 gap-1.5 p-1 rounded-xl bg-[#e3d7bc] border border-[#235c47]/35 mb-3">
+          <button type="button" data-sasang-tab="analyze" class="sasang-tab-btn py-1.5 rounded-lg text-xs font-extrabold bg-[#1c5742] text-[#fef9e7] shadow-sm transition">📜 체질 처방 · 전신 촬영</button>
+          <button type="button" data-sasang-tab="guide" class="sasang-tab-btn py-1.5 rounded-lg text-xs font-bold text-[#1d4637] transition">📖 사상의학 도감</button>
         </div>
 
         <!-- TAB 1: 체질 진단 (알아요 vs 몰라요 전신 촬영) -->
         <div id="sasang-tab-analyze" class="space-y-3">
           <div class="grid grid-cols-2 gap-1.5">
-            <button id="btn-sasang-mode-known" type="button" class="py-2 px-2 rounded-xl text-[11.5px] font-bold bg-emerald-500/35 text-white border border-emerald-300/60 transition">✅ 내 체질을 알아요</button>
-            <button id="btn-sasang-mode-photo" type="button" class="py-2 px-2 rounded-xl text-[11.5px] font-bold bg-white/5 text-emerald-200/85 border border-emerald-300/25 transition">📷 몰라요 · 전신 촬영</button>
+            <button id="btn-sasang-mode-known" type="button" class="py-2 px-2 rounded-xl text-[11.5px] font-extrabold bg-[#1c5742] text-[#fef9e7] border border-[#143d2e] shadow-sm transition">✅ 내 체질을 알아요</button>
+            <button id="btn-sasang-mode-photo" type="button" class="py-2 px-2 rounded-xl text-[11.5px] font-bold bg-[#fbf7ec] text-[#1d4637] border border-[#235c47]/35 transition">📷 몰라요 · 전신 촬영</button>
           </div>
 
           <!-- Mode A: Direct Constitution Selection -->
           <div id="sasang-known-box" class="space-y-2.5">
-            <div class="text-[11px] text-emerald-100/85">알고 계신 본인의 사상체질을 선택하면 <strong class="text-amber-200">신체 특징·기질·맞춤 식단·운동법</strong>을 상세히 풀어드려요.</div>
+            <div class="text-[11px] text-[#27473b] leading-relaxed bg-[#fbf7ec]/85 rounded-lg px-2.5 py-1.5 border border-[#235c47]/20">
+              본인의 사상체질을 선택하시면 <strong class="text-[#991b1b]">신체 특징 · 체형 실루엣 · 맞춤 식단 처방</strong>을 상세히 적어드려요.
+            </div>
             <div class="grid grid-cols-2 gap-2">
-              <button type="button" data-sasang-type="taeyang" class="sasang-type-btn py-2.5 px-2.5 rounded-xl text-left bg-white/5 border border-emerald-300/25 hover:border-amber-300/60 transition">
-                <div class="text-xs font-extrabold text-amber-200">☀️ 태양인 (太陽人)</div>
-                <div class="text-[10px] text-emerald-100/75 mt-0.5">폐대간소 · 카리스마 혁신가</div>
+              <button type="button" data-sasang-type="taeyang" class="sasang-type-btn py-2.5 px-2.5 rounded-xl text-left bg-[#fbf7ec] border border-[#235c47]/30 hover:border-[#b91c1c] transition">
+                <div class="text-xs font-extrabold text-[#92400e]">☀️ 태양인 (太陽人)</div>
+                <div class="text-[10px] text-[#3b5248] mt-0.5">폐대간소 · 상체 발달형</div>
               </button>
-              <button type="button" data-sasang-type="taeeum" class="sasang-type-btn py-2.5 px-2.5 rounded-xl text-left bg-white/5 border border-emerald-300/25 hover:border-amber-300/60 transition">
-                <div class="text-xs font-extrabold text-emerald-200">🌳 태음인 (太陰人)</div>
-                <div class="text-[10px] text-emerald-100/75 mt-0.5">간대폐소 · 듬직한 대들보형</div>
+              <button type="button" data-sasang-type="taeeum" class="sasang-type-btn py-2.5 px-2.5 rounded-xl text-left bg-[#fbf7ec] border border-[#235c47]/30 hover:border-[#b91c1c] transition">
+                <div class="text-xs font-extrabold text-[#166534]">🌳 태음인 (太陰人)</div>
+                <div class="text-[10px] text-[#3b5248] mt-0.5">간대폐소 · 허리 튼실형</div>
               </button>
-              <button type="button" data-sasang-type="soyang" class="sasang-type-btn py-2.5 px-2.5 rounded-xl text-left bg-emerald-500/35 border border-amber-300/70 transition">
-                <div class="text-xs font-extrabold text-rose-200">🔥 소양인 (少陽人)</div>
-                <div class="text-[10px] text-emerald-100/85 mt-0.5">비대신소 · 쾌활한 열정형</div>
+              <button type="button" data-sasang-type="soyang" class="sasang-type-btn py-2.5 px-2.5 rounded-xl text-left bg-[#e6f3ec] border-2 border-[#1c5742] shadow-sm transition">
+                <div class="text-xs font-extrabold text-[#9f1239]">🔥 소양인 (少陽人)</div>
+                <div class="text-[10px] text-[#1e3d32] mt-0.5">비대신소 · 가슴 탄탄형</div>
               </button>
-              <button type="button" data-sasang-type="soeum" class="sasang-type-btn py-2.5 px-2.5 rounded-xl text-left bg-white/5 border border-emerald-300/25 hover:border-amber-300/60 transition">
-                <div class="text-xs font-extrabold text-sky-200">💧 소음인 (少陰人)</div>
-                <div class="text-[10px] text-emerald-100/75 mt-0.5">신대비소 · 섬세한 지혜형</div>
+              <button type="button" data-sasang-type="soeum" class="sasang-type-btn py-2.5 px-2.5 rounded-xl text-left bg-[#fbf7ec] border border-[#235c47]/30 hover:border-[#b91c1c] transition">
+                <div class="text-xs font-extrabold text-[#075985]">💧 소음인 (少陰人)</div>
+                <div class="text-[10px] text-[#3b5248] mt-0.5">신대비소 · 하체 안정형</div>
               </button>
             </div>
-<button id="btn-run-sasang-known" type="button" class="w-full py-2.5 rounded-xl font-serif-kr font-bold text-sm bg-gradient-to-r from-emerald-500 to-teal-500 text-white border border-amber-200/55 shadow-lg active:scale-95 transition">
-              선택한 체질 상세 특징 & 맞춤 양생법 보기 ✦
+            <button id="btn-run-sasang-known" type="button" class="w-full py-2.5 rounded-xl font-serif-kr font-extrabold text-sm bg-gradient-to-r from-[#184f3c] to-[#267358] text-[#fef9e7] border border-[#c8a65a] shadow-md active:scale-95 transition">
+              📜 선택한 체질 처방전 &amp; 신체 특징 보기 ✦
             </button>
           </div>
 
           <!-- Mode B: Full-Body Active Guideline Photo Analysis -->
           <div id="sasang-photo-box" class="hidden space-y-2.5">
-            <div class="text-[11px] text-emerald-100/90 leading-relaxed bg-black/30 rounded-xl p-2.5 border border-emerald-300/25">
-              체질을 모르셔도 괜찮아요! <strong class="text-amber-200">액티브 전신 가이드라인</strong>에 맞춰 전신 사진을 촬영하거나 업로드하면 다온이 상·하체 비율과 골격을 분석해 사상체질을 판별하고 신체 특징을 자세히 알려드립니다.
+            <div class="text-[11px] text-[#1f3d32] leading-relaxed bg-[#fbf7ec]/90 rounded-xl p-2.5 border border-[#235c47]/25">
+              체질을 모르셔도 괜찮아요! <strong class="text-[#991b1b]">액티브 전신 가이드라인</strong>에 맞춰 전신 사진을 촬영하거나 올리면 다온이 상·하체 비율을 분석해 체질 처방전을 작성해 드려요.
             </div>
             <input id="input-sasang-upload" type="file" accept="image/*" class="hidden" />
             <input id="input-sasang-camera" type="file" accept="image/*" capture="environment" class="hidden" />
             <div class="grid grid-cols-2 gap-2">
-              <button id="btn-sasang-camera" type="button" class="py-2 rounded-xl text-xs font-bold bg-emerald-500/30 text-emerald-50 border border-emerald-300/55 active:scale-95 transition flex items-center justify-center gap-1.5">
+              <button id="btn-sasang-camera" type="button" class="py-2 rounded-xl text-xs font-bold bg-[#1c5742] text-[#fef9e7] border border-[#c8a65a] active:scale-95 transition flex items-center justify-center gap-1.5">
                 <span>📷</span><span>전신 촬영 (가이드)</span>
               </button>
-              <button id="btn-sasang-upload" type="button" class="py-2 rounded-xl text-xs font-bold bg-white/10 text-emerald-100 border border-emerald-300/35 active:scale-95 transition flex items-center justify-center gap-1.5">
+              <button id="btn-sasang-upload" type="button" class="py-2 rounded-xl text-xs font-bold bg-[#fbf7ec] text-[#1c4637] border border-[#235c47]/40 active:scale-95 transition flex items-center justify-center gap-1.5">
                 <span>🖼️</span><span>전신 사진 올리기</span>
               </button>
             </div>
 
-            <div id="sasang-preview-wrap" class="hidden relative rounded-xl overflow-hidden border-2 border-emerald-300/70 bg-black/45 h-52 flex items-center justify-center">
+            <div id="sasang-preview-wrap" class="hidden relative rounded-xl overflow-hidden border-2 border-[#1c5742] bg-black/75 h-52 flex items-center justify-center">
               <img id="sasang-preview-img" src="" alt="업로드된 전신 사진" class="h-full w-full object-contain bg-black/60" />
               <div class="absolute bottom-1.5 left-1.5 right-1.5 flex items-center justify-between gap-1 px-2 py-1 rounded-lg bg-black/75 text-[9.5px]">
                 <span class="text-amber-300 font-bold">● 목·상체</span>
@@ -1853,8 +1936,8 @@
                 <span class="text-rose-300 font-bold">● 골반·하체</span>
               </div>
             </div>
-<button id="btn-run-sasang-vision" type="button" class="w-full py-2.5 rounded-xl font-serif-kr font-bold text-sm bg-gradient-to-r from-emerald-500 via-teal-500 to-amber-500 text-white border border-amber-200/60 shadow-lg active:scale-95 transition">
-              전신 사상체질 판별하기 ✦
+            <button id="btn-run-sasang-vision" type="button" class="w-full py-2.5 rounded-xl font-serif-kr font-extrabold text-sm bg-gradient-to-r from-[#184f3c] via-[#267358] to-[#9a6b24] text-[#fef9e7] border border-[#e6c67c] shadow-md active:scale-95 transition">
+              📜 전신 사상체질 처방전 발급하기 ✦
             </button>
           </div>
         </div>
@@ -1862,12 +1945,12 @@
         <!-- TAB 2: 사상의학 도감 (4대 체질 미리보기) -->
         <div id="sasang-tab-guide" class="hidden space-y-2.5">
           <div id="sasang-guide-grid" class="grid grid-cols-4 gap-1.5"></div>
-          <div id="sasang-guide-card" class="rounded-xl bg-black/45 border border-emerald-300/40 p-3.5 text-emerald-50 text-xs space-y-2.5"></div>
+          <div id="sasang-guide-card" class="rounded-xl bg-[#102921] border border-[#c8a65a]/60 p-3.5 text-emerald-50 text-xs space-y-2.5"></div>
         </div>
       </div>
 
       <div id="sasang-inline-result" class="rounded-2xl p-3.5 bg-white/5 border border-emerald-300/30 text-xs text-emerald-100/85 text-center">
-        알고 계신 체질을 선택하거나 전신 사진을 촬영해 사상체질과 상세 신체 특징을 확인해 보세요 🌿
+        알고 계신 체질을 선택하거나 전신 사진을 촬영해 사상체질 처방전과 상세 신체 특징을 확인해 보세요 🌿
       </div>
     </div>
 
@@ -1884,7 +1967,7 @@
 
         <div class="space-y-1.5">
           <label for="dream-input" class="block text-xs font-bold text-amber-200">✨ 해석하고 싶은 당신의 꿈을 입력해주세요.</label>
-          <textarea id="dream-input" rows="4" placeholder="해석하고 싶은 당신의 꿈을 입력해주세요. (예: 맑은 강물에서 황금빛 뱀을 손으로 잡았는데 기분이 아주 상쾌했어요)" class="w-full px-3 py-2.5 rounded-xl text-xs bg-black/40 border border-violet-300/40 text-white focus:outline-none focus:border-amber-300 placeholder-violet-200/50 leading-relaxed resize-none"></textarea>
+          <textarea id="dream-input" rows="4" class="dream-journal-textarea w-full px-3 py-2 rounded-xl text-xs text-white focus:outline-none focus:border-amber-300 placeholder-violet-200/55 resize-none" placeholder="해석하고 싶은 당신의 꿈을 입력해주세요. (예: 맑은 강물에서 황금빛 뱀을 손으로 잡았는데 기분이 아주 상쾌했어요)"></textarea>
         </div>
 
         <div class="space-y-1.5">
@@ -8894,7 +8977,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
     grid.innerHTML = keys.map(k => {
       const it = SASANG_DB[k];
       const act = k === key;
-      return `<button type="button" data-sg-key="${k}" class="py-2 px-1 rounded-xl text-center transition ${act ? 'bg-emerald-500/40 border border-amber-300/75 text-white font-extrabold shadow' : 'bg-white/5 border border-emerald-300/25 text-emerald-100/80 font-semibold'}">
+      return `<button type="button" data-sg-key="${k}" class="py-2 px-1 rounded-xl text-center transition ${act ? 'bg-[#1c5742] border-2 border-[#c8a65a] text-[#fef9e7] font-extrabold shadow' : 'bg-[#fbf7ec] border border-[#235c47]/30 text-[#1c4637] font-bold'}">
         <div class="text-base leading-none">${it.emoji}</div>
         <div class="text-[11px] mt-1">${it.shortName}</div>
       </button>`;
@@ -8935,7 +9018,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       const tab = btn.dataset.sasangTab;
       document.querySelectorAll('.sasang-tab-btn').forEach(b => {
         const act = b.dataset.sasangTab === tab;
-        b.className = `sasang-tab-btn py-1.5 rounded-lg text-xs font-bold transition ${act ? 'bg-emerald-500/40 text-white border border-emerald-300/50' : 'text-emerald-200/80'}`;
+        b.className = `sasang-tab-btn py-1.5 rounded-lg text-xs transition ${act ? 'font-extrabold bg-[#1c5742] text-[#fef9e7] shadow-sm' : 'font-bold text-[#1d4637]'}`;
       });
       document.getElementById('sasang-tab-analyze')?.classList.toggle('hidden', tab !== 'analyze');
       document.getElementById('sasang-tab-guide')?.classList.toggle('hidden', tab !== 'guide');
@@ -8951,8 +9034,8 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
     document.getElementById('sasang-photo-box')?.classList.toggle('hidden', isKnown);
     const bKnown = document.getElementById('btn-sasang-mode-known');
     const bPhoto = document.getElementById('btn-sasang-mode-photo');
-    if (bKnown) bKnown.className = `py-2 px-2 rounded-xl text-[11.5px] font-bold transition ${isKnown ? 'bg-emerald-500/35 text-white border border-emerald-300/60' : 'bg-white/5 text-emerald-200/85 border border-emerald-300/25'}`;
-    if (bPhoto) bPhoto.className = `py-2 px-2 rounded-xl text-[11.5px] font-bold transition ${!isKnown ? 'bg-emerald-500/35 text-white border border-emerald-300/60' : 'bg-white/5 text-emerald-200/85 border border-emerald-300/25'}`;
+    if (bKnown) bKnown.className = `py-2 px-2 rounded-xl text-[11.5px] transition ${isKnown ? 'font-extrabold bg-[#1c5742] text-[#fef9e7] border border-[#143d2e] shadow-sm' : 'font-bold bg-[#fbf7ec] text-[#1d4637] border border-[#235c47]/35'}`;
+    if (bPhoto) bPhoto.className = `py-2 px-2 rounded-xl text-[11.5px] transition ${!isKnown ? 'font-extrabold bg-[#1c5742] text-[#fef9e7] border border-[#143d2e] shadow-sm' : 'font-bold bg-[#fbf7ec] text-[#1d4637] border border-[#235c47]/35'}`;
   }
   document.getElementById('btn-sasang-mode-known')?.addEventListener('click', () => setSasangMode('known'));
   document.getElementById('btn-sasang-mode-photo')?.addEventListener('click', () => setSasangMode('photo'));
@@ -8963,7 +9046,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       state.sasangType = btn.dataset.sasangType;
       document.querySelectorAll('.sasang-type-btn').forEach(b => {
         const act = b.dataset.sasangType === state.sasangType;
-        b.className = `sasang-type-btn py-2.5 px-2.5 rounded-xl text-left transition ${act ? 'bg-emerald-500/35 border border-amber-300/70 shadow' : 'bg-white/5 border border-emerald-300/25 hover:border-amber-300/60'}`;
+        b.className = `sasang-type-btn py-2.5 px-2.5 rounded-xl text-left transition ${act ? 'bg-[#e6f3ec] border-2 border-[#1c5742] shadow-sm' : 'bg-[#fbf7ec] border border-[#235c47]/30 hover:border-[#b91c1c]'}`;
       });
     });
   });
