@@ -1281,7 +1281,7 @@
       inset: 0;
       width: 100%;
       height: 100%;
-      background-image: url('./src/assets/banquet/banquet_bg.jpg');
+      background-image: url('./src/assets/banquet/banquet_bg.jpg?v=5');
       background-size: cover;
       background-position: center 48%;
       overflow: hidden;
@@ -1310,6 +1310,37 @@
     }
     .banquet-chibi-slot.is-walking .banquet-chibi-img {
       animation: chibiWalkWaddle 0.42s ease-in-out infinite;
+    }
+    .banquet-pet-actor {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: none;
+      will-change: left, top;
+    }
+    .banquet-pet-img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.65));
+      transform: scaleX(var(--flip-x, 1));
+      transition: transform 0.22s ease;
+    }
+    .banquet-pet-actor.is-walking .banquet-pet-img {
+      animation: chibiWalkWaddle 0.34s ease-in-out infinite;
+    }
+    .banquet-pet-tag {
+      margin-top: -3px;
+      padding: 1px 5px;
+      border-radius: 9999px;
+      background: rgba(16, 12, 34, 0.78);
+      border: 1px solid rgba(110, 231, 183, 0.55);
+      color: #d1fae5;
+      font-size: 8.5px;
+      font-weight: 700;
+      white-space: nowrap;
     }
     .banquet-chibi-tag {
       margin-top: -4px;
@@ -1435,47 +1466,53 @@
   </div>
 
   <!-- ==================== TOP APP HEADER ==================== -->
-  <header class="relative z-30 flex items-center justify-between px-3.5 pt-3 pb-2 bg-gradient-to-b from-black/75 via-black/40 to-transparent">
-    <div class="flex flex-col items-start gap-1">
-      <button id="btn-open-auth" type="button" title="로그인 및 내 운세 기록" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/55 border border-[#e6c67c]/55 text-[11px] font-semibold text-[#f7e5be] hover:bg-black/75 transition">
-        <span id="auth-btn-icon">👤</span>
-        <span id="auth-btn-label">로그인</span>
-      </button>
-      <button id="btn-open-plus-top" type="button" title="운명플러스 구독 및 이용권" class="flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500/30 to-emerald-500/25 border border-amber-300/60 text-[10px] font-bold text-[#fde68a] hover:brightness-110 active:scale-95 transition">
-        <span>👑</span>
-        <span>운명플러스</span>
-      </button>
-      <button id="btn-toggle-hidden-voice" type="button" title="원래 보이스 / 히든 보이스 전환 (친밀도 Lv.3+)" class="hidden items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-rose-500/35 to-amber-500/30 border border-rose-300/65 text-[10px] font-extrabold text-rose-100 hover:brightness-110 active:scale-95 transition">
-        <span>💖</span>
-        <span id="hidden-voice-toggle-label">히든 보이스</span>
-      </button>
+  <header class="relative z-30 flex items-start justify-between gap-1 px-2.5 pt-2.5 pb-1.5 bg-gradient-to-b from-black/75 via-black/40 to-transparent">
+    <div class="flex flex-col items-start gap-1 shrink-0">
+      <div class="flex items-center gap-1">
+        <button id="btn-open-auth" type="button" title="로그인 및 내 운세 기록" class="flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/60 border border-[#e6c67c]/55 text-[10.5px] font-semibold text-[#f7e5be] hover:bg-black/75 transition whitespace-nowrap shrink-0">
+          <span id="auth-btn-icon">👤</span>
+          <span id="auth-btn-label">로그인</span>
+        </button>
+        <button id="btn-open-plus-top" type="button" title="운명플러스 구독 및 이용권" class="flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500/30 to-emerald-500/25 border border-amber-300/60 text-[10px] font-bold text-[#fde68a] hover:brightness-110 active:scale-95 transition whitespace-nowrap shrink-0">
+          <span>👑</span>
+          <span>플러스</span>
+        </button>
+      </div>
       <div id="left-skin-picker" class="mt-0.5">
-        <div class="flex items-center gap-0.5 p-0.5 rounded-full bg-black/65 border border-fuchsia-300/55 backdrop-blur-md shadow-md">
-          <button type="button" data-left-skin="default" class="left-skin-tab px-1.5 py-0.5 rounded-full text-[9px] font-extrabold transition">기본</button>
-          <button type="button" data-left-skin="sexy" class="left-skin-tab px-1.5 py-0.5 rounded-full text-[9px] font-extrabold transition">매혹</button>
-          <button type="button" data-left-skin="cute" class="left-skin-tab px-1.5 py-0.5 rounded-full text-[9px] font-extrabold transition">큐티</button>
-          <button type="button" data-left-skin="smart" class="left-skin-tab px-1.5 py-0.5 rounded-full text-[9px] font-extrabold transition">지적</button>
+        <div class="flex items-center gap-0.5 p-0.5 rounded-full bg-black/65 border border-fuchsia-300/55 backdrop-blur-md shadow-md whitespace-nowrap">
+          <button type="button" data-left-skin="default" class="left-skin-tab px-1.5 py-0.5 rounded-full text-[9.5px] font-extrabold transition whitespace-nowrap shrink-0">기본</button>
+          <button type="button" data-left-skin="sexy" class="left-skin-tab px-1.5 py-0.5 rounded-full text-[9.5px] font-extrabold transition whitespace-nowrap shrink-0">매혹</button>
+          <button type="button" data-left-skin="cute" class="left-skin-tab px-1.5 py-0.5 rounded-full text-[9.5px] font-extrabold transition whitespace-nowrap shrink-0">큐티</button>
+          <button type="button" data-left-skin="smart" class="left-skin-tab px-1.5 py-0.5 rounded-full text-[9.5px] font-extrabold transition whitespace-nowrap shrink-0">지적</button>
         </div>
       </div>
     </div>
 
-    <div class="text-center">
-      <h1 class="font-serif-kr text-[19px] font-bold tracking-wider text-[#f8e5ba] drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)]">운명 상점</h1>
+    <div class="text-center pt-0.5 shrink-0">
+      <h1 class="font-serif-kr text-[17px] font-bold tracking-wider text-[#f8e5ba] drop-shadow-[0_2px_8px_rgba(0,0,0,0.85)] whitespace-nowrap">운명 상점</h1>
     </div>
 
-    <div class="flex items-center gap-1">
-      <button id="btn-open-banquet-top" type="button" title="운명상점 연회장 입장" class="px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-500/30 to-rose-500/30 border border-amber-300/65 text-[11px] font-bold text-[#fef08a] hover:brightness-110 active:scale-95 transition">
-        🕯️ 연회장
-      </button>
-      <button id="btn-open-settings" type="button" title="환경 설정" class="w-7 h-7 rounded-full bg-black/55 border border-[#e6c67c]/50 flex items-center justify-center text-xs text-[#f3dfb1]">
-        ⚙️
-      </button>
-      <button id="btn-voice-speak" type="button" title="캐릭터 목소리 듣기/중지" class="px-2 py-1 rounded-full bg-amber-500/20 border border-amber-300/55 text-[10.5px] font-bold text-amber-100 hover:bg-amber-500/35 transition">
-        🗣️ 보이스
-      </button>
-      <button id="btn-toggle-sound" type="button" title="배경음·효과음 켜기/끄기" class="w-7 h-7 rounded-full bg-black/50 border border-[#e6c67c]/40 flex items-center justify-center text-xs text-[#f3dfb1]">
-        🔊
-      </button>
+    <div class="flex flex-col items-end gap-1 shrink-0">
+      <div class="flex items-center gap-1">
+        <button id="btn-open-banquet-top" type="button" title="운명상점 연회장 입장" class="px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500/30 to-rose-500/30 border border-amber-300/65 text-[10.5px] font-bold text-[#fef08a] hover:brightness-110 active:scale-95 transition whitespace-nowrap shrink-0">
+          🕯️ 연회장
+        </button>
+        <button id="btn-open-settings" type="button" title="환경 설정" class="w-6 h-6 rounded-full bg-black/55 border border-[#e6c67c]/50 flex items-center justify-center text-[11px] text-[#f3dfb1] shrink-0">
+          ⚙️
+        </button>
+        <button id="btn-toggle-sound" type="button" title="배경음·효과음 켜기/끄기" class="w-6 h-6 rounded-full bg-black/50 border border-[#e6c67c]/40 flex items-center justify-center text-[11px] text-[#f3dfb1] shrink-0">
+          🔊
+        </button>
+      </div>
+      <div class="flex items-center gap-1">
+        <button id="btn-toggle-hidden-voice" type="button" title="원래 보이스 / 히든 보이스 전환 (친밀도 Lv.3+)" class="hidden items-center gap-0.5 px-2 py-0.5 rounded-full bg-gradient-to-r from-rose-500/35 to-amber-500/30 border border-rose-300/65 text-[9.5px] font-extrabold text-rose-100 hover:brightness-110 active:scale-95 transition whitespace-nowrap shrink-0">
+          <span>💖</span>
+          <span id="hidden-voice-toggle-label">히든 보이스</span>
+        </button>
+        <button id="btn-voice-speak" type="button" title="캐릭터 목소리 듣기/중지" class="px-2 py-0.5 rounded-full bg-amber-500/25 border border-amber-300/60 text-[10px] font-bold text-amber-100 hover:bg-amber-500/40 transition whitespace-nowrap shrink-0">
+          🗣️ 보이스
+        </button>
+      </div>
     </div>
   </header>
 
@@ -11149,67 +11186,77 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
 
     // 9 Harmonious Floor Positions arranged in a cozy arc around the Center Wish Candle!
     const CHIBI_POSITIONS = [
-      { left: '50%', top: '86%', z: 18, scale: 1.15 }, // 0 연화 (정면 중앙)
-      { left: '22%', top: '79%', z: 16, scale: 1.06 }, // 1 루미 (앞 좌)
-      { left: '78%', top: '79%', z: 16, scale: 1.06 }, // 2 스텔라 (앞 우)
-      { left: '17%', top: '65%', z: 14, scale: 1.00 }, // 3 셀레네 (중 좌)
-      { left: '83%', top: '65%', z: 14, scale: 1.00 }, // 4 하린 (중 우)
-      { left: '33%', top: '59%', z: 13, scale: 0.96 }, // 5 아린 (안쪽 좌)
-      { left: '67%', top: '59%', z: 13, scale: 0.96 }, // 6 서연 (안쪽 우)
-      { left: '21%', top: '51%', z: 11, scale: 0.94 }, // 7 다온 (뒤 좌)
-      { left: '79%', top: '51%', z: 11, scale: 0.94 }  // 8 몽화 (뒤 우)
+      { left: '50%', top: '86%', z: 86, scale: 1.06 }, // 0 연화
+      { left: '22%', top: '79%', z: 79, scale: 1.02 }, // 1 루미
+      { left: '78%', top: '79%', z: 79, scale: 1.02 }, // 2 스텔라
+      { left: '16%', top: '62%', z: 62, scale: 0.98 }, // 3 셀레네
+      { left: '84%', top: '62%', z: 62, scale: 0.98 }, // 4 하린
+      { left: '25%', top: '45%', z: 45, scale: 0.94 }, // 5 아린
+      { left: '75%', top: '45%', z: 45, scale: 0.94 }, // 6 서연
+      { left: '36%', top: '38%', z: 38, scale: 0.92 }, // 7 다온
+      { left: '64%', top: '38%', z: 38, scale: 0.92 }  // 8 몽화
+    ];
+    const PET_INIT_POSITIONS = [
+      { left: '37%', top: '90%' }, { left: '14%', top: '87%' }, { left: '86%', top: '87%' },
+      { left: '28%', top: '69%' }, { left: '72%', top: '69%' }, { left: '15%', top: '50%' },
+      { left: '85%', top: '50%' }, { left: '48%', top: '36%' }, { left: '62%', top: '90%' }
     ];
 
-        let banquetRoamTimers = [];
+            let banquetRoamTimers = [];
     function stopBanquetRoaming() {
       banquetRoamTimers.forEach((id) => clearTimeout(id));
       banquetRoamTimers = [];
     }
 
-    // Safe circular floor waypoints around the Wish Candle (avoids center candle pedestal)
+    // Top-down 3/4 circular zodiac floor waypoints (avoids center Wish Candle at left 40..60%, top 43..60%)
     const ROAM_SPOTS = [
-      { left: 50, top: 87 }, { left: 36, top: 85 }, { left: 64, top: 85 },
-      { left: 20, top: 81 }, { left: 80, top: 81 }, { left: 28, top: 75 },
-      { left: 72, top: 75 }, { left: 16, top: 68 }, { left: 84, top: 68 },
-      { left: 26, top: 63 }, { left: 74, top: 63 }, { left: 18, top: 56 },
-      { left: 82, top: 56 }, { left: 31, top: 56 }, { left: 69, top: 56 },
-      { left: 22, top: 50 }, { left: 78, top: 50 }
+      { left: 50, top: 88 }, { left: 34, top: 87 }, { left: 66, top: 87 },
+      { left: 18, top: 82 }, { left: 82, top: 82 }, { left: 26, top: 75 },
+      { left: 74, top: 75 }, { left: 15, top: 68 }, { left: 85, top: 68 },
+      { left: 26, top: 64 }, { left: 74, top: 64 }, { left: 16, top: 55 },
+      { left: 84, top: 55 }, { left: 22, top: 46 }, { left: 78, top: 46 },
+      { left: 32, top: 39 }, { left: 68, top: 39 }, { left: 48, top: 36 },
+      { left: 40, top: 74 }, { left: 60, top: 74 }
     ];
 
     function startBanquetRoaming() {
       stopBanquetRoaming();
       if (!banquetMount) return;
-      const slots = Array.from(banquetMount.querySelectorAll('.banquet-chibi-slot[data-unlocked="1"]'));
-      slots.forEach((slot, orderIdx) => {
+      const actors = Array.from(banquetMount.querySelectorAll('.banquet-chibi-slot[data-unlocked="1"], .banquet-pet-actor'));
+      actors.forEach((slot, orderIdx) => {
+        const isPet = slot.classList.contains('banquet-pet-actor');
         let curLeft = parseFloat(slot.dataset.curLeft || '50');
         let curTop = parseFloat(slot.dataset.curTop || '78');
 
         function scheduleNextMove() {
           if (!banquetOpen) return;
-          const waitMs = 1800 + Math.random() * 2600 + orderIdx * 160;
+          const waitMs = (isPet ? 1100 : 1800) + Math.random() * (isPet ? 1900 : 2500) + orderIdx * 110;
           const tid = setTimeout(() => {
             if (!banquetOpen) return;
-            // Pick a nearby floor spot for natural 2D strolling
             const candidates = ROAM_SPOTS.filter((sp) => {
               const d = Math.hypot(sp.left - curLeft, sp.top - curTop);
-              return d >= 10 && d <= 36;
+              return d >= 9 && d <= (isPet ? 34 : 38);
             });
-            const next = (candidates.length ? candidates : ROAM_SPOTS)[Math.floor(Math.random() * (candidates.length || ROAM_SPOTS.length))];
-            const dx = next.left - curLeft;
-            const dist = Math.hypot(dx, next.top - curTop);
-            const durSec = Math.max(1.5, Math.min(3.4, dist * 0.095));
+            const pool = candidates.length ? candidates : ROAM_SPOTS;
+            const next = pool[Math.floor(Math.random() * pool.length)];
+            // Add slight organic jitter so chibis & pets never stack on the exact same pixel
+            const jL = Math.max(12, Math.min(88, next.left + (Math.random() * 6 - 3)));
+            const jT = Math.max(35, Math.min(91, next.top + (Math.random() * 4 - 2)));
+            const dx = jL - curLeft;
+            const dist = Math.hypot(dx, jT - curTop);
+            const durSec = Math.max(isPet ? 1.1 : 1.5, Math.min(isPet ? 2.5 : 3.4, dist * (isPet ? 0.075 : 0.095)));
 
             slot.style.transition = `left ${durSec.toFixed(2)}s ease-in-out, top ${durSec.toFixed(2)}s ease-in-out`;
-            slot.style.left = `${next.left}%`;
-            slot.style.top = `${next.top}%`;
-            slot.style.zIndex = String(Math.round(next.top));
+            slot.style.left = `${jL.toFixed(1)}%`;
+            slot.style.top = `${jT.toFixed(1)}%`;
+            slot.style.zIndex = String(Math.round(jT));
             slot.classList.add('is-walking');
-            const img = slot.querySelector('.banquet-chibi-img');
+            const img = slot.querySelector('img');
             if (img && Math.abs(dx) > 1.5) {
               img.style.setProperty('--flip-x', dx < 0 ? '-1' : '1');
             }
-            curLeft = next.left;
-            curTop = next.top;
+            curLeft = jL;
+            curTop = jT;
             slot.dataset.curLeft = String(curLeft);
             slot.dataset.curTop = String(curTop);
 
@@ -11229,16 +11276,20 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       if (!banquetMount) return;
       stopBanquetRoaming();
       let unlockedCount = 0;
+      let petCount = 0;
       let slotsHtml = '';
 
       CHARACTERS.forEach((c, idx) => {
         const lv = getAffinityLevel(c.id);
         const unlocked = lv >= 5;
+        const petUnlocked = lv >= 2;
         if (unlocked) unlockedCount++;
-        const pos = CHIBI_POSITIONS[idx] || { left: '50%', top: '80%', z: 14, scale: 1 };
+        if (petUnlocked) petCount++;
+
+        const pos = CHIBI_POSITIONS[idx] || { left: '50%', top: '80%', z: 80, scale: 1 };
         const leftNum = parseFloat(pos.left);
         const topNum = parseFloat(pos.top);
-        const sizePx = Math.round(82 * pos.scale);
+        const sizePx = Math.round(76 * pos.scale);
 
         if (unlocked) {
           slotsHtml += `
@@ -11248,17 +11299,30 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
             </div>`;
         } else {
           slotsHtml += `
-            <div data-chibi-idx="${idx}" data-unlocked="0" class="banquet-chibi-slot" style="left:${pos.left}; top:${pos.top}; z-index:${pos.z};">
+            <div data-chibi-idx="${idx}" data-unlocked="0" class="banquet-chibi-slot" style="left:${pos.left}; top:${pos.top}; z-index:${Math.round(topNum)};">
               <div class="banquet-locked-seat">🔒 ${c.name}</div>
+            </div>`;
+        }
+
+        // Lv.2+ Adopted 2D Mini Pet roaming alongside masters on the top-down floor!
+        if (petUnlocked) {
+          const pPos = PET_INIT_POSITIONS[idx] || { left: '50%', top: '88%' };
+          const pL = parseFloat(pPos.left);
+          const pT = parseFloat(pPos.top);
+          const petName = c.pet?.name || `${c.name} 펫`;
+          slotsHtml += `
+            <div data-pet-idx="${idx}" data-cur-left="${pL}" data-cur-top="${pT}" class="banquet-pet-actor" style="left:${pPos.left}; top:${pPos.top}; z-index:${Math.round(pT)};">
+              <img src="./src/assets/banquet/pet_${c.id}.png?v=1" alt="${petName}" class="banquet-pet-img" />
+              <span class="banquet-pet-tag">🐾 ${petName}</span>
             </div>`;
         }
       });
 
       banquetMount.innerHTML = `
         <div id="banquet-2d-stage">
-          <img src="./src/assets/banquet/banquet_bg.jpg?v=3" alt="" class="absolute inset-0 w-full h-full object-cover pointer-events-none select-none" style="object-position:center 48%;" />
-          <button id="banquet-candle-hotspot" type="button" title="소원초 열기">
-            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-950/85 border border-amber-300/75 text-amber-100 shadow-lg">🕯️ 소원초</span>
+          <img src="./src/assets/banquet/banquet_bg.jpg?v=5" alt="" class="absolute inset-0 w-full h-full object-cover pointer-events-none select-none" style="object-position:center center;" />
+          <button id="banquet-candle-hotspot" type="button" title="소원초 열기" style="left:50%; top:49%;">
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-950/85 border border-amber-300/75 text-amber-100 shadow-lg whitespace-nowrap">🕯️ 소원초</span>
           </button>
           ${slotsHtml}
         </div>
@@ -11269,14 +11333,14 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
         if (typeof window.openWishCandleDrawer === 'function') window.openWishCandleDrawer();
       });
 
-      if (banquetUnlockedBadge) banquetUnlockedBadge.textContent = `${unlockedCount} / ${CHARACTERS.length}명`;
+      if (banquetUnlockedBadge) banquetUnlockedBadge.textContent = `캐릭터 ${unlockedCount}/9 · 펫 ${petCount}/9`;
 
       if (banquetDock) {
         banquetDock.innerHTML = CHARACTERS.map((c, idx) => {
           const lv = getAffinityLevel(c.id);
           const unlocked = lv >= 5;
           const isSel = (idx === bFocusedIdx);
-          return `<button type="button" data-bdock-idx="${idx}" class="px-2.5 py-1.5 rounded-full text-[11px] font-bold shrink-0 border transition active:scale-95 ${
+          return `<button type="button" data-bdock-idx="${idx}" class="px-2.5 py-1.5 rounded-full text-[11px] font-bold shrink-0 border transition active:scale-95 whitespace-nowrap ${
             isSel
               ? 'bg-gradient-to-r from-amber-400/45 to-rose-400/40 border-amber-200 text-white shadow-md'
               : (unlocked ? 'bg-amber-400/20 border-amber-300/60 text-amber-100' : 'bg-white/5 border-white/15 text-slate-400')
@@ -11286,11 +11350,10 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
           b.addEventListener('click', () => {
             const idx = parseInt(b.dataset.bdockIdx, 10);
             handleBanquetChibiTap(idx, false);
-            // Highlight selected chip in bottom dock
             banquetDock.querySelectorAll('[data-bdock-idx]').forEach((el) => {
               const eIdx = parseInt(el.dataset.bdockIdx, 10);
               const u = getAffinityLevel(CHARACTERS[eIdx].id) >= 5;
-              el.className = `px-2.5 py-1.5 rounded-full text-[11px] font-bold shrink-0 border transition active:scale-95 ${
+              el.className = `px-2.5 py-1.5 rounded-full text-[11px] font-bold shrink-0 border transition active:scale-95 whitespace-nowrap ${
                 eIdx === idx
                   ? 'bg-gradient-to-r from-amber-400/45 to-rose-400/40 border-amber-200 text-white shadow-md'
                   : (u ? 'bg-amber-400/20 border-amber-300/60 text-amber-100' : 'bg-white/5 border-white/15 text-slate-400')
@@ -11853,7 +11916,7 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
         picker.querySelectorAll('.left-skin-tab').forEach((btn) => {
           const m = btn.dataset.leftSkin;
           const act = m === curMode;
-          btn.className = `left-skin-tab px-1.5 py-0.5 rounded-full text-[9px] font-extrabold transition ${
+          btn.className = `left-skin-tab px-1.5 py-0.5 rounded-full text-[9.5px] font-extrabold transition whitespace-nowrap shrink-0 ${
             act ? MODE_META[m].activeCls + ' border' : 'text-slate-300 hover:text-white'
           }`;
         });
@@ -11874,8 +11937,8 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
         btn.classList.add('flex');
         lbl.textContent = on ? '히든 보이스 ON' : '원래 보이스';
         btn.className = on
-          ? 'flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-rose-500/35 to-amber-500/30 border border-rose-300/65 text-[10px] font-extrabold text-rose-100 hover:brightness-110 active:scale-95 transition'
-          : 'flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-black/55 border border-white/25 text-[10px] font-bold text-slate-200 hover:bg-black/75 active:scale-95 transition';
+          ? 'flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-gradient-to-r from-rose-500/35 to-amber-500/30 border border-rose-300/65 text-[9.5px] font-extrabold text-rose-100 hover:brightness-110 active:scale-95 transition whitespace-nowrap shrink-0'
+          : 'flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-black/55 border border-white/25 text-[9.5px] font-bold text-slate-200 hover:bg-black/75 active:scale-95 transition whitespace-nowrap shrink-0';
       } else {
         btn.classList.add('hidden');
         btn.classList.remove('flex');
