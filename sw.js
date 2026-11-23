@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fortune-shop-pwa-v11';
+const CACHE_NAME = 'fortune-shop-pwa-v12';
 const CORE_ASSETS = ['/manifest.json', '/icon-192.png', '/icon-512.png', '/og-preview.jpg'];
 
 self.addEventListener('install', (e) => {

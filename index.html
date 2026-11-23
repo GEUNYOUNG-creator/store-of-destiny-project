@@ -11202,7 +11202,8 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
       { left: '85%', top: '50%' }, { left: '50%', top: '33%' }, { left: '62%', top: '90%' }
     ];
 
-                let banquetRoamTimers = [];
+                const petLivePos = {}; // Persists each pet's live { left, top, flipX } across outfit changes & shop visits!
+    let banquetRoamTimers = [];
     function stopBanquetRoaming() {
       banquetRoamTimers.forEach((id) => clearTimeout(id));
       banquetRoamTimers = [];
@@ -11257,6 +11258,14 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
             curTop = jT;
             slot.dataset.curLeft = String(curLeft);
             slot.dataset.curTop = String(curTop);
+            const petCid = slot.dataset.petCid;
+            if (petCid) {
+              petLivePos[petCid] = {
+                left: curLeft,
+                top: curTop,
+                flipX: (Math.abs(dx) > 1.5) ? (dx < 0 ? '-1' : '1') : (petLivePos[petCid]?.flipX || '1')
+              };
+            }
 
             const stopTid = setTimeout(() => {
               slot.classList.remove('is-walking');
@@ -11322,13 +11331,16 @@ ${opts.healthDiet ? opts.healthDiet + '\n' : ''}몸에 이로운 음식으로는
         }
 
         if (petUnlocked) {
+          const savedP = petLivePos[c.id];
           const pPos = PET_INIT_POSITIONS[idx] || { left: '50%', top: '88%' };
-          const pL = parseFloat(pPos.left);
-          const pT = parseFloat(pPos.top);
+          const pL = savedP ? savedP.left : parseFloat(pPos.left);
+          const pT = savedP ? savedP.top : parseFloat(pPos.top);
+          const pFlip = savedP ? (savedP.flipX || '1') : '1';
+          petLivePos[c.id] = { left: pL, top: pT, flipX: pFlip };
           const petName = c.pet?.name || `${c.name} 펫`;
           slotsHtml += `
-            <div data-pet-idx="${idx}" data-cur-left="${pL}" data-cur-top="${pT}" class="banquet-pet-actor" style="left:${pPos.left}; top:${pPos.top}; z-index:${Math.round(pT)};">
-              <img src="./src/assets/banquet/pet_${c.id}.png?v=2" alt="${petName}" class="banquet-pet-img" />
+            <div data-pet-idx="${idx}" data-pet-cid="${c.id}" data-cur-left="${pL}" data-cur-top="${pT}" class="banquet-pet-actor" style="left:${pL.toFixed(1)}%; top:${pT.toFixed(1)}%; z-index:${Math.round(pT)};">
+              <img src="./src/assets/banquet/pet_${c.id}.png?v=2" alt="${petName}" class="banquet-pet-img" style="--flip-x:${pFlip};" />
               <span class="banquet-pet-tag">🐾 ${petName}</span>
             </div>`;
         }
