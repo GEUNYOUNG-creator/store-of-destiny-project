@@ -1038,6 +1038,111 @@
     }
     #admob-banner-slot.hidden-plus { display: none; }
 
+
+    /* ==================== CHARACTER-THEMED OBJECT INPUT FRAMES (HIGH READABILITY) ==================== */
+    /* 5. 아린 · 청동거울 관상 프레임 (Antique Bronze Mirror Bezel) */
+    .face-study-card {
+      position: relative;
+      border-radius: 34px 34px 20px 20px !important;
+      border: 2.5px solid #c9a255 !important;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.45), inset 0 0 0 3px rgba(201,162,85,0.28), inset 0 18px 34px rgba(255,250,230,0.45) !important;
+      overflow: hidden;
+    }
+    .face-study-card::before {
+      content: '🪞 청동거울';
+      display: block;
+      width: fit-content;
+      margin: -4px auto 8px auto;
+      padding: 2px 12px;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, #6e4e1e, #b88b3d, #6e4e1e);
+      color: #fff6db;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      box-shadow: 0 2px 8px rgba(110,78,30,0.45);
+    }
+
+    /* 6. 서연 · 황금 돋보기 손금 프레임 (Golden Magnifying Loupe Lens) */
+    .palm-atelier-card {
+      position: relative;
+      border-radius: 28px !important;
+      border: 2.5px solid rgba(240, 198, 102, 0.82) !important;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.52), inset 0 0 0 3px rgba(94,234,212,0.18), inset 0 0 36px rgba(251,191,36,0.08) !important;
+      overflow: hidden;
+    }
+    .palm-atelier-card::before {
+      content: '🔍 황금 돋보기 렌즈';
+      display: block;
+      width: fit-content;
+      margin: -2px auto 8px auto;
+      padding: 2px 12px;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, rgba(15,118,110,0.9), rgba(217,158,48,0.85));
+      border: 1px solid rgba(253,230,138,0.65);
+      color: #fef9c3;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+    }
+    .palm-atelier-card::after {
+      content: '';
+      position: absolute;
+      right: -28px;
+      bottom: -28px;
+      width: 110px;
+      height: 110px;
+      border-radius: 9999px;
+      border: 2px dashed rgba(251, 191, 36, 0.25);
+      pointer-events: none;
+    }
+
+    /* 7. 다온 · 어약방 옥빛 처방전·약장 프레임 (Korean Apothecary Jade Scroll) */
+    .sasang-card-frame {
+      position: relative;
+      background: linear-gradient(155deg, rgba(14, 48, 39, 0.96), rgba(9, 27, 24, 0.98)) !important;
+      border: 2px solid rgba(110, 231, 183, 0.58) !important;
+      border-radius: 22px !important;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.48), inset 0 0 0 3px rgba(230,198,124,0.16) !important;
+    }
+    .sasang-card-frame::before {
+      content: '🌿 어약방 사상체질 처방전';
+      display: block;
+      width: fit-content;
+      margin: -6px auto 8px auto;
+      padding: 2px 12px;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, #115e4b, #1d7a62);
+      border: 1px solid rgba(230,198,124,0.55);
+      color: #fef3c7;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+    }
+
+    /* 8. 몽화 · 달빛 드림캐처 꿈일기장 프레임 (Moonlit Dreamcatcher Diary) */
+    .dream-card-frame {
+      position: relative;
+      background: linear-gradient(155deg, rgba(35, 20, 72, 0.96), rgba(15, 10, 34, 0.98)) !important;
+      border: 2px solid rgba(196, 181, 253, 0.60) !important;
+      border-radius: 26px 26px 20px 20px !important;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.52), inset 0 0 0 3px rgba(253,224,71,0.12), inset 0 16px 32px rgba(167,139,250,0.12) !important;
+    }
+    .dream-card-frame::before {
+      content: '🌙 달빛 드림캐처 해몽서';
+      display: block;
+      width: fit-content;
+      margin: -6px auto 8px auto;
+      padding: 2px 12px;
+      border-radius: 9999px;
+      background: linear-gradient(90deg, #4c1d95, #7c3aed, #4c1d95);
+      border: 1px solid rgba(253,224,71,0.55);
+      color: #fef9c3;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+    }
+
   </style>
 </head>
 <body>
@@ -1147,7 +1252,7 @@
         <div class="hazard-stripe h-3.5 w-full"></div>
         <div class="px-4 py-4">
           <div class="text-3xl mb-1.5">🚧</div>
-          <div class="inline-block px-2.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-300/50 text-[10px] font-bold text-amber-200 tracking-wider mb-1.5">MINI PET UNDER CONSTRUCTION</div>
+          <div class="inline-block px-2.5 py-0.5 rounded-full bg-amber-400/20 border border-amber-300/50 text-[10px] font-bold text-amber-200 tracking-wider mb-1.5">미니 펫 준비 중</div>
           <h3 id="construction-title" class="font-serif-kr text-base font-extrabold text-[#fff1cc]">미니 캐릭터 공사중</h3>
           <p id="construction-desc" class="text-[11.5px] text-amber-100/80 mt-1.5 leading-relaxed">
             아직 미니 펫이 열심히 만들어지고 있어요!<br>아래 구슬을 <strong>위로 스와이프</strong>해 마스터로 돌아가거나 좌우로 다른 펫을 만나보세요.
@@ -1250,8 +1355,7 @@
         </div>
 
         <div class="mt-2.5 pr-12">
-          <input id="saju-question" type="text" placeholder="🏮 연화에게 묻고 싶은 사주 고민 (선택)" class="char-q-input bg-white/60 border border-[#527060]/45 text-[#1c2620] placeholder-[#5e7366]" />
-        </div>
+</div>
 
         <div class="fortune-mini-flag" title="부귀영화 · 무병장수">
           <div class="text-[9px] text-[#6b4226] mb-0.5">☯</div>
@@ -1397,9 +1501,7 @@
               </div>
             </div>
           </div>
-
-          <input id="blood-question" type="text" placeholder="💌 루미의 비밀노트에 적을 연애 고민 (선택)" class="char-q-input mb-2.5 bg-white/85 border border-pink-300 text-rose-950 placeholder-rose-400/80" />
-          <button id="btn-run-blood" type="button" class="w-full py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#5a1736] via-[#a32255] to-[#e0427b] text-white shadow-md active:scale-95 transition">
+<button id="btn-run-blood" type="button" class="w-full py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#5a1736] via-[#a32255] to-[#e0427b] text-white shadow-md active:scale-95 transition">
             비밀 노트 궁합 펼쳐보기 ♥
           </button>
         </div>
@@ -1473,8 +1575,7 @@
       </div>
 
       <div class="px-0.5">
-        <input id="zodiac-question" type="text" placeholder="✨ 스텔라에게 별빛으로 묻고 싶은 질문 (선택)" class="char-q-input bg-black/35 border border-amber-300/35 text-violet-100 placeholder-violet-300/60" />
-      </div>
+</div>
       <div id="zodiac-inline-result" class="rounded-2xl p-3.5 bg-[#0a1d3d]/65 border border-sky-300/35"></div>
     </div>
 
@@ -1492,10 +1593,7 @@
           <button type="button" data-topic="work" class="tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold bg-black/25 border border-rose-200/20 text-rose-200/80">재물·일</button>
           <button type="button" data-topic="advice" class="tarot-topic-btn py-1.5 rounded-lg text-[11px] font-semibold bg-black/25 border border-rose-200/20 text-rose-200/80">고민조언</button>
         </div>
-
-        <input id="tarot-question" type="text" placeholder="🕯️ 수정구슬에 속삭일 질문을 적어보세요 (선택)" class="char-q-input mb-2.5 bg-[#160510]/85 border border-[#e6c373]/45 text-amber-50 placeholder-rose-200/55" />
-
-        <button id="btn-tarot-reset" type="button" class="w-full py-2.5 mb-2 rounded-xl font-serif-kr font-bold text-sm bg-gradient-to-r from-[#5e1738] via-[#83214d] to-[#5e1738] text-amber-100 border border-amber-300/70 shadow-lg active:scale-95 transition">
+<button id="btn-tarot-reset" type="button" class="w-full py-2.5 mb-2 rounded-xl font-serif-kr font-bold text-sm bg-gradient-to-r from-[#5e1738] via-[#83214d] to-[#5e1738] text-amber-100 border border-amber-300/70 shadow-lg active:scale-95 transition">
           ✨ 타로카드 펼치기 (메이저 아르카나 22장)
         </button>
 
@@ -1550,9 +1648,7 @@
               <div class="grid grid-cols-4 gap-1" id="mbti-you-toggles"></div>
             </div>
           </div>
-
-          <input id="mbti-question" type="text" placeholder="📝 하린 선생님께 털어놓고 싶은 관계 고민 (선택)" class="char-q-input mb-2.5 bg-white border border-slate-300 text-slate-800 placeholder-slate-400" />
-          <button id="btn-run-mbti" type="button" class="w-full py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#3b5b92] to-[#5678b8] text-white shadow-md active:scale-95 transition">
+<button id="btn-run-mbti" type="button" class="w-full py-2.5 rounded-xl font-bold text-sm bg-gradient-to-r from-[#3b5b92] to-[#5678b8] text-white shadow-md active:scale-95 transition">
             하린의 심리 궁합 처방전 받기 💙
           </button>
         </div>
@@ -1602,10 +1698,7 @@
             <img id="face-preview-img" src="" alt="업로드된 얼굴 사진" class="h-full w-full object-cover" />
             <span class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded-full bg-black/70 text-[10px] text-amber-200">사진 준비됨 ✓</span>
           </div>
-
-          <input id="face-question" type="text" placeholder="궁금한 점 (예: 올해 재물운과 인복이 궁금해요)" class="w-full mb-2.5 px-3 py-2 rounded-xl text-xs bg-white/85 border border-[#b9a57c] text-[#231e16] focus:outline-none placeholder-[#8c7b62]" />
-
-          <button id="btn-run-face" type="button" class="w-full py-2.5 rounded-xl font-serif-kr font-bold text-sm bg-gradient-to-r from-[#164a3b] to-[#246954] text-[#fae9c3] border border-[#d6b266] shadow-md active:scale-95 transition">
+<button id="btn-run-face" type="button" class="w-full py-2.5 rounded-xl font-serif-kr font-bold text-sm bg-gradient-to-r from-[#164a3b] to-[#246954] text-[#fae9c3] border border-[#d6b266] shadow-md active:scale-95 transition">
             관상 분석 & 미래 배우자 얼굴 그리기 ✨
           </button>
         </div>
@@ -1669,10 +1762,7 @@
               <span class="text-amber-300 font-bold">● 운명선</span>
             </div>
           </div>
-
-          <input id="palm-question" type="text" placeholder="궁금한 점 (예: 연애선과 재물선이 궁금해요)" class="w-full mb-2.5 px-3 py-2 rounded-xl text-xs bg-black/35 border border-teal-300/35 text-white focus:outline-none placeholder-teal-200/50" />
-
-          <button id="btn-run-palm" type="button" class="w-full py-2.5 rounded-xl font-serif-kr font-bold text-sm bg-gradient-to-r from-teal-500 to-emerald-500 text-white border border-amber-200/50 shadow-lg active:scale-95 transition">
+<button id="btn-run-palm" type="button" class="w-full py-2.5 rounded-xl font-serif-kr font-bold text-sm bg-gradient-to-r from-teal-500 to-emerald-500 text-white border border-amber-200/50 shadow-lg active:scale-95 transition">
             황금 돋보기로 손금 읽기 ✦
           </button>
         </div>
@@ -1693,7 +1783,7 @@
       <div class="sasang-card-frame p-4">
         <div class="flex items-center justify-between mb-2">
           <div>
-            <div class="text-[10px] font-bold tracking-wider text-emerald-300 uppercase">Sasang Medicine · Four Constitutions</div>
+            <div class="text-[10px] font-bold tracking-wider text-emerald-300">동의수세보원 사상체질 한의원</div>
             <h2 class="font-serif-kr text-lg font-extrabold text-[#ecfdf5]">🌿 다온의 사상의학 체질관</h2>
           </div>
           <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-400/20 text-emerald-100 border border-emerald-300/45">동의수세보원 4체질</span>
@@ -1733,8 +1823,7 @@
                 <div class="text-[10px] text-emerald-100/75 mt-0.5">신대비소 · 섬세한 지혜형</div>
               </button>
             </div>
-            <input id="sasang-known-question" type="text" placeholder="궁금한 건강·체질 고민 (예: 다이어트 방법이나 잘 맞는 음식이 궁금해요)" class="w-full px-3 py-2 rounded-xl text-xs bg-black/35 border border-emerald-300/35 text-white focus:outline-none placeholder-emerald-200/45" />
-            <button id="btn-run-sasang-known" type="button" class="w-full py-2.5 rounded-xl font-serif-kr font-bold text-sm bg-gradient-to-r from-emerald-500 to-teal-500 text-white border border-amber-200/55 shadow-lg active:scale-95 transition">
+<button id="btn-run-sasang-known" type="button" class="w-full py-2.5 rounded-xl font-serif-kr font-bold text-sm bg-gradient-to-r from-emerald-500 to-teal-500 text-white border border-amber-200/55 shadow-lg active:scale-95 transition">
               선택한 체질 상세 특징 & 맞춤 양생법 보기 ✦
             </button>
           </div>
@@ -1764,9 +1853,7 @@
                 <span class="text-rose-300 font-bold">● 골반·하체</span>
               </div>
             </div>
-
-            <input id="sasang-photo-question" type="text" placeholder="궁금한 점 (예: 제 체질에 맞는 운동과 식단이 궁금해요)" class="w-full px-3 py-2 rounded-xl text-xs bg-black/35 border border-emerald-300/35 text-white focus:outline-none placeholder-emerald-200/45" />
-            <button id="btn-run-sasang-vision" type="button" class="w-full py-2.5 rounded-xl font-serif-kr font-bold text-sm bg-gradient-to-r from-emerald-500 via-teal-500 to-amber-500 text-white border border-amber-200/60 shadow-lg active:scale-95 transition">
+<button id="btn-run-sasang-vision" type="button" class="w-full py-2.5 rounded-xl font-serif-kr font-bold text-sm bg-gradient-to-r from-emerald-500 via-teal-500 to-amber-500 text-white border border-amber-200/60 shadow-lg active:scale-95 transition">
               전신 사상체질 판별하기 ✦
             </button>
           </div>
@@ -1789,7 +1876,7 @@
       <div class="dream-card-frame p-4 space-y-3">
         <div class="flex items-center justify-between">
           <div>
-            <div class="text-[10px] font-bold tracking-wider text-violet-300 uppercase">Dream Interpreter · Moonlight Studio</div>
+            <div class="text-[10px] font-bold tracking-wider text-violet-300">달빛 드림캐처 꿈 해몽소</div>
             <h2 class="font-serif-kr text-lg font-extrabold text-[#f5f3ff]">🌙 몽화의 달빛 꿈 해몽관</h2>
           </div>
           <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-violet-400/20 text-violet-100 border border-violet-300/45">길몽 · 흉몽 · 심리</span>
@@ -1912,7 +1999,7 @@
       <div class="w-10 h-1 bg-white/25 rounded-full mx-auto"></div>
       <div class="flex items-center justify-between gap-2">
         <div>
-          <div class="text-[10px] font-bold tracking-wider text-emerald-300 uppercase">Crystal Orb Navigator</div>
+          <div class="text-[10px] font-bold tracking-wider text-emerald-300">운명상점 9인 마스터</div>
           <h3 class="font-serif-kr text-base font-bold text-[#fae6b8]">🔮 운명상점 캐릭터 네비게이터</h3>
         </div>
         <div class="flex items-center gap-1.5">
@@ -1931,7 +2018,7 @@
       <div class="w-10 h-1 bg-white/25 rounded-full mx-auto"></div>
       <div class="flex items-center justify-between">
         <div>
-          <div class="text-[10px] font-bold tracking-wider text-amber-300 uppercase">Destiny Plus &amp; Pass</div>
+          <div class="text-[10px] font-bold tracking-wider text-amber-300">운명상점 프리미엄 패스</div>
           <h3 id="paywall-title" class="font-serif-kr text-base font-bold text-[#fae6b8]">✨ 운명플러스 · 심층 리딩 열기</h3>
         </div>
         <button id="btn-close-paywall" type="button" class="w-8 h-8 rounded-full bg-white/10 text-white/80 flex items-center justify-center">✕</button>
@@ -1957,7 +2044,7 @@
       <!-- Option 2: Destiny Plus Monthly Subscription -->
       <div class="rounded-2xl bg-gradient-to-br from-[#2a1f4d] via-[#1c2848] to-[#122a27] border-2 border-[#e6c67c]/75 p-4 space-y-2 shadow-lg">
         <div class="flex items-center justify-between">
-          <span class="px-2 py-0.5 rounded-full bg-amber-400 text-[#1a130b] text-[10px] font-extrabold">BEST · 추천</span>
+          <span class="px-2 py-0.5 rounded-full bg-amber-400 text-[#1a130b] text-[10px] font-extrabold">인기 · 추천</span>
           <span class="text-sm font-extrabold text-[#fde68a]">월 3,900원</span>
         </div>
         <div class="font-serif-kr text-base font-extrabold text-white">👑 운명플러스 정기구독</div>
@@ -1967,7 +2054,7 @@
           <li>✓ 관상 미래 배우자 28종 정밀 매칭 &amp; 1:1 캐릭터 무제한 대화</li>
         </ul>
         <button id="btn-buy-plus" type="button" class="w-full mt-1 py-2.5 rounded-xl text-xs font-extrabold bg-gradient-to-r from-[#e6c67c] to-[#f5dfa0] text-[#1a140d] shadow active:scale-95 transition">
-          👑 운명플러스 시작하기 (Google Play)
+          👑 운명플러스 시작하기
         </button>
       </div>
 
@@ -3244,13 +3331,130 @@
       positions[i * 3 + 1] = (Math.random() - 0.5) * 2.6;
       positions[i * 3 + 2] = 0.25 + Math.random() * 1.1;
     }
+
+  // 9인 캐릭터별 전용 3D 부유 파티클 스프라이트 텍스처 (벚꽃·하트·별빛·룬·버블·거울광채·돋보기스파클·약초잎·초승달)
+  const charParticleTextures = [];
+  function makeCharacterParticleTexture(charId) {
+    const c = document.createElement('canvas');
+    c.width = 64; c.height = 64;
+    const g = c.getContext('2d');
+    g.clearRect(0, 0, 64, 64);
+    g.save();
+    g.translate(32, 32);
+
+    if (charId === 'saju') {
+      const grad = g.createRadialGradient(-4, -4, 2, 0, 0, 24);
+      grad.addColorStop(0, 'rgba(255, 242, 248, 1)');
+      grad.addColorStop(0.55, 'rgba(255, 182, 212, 0.92)');
+      grad.addColorStop(1, 'rgba(244, 114, 182, 0)');
+      g.fillStyle = grad;
+      g.rotate(-0.4);
+      g.beginPath();
+      g.moveTo(0, -20);
+      g.bezierCurveTo(16, -14, 16, 12, 0, 20);
+      g.bezierCurveTo(-16, 12, -16, -14, 0, -20);
+      g.fill();
+    } else if (charId === 'blood') {
+      g.fillStyle = '#ff85b3';
+      g.shadowColor = '#f472b6';
+      g.shadowBlur = 10;
+      g.beginPath();
+      g.moveTo(0, 14);
+      g.bezierCurveTo(-22, 0, -22, -20, -10, -20);
+      g.bezierCurveTo(-3, -20, 0, -12, 0, -10);
+      g.bezierCurveTo(0, -12, 3, -20, 10, -20);
+      g.bezierCurveTo(22, -20, 22, 0, 0, 14);
+      g.fill();
+    } else if (charId === 'zodiac') {
+      g.fillStyle = '#fef08a';
+      g.shadowColor = '#facc15';
+      g.shadowBlur = 12;
+      g.beginPath();
+      for (let i = 0; i < 8; i++) {
+        const r = i % 2 === 0 ? 24 : 5.5;
+        const a = (i * Math.PI) / 4;
+        if (i === 0) g.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+        else g.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+      }
+      g.closePath();
+      g.fill();
+    } else if (charId === 'tarot') {
+      const grad = g.createRadialGradient(0, 0, 2, 0, 0, 24);
+      grad.addColorStop(0, 'rgba(255, 245, 255, 1)');
+      grad.addColorStop(0.45, 'rgba(192, 132, 252, 0.9)');
+      grad.addColorStop(1, 'rgba(139, 92, 246, 0)');
+      g.fillStyle = grad;
+      g.beginPath();
+      g.moveTo(0, -24); g.lineTo(13, 0); g.lineTo(0, 24); g.lineTo(-13, 0); g.closePath();
+      g.fill();
+    } else if (charId === 'mbti') {
+      g.strokeStyle = 'rgba(125, 211, 252, 0.92)';
+      g.lineWidth = 3;
+      g.fillStyle = 'rgba(56, 189, 248, 0.22)';
+      g.beginPath(); g.arc(0, 0, 19, 0, Math.PI * 2); g.fill(); g.stroke();
+      g.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      g.beginPath(); g.arc(-6, -6, 4.5, 0, Math.PI * 2); g.fill();
+    } else if (charId === 'face') {
+      const grad = g.createRadialGradient(0, 0, 3, 0, 0, 24);
+      grad.addColorStop(0, 'rgba(255, 252, 224, 1)');
+      grad.addColorStop(0.55, 'rgba(251, 191, 36, 0.72)');
+      grad.addColorStop(1, 'rgba(217, 119, 6, 0)');
+      g.fillStyle = grad;
+      g.beginPath(); g.arc(0, 0, 24, 0, Math.PI * 2); g.fill();
+    } else if (charId === 'palm') {
+      g.fillStyle = '#99f6e4';
+      g.shadowColor = '#fbbf24';
+      g.shadowBlur = 12;
+      g.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const r = i % 2 === 0 ? 22 : 7;
+        const a = (i * Math.PI) / 3 - Math.PI / 2;
+        if (i === 0) g.moveTo(Math.cos(a) * r, Math.sin(a) * r);
+        else g.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+      }
+      g.closePath();
+      g.fill();
+    } else if (charId === 'sasang') {
+      const grad = g.createLinearGradient(-16, -16, 16, 16);
+      grad.addColorStop(0, '#a7f3d0');
+      grad.addColorStop(0.6, '#34d399');
+      grad.addColorStop(1, '#059669');
+      g.fillStyle = grad;
+      g.rotate(0.5);
+      g.beginPath();
+      g.moveTo(0, -22);
+      g.quadraticCurveTo(18, -4, 0, 22);
+      g.quadraticCurveTo(-18, -4, 0, -22);
+      g.fill();
+      g.strokeStyle = 'rgba(255,255,255,0.65)';
+      g.lineWidth = 1.6;
+      g.beginPath(); g.moveTo(0, -16); g.lineTo(0, 16); g.stroke();
+    } else {
+      g.fillStyle = '#fde68a';
+      g.shadowColor = '#c084fc';
+      g.shadowBlur = 12;
+      g.beginPath();
+      g.arc(0, 0, 18, 0.35 * Math.PI, 1.65 * Math.PI, false);
+      g.arc(7, -2, 14, 1.55 * Math.PI, 0.45 * Math.PI, true);
+      g.closePath();
+      g.fill();
+    }
+    g.restore();
+    const tex = new THREE.CanvasTexture(c);
+    tex.encoding = THREE.sRGBEncoding;
+    return tex;
+  }
+
+    CHARACTERS.forEach((c, i) => { charParticleTextures[i] = makeCharacterParticleTexture(c.id); });
     particleGeo = new THREE.BufferGeometry();
     particleGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
     particleSystem = new THREE.Points(particleGeo, new THREE.PointsMaterial({
-      color: CHARACTERS[0].particleColor,
-      size: 0.052,
+      color: 0xffffff,
+      map: charParticleTextures[0],
+      size: 0.145,
       transparent: true,
-      opacity: 0.82,
+      opacity: 0.90,
+      alphaTest: 0.02,
       blending: THREE.AdditiveBlending,
       depthWrite: false
     }));
@@ -3309,7 +3513,15 @@
       charMaterial.uniforms.uUvOffsetY.value = isMini ? (cfg.pet.uvOffsetY ?? 0.08) : (cfg.uvOffsetY ?? 0.10);
     }
 
-    if (particleSystem) particleSystem.material.color.setHex(cfg.particleColor);
+    if (particleSystem) {
+      if (charParticleTextures[idx]) {
+        particleSystem.material.map = charParticleTextures[idx];
+        particleSystem.material.color.setHex(0xffffff);
+        particleSystem.material.needsUpdate = true;
+      } else {
+        particleSystem.material.color.setHex(cfg.particleColor);
+      }
+    }
     const bgSrc = (isMini && cfg.pet) ? cfg.pet.openSrc : cfg.openSrc;
     stageBgAura.style.backgroundImage = `url('${bgSrc}')`;
     rigPhys.blinkState = 1;
@@ -7653,7 +7865,7 @@ ${sinsalRichList}
     const isFace = target === 'face';
     const imgData = isFace ? state.faceImgBase64 : state.palmImgBase64;
     const resultEl = document.getElementById(isFace ? 'face-inline-result' : 'palm-inline-result');
-    const question = document.getElementById(isFace ? 'face-question' : 'palm-question').value.trim();
+    const question = (document.getElementById(isFace ? 'face-question' : 'palm-question')?.value || '').trim();
 
     if (!imgData) {
       showToast(isFace ? '먼저 얼굴 사진을 촬영하거나 업로드해 주세요 📷' : '먼저 손바닥 사진을 촬영하거나 업로드해 주세요 ✋');
